@@ -1,0 +1,75 @@
+{
+  "name": "empowered",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "type-check": "tsc --noEmit",
+    "check": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "fix": "eslint . --fix && prettier --write .",
+    "prepare": "husky",
+    "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-progress": "^1.1.7",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-toggle": "^1.1.10",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.546.0",
+    "next": "16.2.6",
+    "next-themes": "^0.4.6",
+    "radix-ui": "^1.4.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-dropzone": "^15.0.0",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.4",
+    "prettier": "^3.6.2",
+    "supabase": "^2.98.2",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "^5"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,jsonc,css,md}": [
+      "prettier --write"
+    ]
+  },
+  "overrides": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "postcss": "8.5.10"
+  }
+}
