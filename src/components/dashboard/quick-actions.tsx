@@ -1,9 +1,10 @@
 "use client";
 
+import { ArrowRight, Lock, Upload, Zap } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import type { DashboardProfile, DashboardResume } from "@/hooks/use-dashboard-data";
 import { isPaidUser } from "@/hooks/use-dashboard-data";
-import { ArrowRight, Lock, Upload, Zap } from "lucide-react";
 
 interface QuickActionsProps {
   profile: DashboardProfile | null;

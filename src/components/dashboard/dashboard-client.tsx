@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useAuth } from "@/components/providers/auth-provider";
-import { Button } from "@/components/ui/button";
+
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { JobBoardTeaser } from "@/components/dashboard/job-board-teaser";
+import { ProfileStrengthCard } from "@/components/dashboard/profile-strength-card";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { ResumeCard } from "@/components/dashboard/resume-card";
-import { ProfileStrengthCard } from "@/components/dashboard/profile-strength-card";
-import { JobBoardTeaser } from "@/components/dashboard/job-board-teaser";
+import { useAuth } from "@/components/providers/auth-provider";
+import { Button } from "@/components/ui/button";
 import type { DashboardProfile, DashboardResume } from "@/hooks/use-dashboard-data";
 
 export interface DashboardClientProps {

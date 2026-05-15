@@ -1,8 +1,26 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
+
+async function kickoffParseResume(resumeId: string): Promise<void> {
+  const h = await headers();
+  const host = h.get("host");
+  if (!host) return;
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const url = `${proto}://${host}/api/parse-resume`;
+  void fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resumeId }),
+    // Fire-and-forget: don't wait for the response.
+    cache: "no-store",
+  }).catch(() => {
+    // Failure surfaces via the row's status='failed' state — nothing to do here.
+  });
+}
 
 export type InsertResumeRowResult =
   | { success: true; id: string }
@@ -66,6 +84,8 @@ export async function insertResumeRow(input: {
   if (error) {
     return { success: false, error: error.message };
   }
+
+  await kickoffParseResume(data.id);
 
   revalidatePath("/dashboard");
   return { success: true, id: data.id };

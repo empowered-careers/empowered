@@ -1,6 +1,15 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  FileText,
+  SlidersHorizontal,
+  Upload,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -11,20 +20,11 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/dropzone";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/providers/auth-provider";
 import type { DashboardResume } from "@/hooks/use-dashboard-data";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
-import {
-  CheckCircle2,
-  ChevronRight,
-  Clock,
-  FileText,
-  SlidersHorizontal,
-  Upload,
-  X,
-} from "lucide-react";
 
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
 /** PDF, .docx, and .doc — matches `storage.buckets.allowed_mime_types` for `resumes`. */
@@ -122,7 +122,9 @@ function ResumeUploadDropzone({
       });
 
       if (result.success) {
-        toast.success("Resume uploaded");
+        toast.success("Resume uploaded", {
+          description: "Parsing in progress…",
+        });
         await queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
         router.refresh();
         setFiles([]);

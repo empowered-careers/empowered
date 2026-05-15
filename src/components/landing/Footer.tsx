@@ -1,7 +1,8 @@
 "use client";
 
-import { siteConfig } from "@/config/site";
 import Link from "next/link";
+
+import { siteConfig } from "@/config/site";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();

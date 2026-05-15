@@ -4,6 +4,7 @@ import { CheckCircle, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";

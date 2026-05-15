@@ -1,24 +1,27 @@
+import "./globals.css";
+
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Montserrat } from "next/font/google";
-import { siteConfig, siteUrl } from "@/config/site";
-import "./globals.css";
+
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ModalProvider } from "@/components/providers/modal-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { RealtimeNotifications } from "@/components/providers/realtime-notifications";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { siteConfig, siteUrl } from "@/config/site";
 
 /** Display font – headings and large text */
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   display: "swap",
 });
 
 /** Body font – UI, forms, buttons */
-const inter = Inter({
+const montserrat = Montserrat({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -99,6 +102,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <AuthProvider>
+              <RealtimeNotifications />
               <ModalProvider>
                 {children}
                 <Toaster />

@@ -1,7 +1,7 @@
 import coreWebVitals from "eslint-config-next/core-web-vitals";
+import typescript from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
-import typescript from "eslint-config-next/typescript";
 
 export default [
   {

@@ -6,6 +6,37 @@
 
 ---
 
+## Progress snapshot (2026-05-15)
+
+What's actually landed on `main` since this plan was written:
+
+**Shipped**
+- Phase 1 core schema migration (`20260513000000_phase1_core_tables.sql`) — all 11 core tables created with RLS: `employers`, `profiles`, `resumes`, `linkedin_profiles`, `assessments`, `assessment_responses`, `candidate_scores`, `jobs`, `job_scores`, `matches`, `payments`. Enums + `handle_new_user()` trigger included.
+- OAuth identity hardening (`20260513120000_oauth_profiles_sync.sql`, `20260514120000_profile_trigger_iss_and_provider_id.sql`) — `linkedin_provider_id` + `google_provider_id` on profiles; OIDC `iss`/`sub` fallback in the auth trigger; `handle_auth_user_updated()` keeps providers in sync on update.
+- Async job infrastructure (`20260515130000_async_job_status_columns.sql`) — `status` enum + `parse_started_at`/`parse_error` on `resumes`, `sync_started_at`/`sync_error` on `linkedin_profiles`. Realtime publication + `REPLICA IDENTITY FULL` enabled on both.
+- LinkedIn exports storage bucket (`20260515140000_linkedin_exports_bucket.sql`) — 5 MiB PDF-only bucket with per-user folder RLS.
+- LinkedIn identity sync at OAuth callback (`src/lib/linkedin-identity-sync.ts` + `src/app/auth/callback/route.ts`) — calls LinkedIn `/rest/identityMe` + `/v2/me`, normalizes profile URL, writes `linkedin_profiles` with `status='idle'`. Non-blocking; failures don't kill the callback.
+- Async job realtime pattern fully wired: `useResumeNotifications` + `useLinkedinNotifications` hooks, mounted via `src/components/providers/realtime-notifications.tsx` in the root layout. Toasts on complete/failed, invalidates dashboard query keys.
+- API routes scaffolded: `/api/parse-resume` (writes ATS score + parsed text on `resumes`) and `/api/sync-linkedin` (downloads PDF from `linkedin-exports`, parses sections, scores 0–100 on `linkedin_profiles`). **PDF extraction is stubbed** in `src/lib/pdf-extract.ts` — needs `unpdf` or `pdf-parse` wired before either route produces real output.
+- App-shell scaffold under `src/components/app-shell/`: `app-shell.tsx`, `top-nav.tsx`, `contextual-sidebar.tsx`, `sidebar-config.ts`, `completeness-ring.tsx`, `profile-chip.tsx`, `theme-toggle.tsx`. All authenticated routes now live under the `src/app/(app)/` route group (old `src/app/dashboard/` removed).
+- Feature route shells exist under `(app)/`: `dashboard` (wired), `content`, `job-board`, `pipeline` (UI shells only, no data wiring).
+- LinkedIn PDF upload UI (`src/components/linkedin/linkedin-pdf-upload.tsx`) — uploads to bucket, kicks off sync job via `triggerLinkedinSync` action.
+- Design system locked (`docs/design.md`): Cormorant Garamond serif + Montserrat sans, flat (0px radius), warm off-white + electric lime accent, dark-mode tokens in `globals.css`.
+- Service-role Supabase client (`src/lib/supabase/service.ts`) for background job routes.
+
+**Not yet started (still blocking S1 exit)**
+- G1 Plan/Job-Tier rename — schema still uses `subscription_tier`; no `plan` / `billing_cadence` / `job_tier` columns. **The migrations that landed match the pre-v2 vocabulary.** The rename is still a single coordinated change waiting to happen.
+- `applications`, `placements`, `referrals` tables (G2/G3 schema groundwork).
+- `coaching_products`, `enrollments`, `coaching_sessions` tables (G4 groundwork).
+- `commissions` table; `commission_rate` / `relationship_type` additions to `employers` (G5 groundwork).
+- `candidate_scores` trim to the 5 Phase 1 dimensions — current table has 6 dimensions (`mindset_score`, `strengths_score`, `values_score`, `leadership_score`, `communication_score`, `impact_score`) which is the legacy 8–9-dimension shape, not the v2 5-dimension shape (`role_clarity`, `values`, `strengths`, `leadership`, `impact`).
+- Doc rewrite for Plan vs. Job Tier vocabulary across `docs/`.
+
+**Immediate unblocker**
+- Wire a real PDF extractor in `src/lib/pdf-extract.ts` — both E2 use cases (resume ATS + LinkedIn scoring) currently return stub output. Recommend `unpdf` (works on edge + Node).
+
+---
+
 ## Why v2
 
 The original sprint plan optimized for "first dollar in" but treats the platform as a candidate funnel only. The full ecosystem framing (candidates + employers/agencies + coaching + post-match placement) requires:
@@ -65,22 +96,29 @@ Sprint length: 1–2 weeks. Total Phase 1 estimate: 10–12 weeks (was 7–9; +2
 
 ### Sprint 0 — Foundation (✅ complete)
 - Next.js + Supabase + Vercel
-- Auth (Google + LinkedIn OAuth)
+- Auth (Google + LinkedIn OAuth) — hardened with OIDC `iss`/`sub` fallback identity sync
 - Resume upload + storage
-- Basic dashboard
-- Resume parsing (in progress — finish in S1)
+- Basic dashboard (since moved into `(app)/` route group)
+- Resume parsing scaffold (route exists; PDF extractor still stubbed — carries into S2)
 
 ---
 
-### Sprint 1 — E1: Schema Realign + Doc Rewrite (1 week)
+### Sprint 1 — E1: Schema Realign + Doc Rewrite (1 week, partial ⚠️)
+
 **Why first:** every later sprint depends on the Plan/Job-Tier rename. Doing this after S2 means rewriting paywall logic twice.
 
+Status as of 2026-05-15: core tables + OAuth hardening + async job columns landed; **the Plan/Job-Tier rename and the new pipeline/coaching/commissions tables have not been done yet.** The shipped schema matches the pre-v2 vocabulary.
+
+- [x] Migration: Phase 1 core tables (employers, profiles, resumes, linkedin_profiles, assessments, assessment_responses, candidate_scores, jobs, job_scores, matches, payments) with RLS
+- [x] Migration: OAuth provider id columns + hardened `handle_new_user` / `handle_auth_user_updated` triggers
+- [x] Migration: async job `status` enum + realtime publication on `resumes` and `linkedin_profiles`
+- [x] Migration: `linkedin-exports` storage bucket + per-user RLS
 - [ ] Migration: split `subscription_tier` → `plan` (`free`, `plan_1`, `plan_2`, `plan_3`) + `billing_cadence` (`one_time`, `monthly`, `annual`)
 - [ ] Migration: rename job exclusivity field to `job_tier` enum on `jobs`
-- [ ] Migration: trim `candidate_scores` to 5 dimensions matching the 5 Phase 1 assessments (`role_clarity_score`, `values_score`, `strengths_score`, `leadership_score`, `impact_score`, `overall_score`)
+- [ ] Migration: trim `candidate_scores` to 5 Phase 1 dimensions (`role_clarity_score`, `values_score`, `strengths_score`, `leadership_score`, `impact_score`, `overall_score`) — currently has the legacy 6-dimension shape including `mindset_score` and `communication_score`
 - [ ] Migration: add `applications`, `placements`, `referrals` tables (schema only — no UI yet)
 - [ ] Migration: add `coaching_products`, `enrollments`, `coaching_sessions` tables (schema only)
-- [ ] Migration: add `commissions` table; add `commission_rate`, `relationship_type` data capture on `employers`
+- [ ] Migration: add `commissions` table; add `commission_rate`, `relationship_type` data capture on `employers` (note: `relationship_type` enum already exists on `employers` from S0 core migration — just confirm coverage)
 - [ ] `npm run supabase:types` regenerate types
 - [ ] Update all six docs in `docs/` for Plan vs. Job Tier vocabulary
 - [ ] Update `CLAUDE.md` schema section
@@ -92,13 +130,17 @@ Sprint length: 1–2 weeks. Total Phase 1 estimate: 10–12 weeks (was 7–9; +2
 ### Sprint 2 — E2: First Impression (1–2 weeks)
 **Goal:** new candidate can sign up, upload resume, immediately see value.
 
+**Blocker before kickoff:** `src/lib/pdf-extract.ts` returns a stub. Both `/api/parse-resume` and `/api/sync-linkedin` depend on it. Wire `unpdf` (preferred — edge-compatible) or `pdf-parse` first. Until this is done, ATS scores and LinkedIn profile scores are placeholders.
+
+- [ ] **Wire real PDF extractor** in `src/lib/pdf-extract.ts` (unpdf recommended)
 - [ ] Resume upload mandatory before dashboard (gate it)
-- [ ] Finish resume parsing (carryover from S0)
-- [ ] ATS score calculation + display card
-- [ ] Dashboard — profile completeness score (0–100)
-- [ ] Job board shell — all three Job Tiers visible with correct lock states (locks driven by Plan, not by hardcoded rules)
+- [ ] Finish resume parsing — replace stub `extractPdfText` and stub ATS scorer in `/api/parse-resume` with real implementations
+- [ ] ATS score calculation + display card (route + realtime hook + status enum already in place from S1)
+- [ ] Dashboard — profile completeness score (0–100); `completeness-ring.tsx` shell already exists, needs calculation logic
+- [ ] LinkedIn PDF sync end-to-end — UI shell (`linkedin-pdf-upload.tsx`) and `/api/sync-linkedin` route exist; needs real PDF extraction + verification of the heuristic LinkedIn section parser
+- [ ] Job board shell — all three Job Tiers visible with correct lock states (locks driven by Plan, not by hardcoded rules); `(app)/job-board/` route + `job-board-client.tsx` shell exist, need data + lock logic
 - [ ] Tier 1 jobs — Lauren manually adds 10–15 curated public roles (budget her time OR plan a Sprint 2.5 importer)
-- [ ] Trust factors on marketing page (placement count reads from `placements` table — zero is fine for now)
+- [ ] Trust factors on marketing page (placement count reads from `placements` table — zero is fine for now; requires S1 placements table)
 - [ ] Basic nudge cards (ATS low → resume review CTA)
 
 **Exit:** a real candidate signs up, uploads resume, sees their ATS score, sees Job Tier 1 roles.

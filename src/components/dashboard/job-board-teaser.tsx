@@ -1,16 +1,17 @@
 "use client";
 
+import {
+  ArrowRight,
+  BadgeDollarSign,
+  Briefcase,
+  Building2,
+  Lock,
+  MapPin,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import type { DashboardProfile } from "@/hooks/use-dashboard-data";
 import { isPaidUser } from "@/hooks/use-dashboard-data";
-import {
-  ArrowRight,
-  Briefcase,
-  Lock,
-  MapPin,
-  Building2,
-  BadgeDollarSign,
-} from "lucide-react";
 
 interface JobBoardTeaserProps {
   profile: DashboardProfile | null;

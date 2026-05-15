@@ -2,12 +2,20 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 import { normalizeLinkedInProfileUrl } from "@/lib/linkedin-url";
-import type { Database } from "@/types/supabase";
+import type { Database, Json } from "@/types/supabase";
 
 /** LinkedIn REST API version header (see LinkedIn developer docs). */
 const LINKEDIN_REST_VERSION = "202510.03";
 
 const IDENTITY_ME_URL = "https://api.linkedin.com/rest/identityMe";
+
+/**
+ * Classic v2 Profile API — works with the `r_profile_basicinfo`/`r_basicprofile`
+ * scope our LinkedIn developer app currently holds. Returns headline + names +
+ * vanity URL slug + photo (anything richer needs Partner-tier scopes we don't have).
+ */
+const PROFILE_API_URL =
+  "https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName,localizedHeadline,vanityName,profilePicture(displayImage~:playableStreams))";
 
 export type LinkedInIdentityMeResponse = {
   id?: string;
@@ -20,8 +28,22 @@ export type LinkedInIdentityMeResponse = {
   };
 };
 
+export type LinkedInProfileApiResponse = {
+  id?: string;
+  localizedFirstName?: string;
+  localizedLastName?: string;
+  localizedHeadline?: string;
+  vanityName?: string;
+  profilePicture?: unknown;
+};
+
 export type FetchLinkedInUrlResult =
-  | { success: true; url: string | null; updated: boolean }
+  | {
+      success: true;
+      url: string | null;
+      updated: boolean;
+      headline: string | null;
+    }
   | { success: false; error: string };
 
 function isLinkedInSession(session: {
@@ -37,11 +59,66 @@ function isLinkedInSession(session: {
   );
 }
 
+async function fetchIdentityMe(
+  token: string
+): Promise<LinkedInIdentityMeResponse | null> {
+  try {
+    const res = await fetch(IDENTITY_ME_URL, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "LinkedIn-Version": LINKEDIN_REST_VERSION,
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      console.error("[linkedin] identityMe HTTP", res.status);
+      return null;
+    }
+    return (await res.json()) as LinkedInIdentityMeResponse;
+  } catch (err) {
+    console.error("[linkedin] identityMe network error:", err);
+    return null;
+  }
+}
+
+async function fetchProfileApi(
+  token: string
+): Promise<LinkedInProfileApiResponse | null> {
+  try {
+    const res = await fetch(PROFILE_API_URL, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "X-Restli-Protocol-Version": "2.0.0",
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      // 401/403 here means the scope isn't granted — non-fatal, we still
+      // captured the URL via identityMe.
+      console.warn("[linkedin] /v2/me HTTP", res.status);
+      return null;
+    }
+    return (await res.json()) as LinkedInProfileApiResponse;
+  } catch (err) {
+    console.error("[linkedin] /v2/me network error:", err);
+    return null;
+  }
+}
+
 /**
- * Fetches `basicInfo.profileUrl` from LinkedIn `/rest/identityMe` using the
- * session's `provider_token`, then updates `profiles.linkedin_url` when valid.
+ * Fetches LinkedIn profile data using the session's `provider_token` and
+ * persists it across two tables:
+ *   - `profiles.linkedin_url`  ← from `/rest/identityMe` basicInfo.profileUrl
+ *   - `linkedin_profiles` row  ← from `/v2/me` (headline, raw_json)
+ *
  * Safe to call from Route Handlers or Server Actions using the same Supabase
  * client that just completed `exchangeCodeForSession` (token available briefly).
+ *
+ * The `linkedin_profiles.status` field stays `'idle'` after this runs — it is
+ * owned by the PDF-upload sync flow (`/api/sync-linkedin`), which fills
+ * `summary`, `profile_score`, and flips status to `complete`.
  */
 export async function syncLinkedInProfileUrlFromSession(
   supabase: SupabaseClient<Database>
@@ -64,74 +141,97 @@ export async function syncLinkedInProfileUrlFromSession(
     return { success: false, error: "No provider token" };
   }
 
-  let res: Response;
-  try {
-    res = await fetch(IDENTITY_ME_URL, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "LinkedIn-Version": LINKEDIN_REST_VERSION,
-      },
-      cache: "no-store",
-    });
-  } catch (err) {
-    console.error("[linkedin] identityMe network error:", err);
-    return { success: false, error: "LinkedIn request failed" };
+  const [identityMe, profileApi] = await Promise.all([
+    fetchIdentityMe(token),
+    fetchProfileApi(token),
+  ]);
+
+  if (!identityMe) {
+    return { success: false, error: "LinkedIn identityMe call failed" };
   }
 
-  if (!res.ok) {
-    console.error("[linkedin] identityMe HTTP", res.status);
-    return { success: false, error: `LinkedIn API error ${res.status}` };
-  }
-
-  let body: unknown;
-  try {
-    body = await res.json();
-  } catch {
-    console.error("[linkedin] identityMe invalid JSON");
-    return { success: false, error: "Invalid LinkedIn response" };
-  }
-
-  const typed = body as LinkedInIdentityMeResponse;
-  const rawUrl = typed.basicInfo?.profileUrl?.trim();
-  if (!rawUrl) {
-    return { success: true, url: null, updated: false };
-  }
-
-  const parsed = normalizeLinkedInProfileUrl(rawUrl);
-  if (!parsed.ok) {
-    console.warn("[linkedin] profileUrl rejected:", rawUrl.slice(0, 120));
-    return { success: true, url: null, updated: false };
-  }
-
-  const normalized = parsed.url;
+  const rawUrl = identityMe.basicInfo?.profileUrl?.trim();
   const userId = session.user.id;
 
-  const { data: row, error: selectError } = await supabase
-    .from("profiles")
-    .select("linkedin_url")
-    .eq("id", userId)
-    .maybeSingle();
+  let normalizedUrl: string | null = null;
+  let urlUpdated = false;
 
-  if (selectError) {
-    console.error("[linkedin] profile select:", selectError);
-    return { success: false, error: selectError.message };
+  if (rawUrl) {
+    const parsed = normalizeLinkedInProfileUrl(rawUrl);
+    if (parsed.ok) {
+      normalizedUrl = parsed.url;
+
+      const { data: row, error: selectError } = await supabase
+        .from("profiles")
+        .select("linkedin_url")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (selectError) {
+        console.error("[linkedin] profile select:", selectError);
+        return { success: false, error: selectError.message };
+      }
+
+      if (row?.linkedin_url !== normalizedUrl) {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ linkedin_url: normalizedUrl })
+          .eq("id", userId);
+
+        if (updateError) {
+          console.error("[linkedin] profile update:", updateError);
+          return { success: false, error: updateError.message };
+        }
+        urlUpdated = true;
+      }
+    } else {
+      console.warn("[linkedin] profileUrl rejected:", rawUrl.slice(0, 120));
+    }
   }
 
-  if (row?.linkedin_url === normalized) {
-    return { success: true, url: normalized, updated: false };
-  }
+  const headline = profileApi?.localizedHeadline?.trim() || null;
 
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ linkedin_url: normalized })
-    .eq("id", userId);
+  if (normalizedUrl) {
+    const rawJson: Json = {
+      identityMe: identityMe as unknown as Json,
+      profileApi: (profileApi ?? null) as Json,
+      capturedAt: new Date().toISOString(),
+    };
 
-  if (updateError) {
-    console.error("[linkedin] profile update:", updateError);
-    return { success: false, error: updateError.message };
+    const { data: existing, error: existingError } = await supabase
+      .from("linkedin_profiles")
+      .select("id, status, summary")
+      .eq("profile_id", userId)
+      .maybeSingle();
+
+    if (existingError) {
+      console.error("[linkedin] linkedin_profiles select:", existingError);
+    } else if (existing) {
+      // Keep the PDF-sourced summary + status; only refresh headline/url/raw_json.
+      await supabase
+        .from("linkedin_profiles")
+        .update({
+          linkedin_url: normalizedUrl,
+          headline,
+          raw_json: rawJson,
+        })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("linkedin_profiles").insert({
+        profile_id: userId,
+        linkedin_url: normalizedUrl,
+        headline,
+        raw_json: rawJson,
+        status: "idle",
+      });
+    }
   }
 
   revalidatePath("/dashboard");
-  return { success: true, url: normalized, updated: true };
+  return {
+    success: true,
+    url: normalizedUrl,
+    updated: urlUpdated,
+    headline,
+  };
 }

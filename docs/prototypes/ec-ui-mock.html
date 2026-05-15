@@ -6,54 +6,62 @@
 <title>Empowered Careers — UI Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <style>
+  /* Dark mode — design.md: charcoal base, lime as primary */
   :root {
-    --bg: #0b0b0c;
-    --surface-1: #141416;
-    --surface-2: #1c1c1f;
-    --border: #26262a;
-    --border-strong: #34343a;
-    --text: #ebebec;
-    --text-muted: #8b8b91;
-    --text-faint: #5b5b61;
-    --accent: #d4ff3a;
-    --accent-dim: #a8cc2e;
-    --accent-fg: #0b0b0c;
+    --bg: #111111;
+    --surface-1: #1f1f1f;          /* oklch(0.17 0 0) */
+    --surface-2: #2a2a2a;           /* oklch(0.22 0 0) */
+    --border: rgba(255,255,255,0.12);
+    --border-strong: rgba(255,255,255,0.18);
+    --text: #F9F9F7;
+    --text-muted: #999999;
+    --text-faint: #6a6a6a;
+    --accent: #CCFF00;              /* lime — brand */
+    --accent-dim: #b8e600;
+    --accent-fg: #111111;
     --danger: #ff6b6b;
     --warn: #ffb13a;
     --ok: #6bd49b;
-    --radius-sm: 6px;
-    --radius: 10px;
-    --radius-lg: 14px;
-    --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
-    --shadow-2: 0 12px 32px -8px rgba(0,0,0,0.6);
+    /* Sharp corners — brand */
+    --radius-sm: 0px;
+    --radius: 0px;
+    --radius-lg: 0px;
+    /* Flat — no shadows */
+    --shadow-1: none;
+    --shadow-2: none;
   }
+  /* Light mode — design.md: warm off-white surface, black on lime CTA */
   [data-theme="light"] {
-    --bg: #f7f6f3;
-    --surface-1: #ffffff;
-    --surface-2: #fafaf8;
-    --border: #e6e4dd;
+    --bg: #F9F9F7;
+    --surface-1: #F9F9F7;
+    --surface-2: #f5f5f3;
+    --border: #E5E5E5;
     --border-strong: #cfcdc4;
-    --text: #1a1a1a;
-    --text-muted: #6a6a6a;
-    --text-faint: #a0a0a0;
-    --accent: #8aab1f;
-    --accent-dim: #6f8a18;
-    --accent-fg: #ffffff;
+    --text: #111111;
+    --text-muted: #999999;
+    --text-faint: #999999;
+    --accent: #CCFF00;              /* lime in both modes */
+    --accent-dim: #b8e600;
+    --accent-fg: #111111;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; box-shadow: none !important; }
   html, body { margin: 0; padding: 0; }
   body {
-    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--text);
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
   }
-  h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+  /* Light-mode body copy is #666 per design.md */
+  [data-theme="light"] body { color: #666666; }
+  h1, h2, h3, h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: var(--text); }
+  *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   h1 { font-size: 32px; line-height: 1.1; }
   h2 { font-size: 22px; line-height: 1.2; }
   h3 { font-size: 16px; line-height: 1.3; font-weight: 600; }
@@ -71,7 +79,7 @@
     position: sticky; top: 0; z-index: 10;
   }
   .logo {
-    font-family: 'Fraunces', serif;
+    font-family: 'Cormorant Garamond', serif;
     font-weight: 500;
     font-size: 17px;
     letter-spacing: -0.01em;
@@ -123,7 +131,7 @@
   .avatar {
     width: 30px; height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #d4ff3a, #8aab1f);
+    background: linear-gradient(135deg, #CCFF00, #99cc00);
     display: flex; align-items: center; justify-content: center;
     font-weight: 600;
     color: var(--accent-fg);
@@ -194,13 +202,13 @@
   /* Main canvas */
   .main { padding: 32px 40px 80px; max-width: 1200px; }
   .greeting {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 400;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 600;
     letter-spacing: -0.01em;
     margin-bottom: 4px;
   }
-  .greeting .accent { color: var(--accent); font-style: italic; }
+  .greeting .accent { color: var(--text); font-style: italic; font-weight: 500; }
   .sub { color: var(--text-muted); margin-bottom: 32px; }
 
   /* Cards */
@@ -226,7 +234,7 @@
   .ring-lg .pct {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500;
+    font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500;
   }
   .next-actions { display: flex; flex-direction: column; gap: 6px; }
   .next-action {
@@ -246,7 +254,7 @@
   .next-action .arrow { color: var(--text-faint); }
 
   /* Stat card */
-  .stat { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 500; line-height: 1; margin: 4px 0; }
+  .stat { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 500; line-height: 1; margin: 4px 0; }
   .stat-delta { font-size: 12px; color: var(--ok); }
   .stat-delta.warn { color: var(--warn); }
   .stat-sub { font-size: 12px; color: var(--text-muted); }
@@ -302,7 +310,7 @@
     padding: 3px 7px; border-radius: 4px;
   }
   .tier-1 { background: rgba(139, 139, 145, 0.15); color: var(--text-muted); }
-  .tier-2 { background: rgba(212, 255, 58, 0.12); color: var(--accent); }
+  .tier-2 { background: rgba(204, 255, 0, 0.12); color: var(--accent); }
   .tier-3 { background: rgba(255, 177, 58, 0.12); color: var(--warn); }
   .job-title { font-size: 15px; font-weight: 500; }
   .job-company { font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px; }
@@ -326,7 +334,7 @@
   .job-card.locked .lock-overlay {
     position: absolute; inset: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: linear-gradient(180deg, rgba(20,20,22,0.2), rgba(20,20,22,0.85));
+    background: linear-gradient(180deg, color-mix(in oklab, var(--bg) 20%, transparent), color-mix(in oklab, var(--bg) 85%, transparent));
     backdrop-filter: blur(2px);
     padding: 24px; text-align: center;
   }
@@ -367,7 +375,7 @@
   /* Content rails */
   .rail { margin-bottom: 36px; }
   .rail-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-  .rail-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; }
+  .rail-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; }
   .rail-link { font-size: 12px; color: var(--text-muted); cursor: pointer; }
   .rail-link:hover { color: var(--accent); }
   .rail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -382,13 +390,13 @@
   .content-card:hover { border-color: var(--border-strong); }
   .content-thumb {
     height: 130px;
-    background: linear-gradient(135deg, #1c1c1f, #26262a);
+    background: linear-gradient(135deg, var(--surface-2), var(--border));
     position: relative;
     display: flex; align-items: center; justify-content: center;
   }
   .content-thumb .play {
     width: 44px; height: 44px; border-radius: 50%;
-    background: rgba(11,11,12,0.6); backdrop-filter: blur(4px);
+    background: color-mix(in oklab, var(--bg) 60%, transparent); backdrop-filter: blur(4px);
     display: flex; align-items: center; justify-content: center;
     color: var(--accent);
   }
@@ -401,7 +409,7 @@
     text-transform: uppercase; letter-spacing: 0.06em;
   }
   .plan-free { background: rgba(107,212,155,0.12); color: var(--ok); }
-  .plan-2 { background: rgba(212, 255, 58, 0.12); color: var(--accent); }
+  .plan-2 { background: rgba(204, 255, 0, 0.12); color: var(--accent); }
   .plan-3 { background: rgba(255, 177, 58, 0.12); color: var(--warn); }
 
   /* Filter bar (job board) */
@@ -429,7 +437,7 @@
 
   /* Page header */
   .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
-  .page-head h1 { font-family: 'Fraunces', serif; font-weight: 500; }
+  .page-head h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
   .page-sub { color: var(--text-muted); font-size: 13.5px; margin-top: 4px; }
 
   /* Section spacing for sidebar */
@@ -616,7 +624,7 @@
           <div class="card-title">Recommended for you</div>
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <div style="display: flex; gap: 12px; align-items: center;">
-              <div style="width: 44px; height: 44px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #d4ff3a44, #d4ff3a11); flex-shrink: 0;"></div>
+              <div style="width: 44px; height: 44px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #CCFF0044, #CCFF0011); flex-shrink: 0;"></div>
               <div>
                 <div style="font-size: 13px; font-weight: 500;">Linear · Head of Product</div>
                 <div style="font-size: 11.5px; color: var(--text-muted);">91% match · Tier 3</div>
@@ -925,7 +933,7 @@
         <div class="rail-grid">
           <div class="content-card">
             <div class="content-thumb">
-              <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Negotiating at the staff+ level</div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Negotiating at the staff+ level</div>
             </div>
             <div class="content-body">
               <div class="content-tag">Article · 6 min read</div>
@@ -935,7 +943,7 @@
           </div>
           <div class="content-card">
             <div class="content-thumb">
-              <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">VP signals — 2026</div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">VP signals — 2026</div>
             </div>
             <div class="content-body">
               <div class="content-tag">Report · 12 min</div>
@@ -966,7 +974,7 @@
         <div class="rail-grid">
           <div class="content-card">
             <div class="content-thumb">
-              <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Brand Magnification</div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Brand Magnification</div>
             </div>
             <div class="content-body">
               <div class="content-tag">Course · 8 modules</div>
@@ -976,7 +984,7 @@
           </div>
           <div class="content-card">
             <div class="content-thumb">
-              <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Mindset Mastery</div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Mindset Mastery</div>
             </div>
             <div class="content-body">
               <div class="content-tag">Course · 5 modules</div>
@@ -986,7 +994,7 @@
           </div>
           <div class="content-card">
             <div class="content-thumb">
-              <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Pricing as a PM</div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; padding: 0 20px; text-align: center; color: var(--text-muted);">Pricing as a PM</div>
             </div>
             <div class="content-body">
               <div class="content-tag">Article · 9 min</div>

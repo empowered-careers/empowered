@@ -1,7 +1,15 @@
 "use client";
 
-import { useId, useState, useTransition, type FormEvent } from "react";
+import {
+  BarChart3,
+  CheckCircle2,
+  Circle,
+  ExternalLink,
+  Linkedin,
+  User,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { type FormEvent,useId, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { updateLinkedInUrl } from "@/app/actions/profile";
@@ -17,14 +25,6 @@ import {
 import { Input } from "@/components/ui/input";
 import type { DashboardProfile, DashboardResume } from "@/hooks/use-dashboard-data";
 import { getProfileStrength } from "@/hooks/use-dashboard-data";
-import {
-  CheckCircle2,
-  Circle,
-  ExternalLink,
-  Linkedin,
-  BarChart3,
-  User,
-} from "lucide-react";
 
 interface ProfileStrengthCardProps {
   profile: DashboardProfile | null;

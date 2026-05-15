@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@/lib/supabase/client";
+
 import { useAuth } from "@/components/providers/auth-provider";
-import type { SubscriptionTier, SubscriptionStatus } from "@/types/supabase";
+import { createClient } from "@/lib/supabase/client";
+import type { BillingCadence,Plan, SubscriptionStatus } from "@/types/supabase";
 
 export type DashboardProfile = {
   id: string;
   full_name: string | null;
   linkedin_url: string | null;
   linkedin_provider_id: string | null;
-  subscription_tier: SubscriptionTier;
+  plan: Plan;
+  billing_cadence: BillingCadence | null;
   subscription_status: SubscriptionStatus;
 };
 
@@ -32,7 +34,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, linkedin_url, linkedin_provider_id, subscription_tier, subscription_status"
+        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status"
       )
       .eq("id", userId)
       .single(),
@@ -80,11 +82,7 @@ export function useDashboardData() {
 /** Helper: is this user on a paid plan with an active status? */
 export function isPaidUser(profile: DashboardProfile | null): boolean {
   if (!profile) return false;
-  return (
-    (profile.subscription_tier === "paid_monthly" ||
-      profile.subscription_tier === "paid_annual") &&
-    profile.subscription_status === "active"
-  );
+  return profile.plan !== "free" && profile.subscription_status === "active";
 }
 
 /** Percentage of profile strength steps completed (0-100). */
