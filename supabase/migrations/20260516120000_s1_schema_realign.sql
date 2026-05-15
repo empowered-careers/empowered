@@ -42,7 +42,9 @@ CREATE TYPE commission_status AS ENUM ('pending', 'invoiced', 'paid', 'written_o
 -- 2. PROFILES — drop subscription_tier, add plan + billing_cadence
 -- ─────────────────────────────────────────
 
--- Drop the RLS helper that depends on subscription_tier before changing the column.
+-- Drop dependent RLS policies first, then the function, then recreate both below.
+DROP POLICY IF EXISTS "jobs: visible to paid subscribers" ON jobs;
+DROP POLICY IF EXISTS "job_scores: visible to paid subscribers" ON job_scores;
 DROP FUNCTION IF EXISTS is_paid_subscriber();
 
 ALTER TABLE profiles
@@ -82,13 +84,11 @@ RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$
   );
 $$;
 
--- Re-attach RLS policies that referenced the function (CASCADE may have removed them; redeclare for safety).
-DROP POLICY IF EXISTS "jobs: visible to paid subscribers" ON jobs;
+-- Recreate RLS policies that depend on the updated function.
 CREATE POLICY "jobs: visible to paid subscribers"
   ON jobs FOR SELECT
   USING (is_paid_subscriber());
 
-DROP POLICY IF EXISTS "job_scores: visible to paid subscribers" ON job_scores;
 CREATE POLICY "job_scores: visible to paid subscribers"
   ON job_scores FOR SELECT
   USING (is_paid_subscriber());

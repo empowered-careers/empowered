@@ -14,9 +14,14 @@
     "lint:fix": "eslint . --fix",
     "fix": "eslint . --fix && prettier --write .",
     "prepare": "husky",
-    "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts"
+    "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts",
+    "inngest:dev": "npx inngest-cli@latest dev",
+    "eval:parser": "tsx evals/parser/run.ts",
+    "eval:scorer": "tsx evals/scorer/run.ts",
+    "eval:all": "npm run eval:parser && npm run eval:scorer"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.96.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-separator": "^1.1.7",
@@ -30,6 +35,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "inngest": "^4.4.0",
     "lucide-react": "^0.546.0",
     "next": "16.2.6",
     "next-themes": "^0.4.6",

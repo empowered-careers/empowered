@@ -781,7 +781,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          billing_cadence?: Database["public"]["Enums"]["billing_cadence"] | null
+          billing_cadence?:
+            | Database["public"]["Enums"]["billing_cadence"]
+            | null
           created_at?: string
           email: string
           full_name?: string | null
@@ -797,7 +799,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          billing_cadence?: Database["public"]["Enums"]["billing_cadence"] | null
+          billing_cadence?:
+            | Database["public"]["Enums"]["billing_cadence"]
+            | null
           created_at?: string
           email?: string
           full_name?: string | null
@@ -941,7 +945,11 @@ export type Database = {
         | "withdrawn"
       billing_cadence: "one_time" | "monthly" | "annual"
       coaching_product_type: "module" | "session_pack" | "one_to_one"
-      coaching_session_status: "scheduled" | "completed" | "no_show" | "canceled"
+      coaching_session_status:
+        | "scheduled"
+        | "completed"
+        | "no_show"
+        | "canceled"
       commission_status: "pending" | "invoiced" | "paid" | "written_off"
       enrollment_status: "active" | "completed" | "expired" | "refunded"
       job_status: "active" | "filled" | "expired"
@@ -1108,7 +1116,12 @@ export const Constants = {
       ],
       billing_cadence: ["one_time", "monthly", "annual"],
       coaching_product_type: ["module", "session_pack", "one_to_one"],
-      coaching_session_status: ["scheduled", "completed", "no_show", "canceled"],
+      coaching_session_status: [
+        "scheduled",
+        "completed",
+        "no_show",
+        "canceled",
+      ],
       commission_status: ["pending", "invoiced", "paid", "written_off"],
       enrollment_status: ["active", "completed", "expired", "refunded"],
       job_status: ["active", "filled", "expired"],

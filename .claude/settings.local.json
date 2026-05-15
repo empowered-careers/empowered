@@ -9,7 +9,8 @@
       "Bash(curl -s -o /dev/null -w \"dashboard:%{http_code}\\\\n\" -L http://localhost:3000/dashboard)",
       "Bash(curl -s -o /dev/null -w \"pipeline:%{http_code}\\\\n\" -L http://localhost:3000/pipeline)",
       "Bash(curl -s -o /dev/null -w \"job-board:%{http_code}\\\\n\" -L http://localhost:3000/job-board)",
-      "Bash(curl -s -o /dev/null -w \"content:%{http_code}\\\\n\" -L http://localhost:3000/content)"
+      "Bash(curl -s -o /dev/null -w \"content:%{http_code}\\\\n\" -L http://localhost:3000/content)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")"
     ]
   }
 }

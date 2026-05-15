@@ -6,6 +6,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Empowered Careers is a closed-loop SaaS talent network for mid-to-senior tech professionals. The platform assesses, scores, and matches candidates to exclusive roles that don't appear on public job boards. Revenue comes from candidate coaching/services and B2B placement fees. Any payment unlocks lifetime private job board access.
 
+## Working Principles
+
+These bias toward caution over speed. Use judgment on trivial tasks.
+
+### Think before coding
+
+Don't assume. Don't hide confusion. Surface tradeoffs.
+
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### Simplicity first
+
+Minimum code that solves the problem. Nothing speculative.
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Sanity check: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+### Surgical changes
+
+Touch only what you must. Clean up only your own mess.
+
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+- Remove imports/variables/functions that YOUR changes made unused. Don't remove pre-existing dead code unless asked.
+
+The test: every changed line should trace directly to the user's request.
+
+### Goal-driven execution
+
+Define success criteria. Loop until verified.
+
+- "Add validation" → "Cover invalid inputs, then verify they're rejected."
+- "Fix the bug" → "Reproduce it, then confirm the repro no longer fails."
+- "Refactor X" → "Ensure behavior is unchanged before and after."
+
+For multi-step tasks, state a brief plan with verification per step. Strong success criteria let you loop independently; weak ones ("make it work") force constant clarification.
+
+> Note: this repo has no automated tests yet — verification often means manual checks (type-check, lint, dev server) or reasoning explicitly about behavior. State what you used to verify.
 ## Commands
 
 ```bash
@@ -23,18 +71,7 @@ There are no automated tests in this codebase yet.
 
 ## Environment Variables
 
-Required in `.env.local`:
-```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-```
-
-Optional:
-```
-SUPABASE_SECRET_KEY=        # Server-side only
-NEXT_PUBLIC_APP_URL=
-```
-
+Required in `.env.local`
 The Zod schema in `env.ts` validates all env vars at startup — add new ones there.
 
 ## Architecture
@@ -56,35 +93,6 @@ The app uses a split Server/Client Component pattern for the dashboard:
 - **Perf:** initial data ships with the HTML — no loading spinner on first paint.
 - **Auth:** server-side `redirect('/login')` runs before render, so no flash of protected content.
 - **RLS:** the server Supabase client carries the user's session automatically; RLS policies just work.
-
-Template:
-
-```tsx
-// app/<route>/page.tsx — Server Component
-export const metadata = {
-  title: '... | Empowered Careers',
-  robots: 'noindex, nofollow', // defense in depth, even though auth-gated
-};
-
-export default async function Page() {
-  const supabase = createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
-  const { data: profile } = await supabase
-    .from('profiles').select('*').eq('id', user.id).single();
-
-  return <PageClient profile={profile} /* ...initialData */ />;
-}
-```
-
-```tsx
-// components/<route>/page-client.tsx — Client Component
-'use client';
-export function PageClient({ profile }) {
-  // state, handlers, TanStack Query, Realtime subscriptions, modals
-}
-```
 
 Rules:
 - No DTO layer — pass Supabase row types straight through. Types come from `src/types/database.types.ts`.
@@ -133,33 +141,8 @@ All TanStack Query cache keys are defined in `src/lib/query-keys.ts`. Always use
 
 ### Database Schema
 
-13 tables in Supabase (types auto-generated in `src/types/database.types.ts`):
-
-- `profiles` — core user record, keyed by Supabase auth UUID. Holds subscription tier/status, LinkedIn/Google provider IDs, Stripe customer ID.
-- `resumes` — one-to-many per profile. Stores raw file URL, parsed text/JSON, ATS score.
-- `linkedin_profiles` — synced LinkedIn data (headline, summary, profile score, raw JSON).
-- `assessments` / `assessment_responses` — multi-step candidate assessments (8-9 dimensions: mindset, strengths, values, leadership, big wins).
-- `candidate_scores` — aggregate scoring from assessments.
-- `employers` / `jobs` / `job_scores` — employer records, exclusive job postings, job match scores.
-- `matches` — candidate ↔ job matches produced by the matching algorithm.
-- `payments` — payment records; any payment grants lifetime job board access.
-
+All tables in Supabase (types auto-generated in `src/types/database.types.ts`)
 RLS is enforced at the database level. When writing queries, don't assume the server client bypasses RLS unless using the secret key.
-
-## Code Style Rules
-
-These are enforced by the linter (`.rules` / Ultracite config):
-
-- Use `for...of` instead of `Array.forEach`
-- Use arrow functions instead of function expressions
-- Use `Date.now()` instead of `new Date().getTime()`
-- Use `.flatMap()` instead of `.map().flat()`
-- No `parseInt()` when binary/octal/hex literals work
-- No positive `tabIndex` values
-- All `<button>` elements must have a `type` attribute
-- `onClick` handlers must be accompanied by a keyboard handler (`onKeyUp`/`onKeyDown`/`onKeyPress`)
-- SVG elements require a `<title>` child
-- `<img>` alt text must not contain "image", "picture", or "photo"
 
 ## Key File Locations
 

@@ -14,6 +14,18 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().default("Next.js Starter"),
   NEXT_PUBLIC_APP_URL: z.string().min(1).url().optional(),
 
+  // Anthropic (server-side only; required for resume parsing/scoring)
+  ANTHROPIC_API_KEY: z.string().optional(),
+  ANTHROPIC_PARSER_MODEL: z.string().default("claude-haiku-4-5-20251001"),
+  ANTHROPIC_SCORER_MODEL: z.string().default("claude-sonnet-4-6"),
+
+  // Inngest (server-side only; dev server doesn't require these)
+  INNGEST_EVENT_KEY: z.string().optional(),
+  INNGEST_SIGNING_KEY: z.string().optional(),
+
+  // Versioned at code level; bump when prompts/rubric change
+  RESUME_PROMPT_VERSION: z.string().default("1.0.0"),
+
   // Node environment
   NODE_ENV: z
     .enum(["development", "production", "test"])

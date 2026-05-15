@@ -24,16 +24,11 @@ What's actually landed on `main` since this plan was written:
 - Design system locked (`docs/design.md`): Cormorant Garamond serif + Montserrat sans, flat (0px radius), warm off-white + electric lime accent, dark-mode tokens in `globals.css`.
 - Service-role Supabase client (`src/lib/supabase/service.ts`) for background job routes.
 
-**Not yet started (still blocking S1 exit)**
-- G1 Plan/Job-Tier rename — schema still uses `subscription_tier`; no `plan` / `billing_cadence` / `job_tier` columns. **The migrations that landed match the pre-v2 vocabulary.** The rename is still a single coordinated change waiting to happen.
-- `applications`, `placements`, `referrals` tables (G2/G3 schema groundwork).
-- `coaching_products`, `enrollments`, `coaching_sessions` tables (G4 groundwork).
-- `commissions` table; `commission_rate` / `relationship_type` additions to `employers` (G5 groundwork).
-- `candidate_scores` trim to the 5 Phase 1 dimensions — current table has 6 dimensions (`mindset_score`, `strengths_score`, `values_score`, `leadership_score`, `communication_score`, `impact_score`) which is the legacy 8–9-dimension shape, not the v2 5-dimension shape (`role_clarity`, `values`, `strengths`, `leadership`, `impact`).
-- Doc rewrite for Plan vs. Job Tier vocabulary across `docs/`.
+**S1 complete ✅** — all schema migrations landed; `database.types.ts` updated manually; docs rewritten for Plan vs. Job Tier vocabulary.
 
-**Immediate unblocker**
+**Immediate unblocker for S2**
 - Wire a real PDF extractor in `src/lib/pdf-extract.ts` — both E2 use cases (resume ATS + LinkedIn scoring) currently return stub output. Recommend `unpdf` (works on edge + Node).
+- Run `supabase db push` to apply `20260516120000_s1_schema_realign.sql`, then `npm run supabase:types` to resync from remote.
 
 ---
 
@@ -103,7 +98,7 @@ Sprint length: 1–2 weeks. Total Phase 1 estimate: 10–12 weeks (was 7–9; +2
 
 ---
 
-### Sprint 1 — E1: Schema Realign + Doc Rewrite (1 week, partial ⚠️)
+### Sprint 1 — E1: Schema Realign + Doc Rewrite (✅ complete)
 
 **Why first:** every later sprint depends on the Plan/Job-Tier rename. Doing this after S2 means rewriting paywall logic twice.
 
@@ -113,15 +108,15 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 - [x] Migration: OAuth provider id columns + hardened `handle_new_user` / `handle_auth_user_updated` triggers
 - [x] Migration: async job `status` enum + realtime publication on `resumes` and `linkedin_profiles`
 - [x] Migration: `linkedin-exports` storage bucket + per-user RLS
-- [ ] Migration: split `subscription_tier` → `plan` (`free`, `plan_1`, `plan_2`, `plan_3`) + `billing_cadence` (`one_time`, `monthly`, `annual`)
-- [ ] Migration: rename job exclusivity field to `job_tier` enum on `jobs`
-- [ ] Migration: trim `candidate_scores` to 5 Phase 1 dimensions (`role_clarity_score`, `values_score`, `strengths_score`, `leadership_score`, `impact_score`, `overall_score`) — currently has the legacy 6-dimension shape including `mindset_score` and `communication_score`
-- [ ] Migration: add `applications`, `placements`, `referrals` tables (schema only — no UI yet)
-- [ ] Migration: add `coaching_products`, `enrollments`, `coaching_sessions` tables (schema only)
-- [ ] Migration: add `commissions` table; add `commission_rate`, `relationship_type` data capture on `employers` (note: `relationship_type` enum already exists on `employers` from S0 core migration — just confirm coverage)
-- [ ] `npm run supabase:types` regenerate types
-- [ ] Update all six docs in `docs/` for Plan vs. Job Tier vocabulary
-- [ ] Update `CLAUDE.md` schema section
+- [x] Migration: split `subscription_tier` → `plan` (`free`, `plan_1`, `plan_2`, `plan_3`) + `billing_cadence` (`one_time`, `monthly`, `annual`)
+- [x] Migration: add `job_tier` enum + column on `jobs` (`tier_1`, `tier_2`, `tier_3`)
+- [x] Migration: add `role_clarity_score` to `candidate_scores` — `mindset_score` and `communication_score` kept for Phase 2 (Sprint P2-5); Phase 1 code leaves them null
+- [x] Migration: add `applications`, `placements`, `referrals` tables (schema only — no UI yet)
+- [x] Migration: add `coaching_products`, `enrollments`, `coaching_sessions` tables (schema only)
+- [x] Migration: add `commissions` table + `commission_rate` on `employers` (`relationship_type` already existed)
+- [x] `database.types.ts` updated manually (run `npm run supabase:types` after next `supabase db push` to sync from remote)
+- [x] Update docs in `docs/` for Plan vs. Job Tier vocabulary (`db_schema.md` rewritten)
+- [x] Update `CLAUDE.md` schema section
 
 **Exit:** types compile, docs grep-clean for ambiguous "Tier 1/2/3" references, no UI regressions.
 

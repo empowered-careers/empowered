@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { insertResumeRow } from "@/app/actions/resume";
+import { insertResumeRow, retryParseResume } from "@/app/actions/resume";
 import {
   Dropzone,
   DropzoneContent,
@@ -25,14 +25,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DashboardResume } from "@/hooks/use-dashboard-data";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
+import { sha256Hex } from "@/lib/file-hash";
 
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
-/** PDF, .docx, and .doc — matches `storage.buckets.allowed_mime_types` for `resumes`. */
-const RESUME_ALLOWED_MIME = [
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/msword",
-] as const;
+/** PDF only — DOCX is deferred (Claude document blocks don't accept it natively). */
+const RESUME_ALLOWED_MIME = ["application/pdf"] as const;
 
 interface ResumeCardProps {
   resumes: DashboardResume[];
@@ -116,14 +113,37 @@ function ResumeUploadDropzone({
     insertLockRef.current = true;
 
     void (async () => {
+      const fileHash = await sha256Hex(file);
       const result = await insertResumeRow({
         storageObjectPath: objectPath,
         fileName: file.name,
+        fileHash,
       });
 
       if (result.success) {
-        toast.success("Resume uploaded", {
-          description: "Parsing in progress…",
+        toast.success(
+          result.deduped ? "Resume already on file" : "Resume uploaded",
+          { description: result.deduped ? "Using your previous score." : "Parsing in progress…" }
+        );
+        await queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
+        router.refresh();
+        setFiles([]);
+        onInserted();
+      } else if (result.kind === "inngest_send_failed") {
+        const stuckResumeId = result.resumeId;
+        toast.error("Processing queue temporarily unavailable", {
+          description: "Your resume is saved — try again to queue parsing.",
+          action: {
+            label: "Try again",
+            onClick: async () => {
+              const retry = await retryParseResume(stuckResumeId);
+              if (retry.success) {
+                toast.success("Queued — parsing in progress");
+              } else {
+                toast.error(retry.error);
+              }
+            },
+          },
         });
         await queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
         router.refresh();
@@ -162,7 +182,7 @@ function ResumeUploadDropzone({
         onClick={() => open()}
       >
         <Upload className="h-3.5 w-3.5" />
-        Choose file (PDF, DOC, DOCX)
+        Choose file (PDF)
       </Button>
     </div>
   );
