@@ -18,7 +18,7 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 /** Body font – UI, forms, buttons */
-const montserrat = Montserrat({
+const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
