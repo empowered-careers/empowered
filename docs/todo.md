@@ -4,9 +4,6 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 
 ## Blocking (pipelines won't work without these)
 
-- [ ] Apply resume migrations: `supabase db push` (or run `20260516130000_resume_llm_metadata.sql` + `20260516130100_resumes_bucket_pdf_only.sql` via dashboard SQL editor)
-- [ ] Apply LinkedIn migration: `20260517000000_linkedin_llm_metadata.sql`
-- [ ] Regen DB types: `npm run supabase:types` — then remove the `as any` / `LinkedinTable` / `ResumesRow` casts marked `// Remove the casts after regen.` in: `src/inngest/functions/parse-resume.ts`, `src/inngest/functions/parse-linkedin.ts`, `src/app/actions/resume.ts`, `src/app/actions/linkedin.ts`
 - [ ] Add `ANTHROPIC_API_KEY=...` to `.env.local`
 - [ ] Sign up at inngest.com, create app `empowered-careers`. Local dev needs nothing else; prod needs `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` in `.env.local` and on the deploy host
 

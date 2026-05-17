@@ -5,12 +5,6 @@ import { revalidatePath } from "next/cache";
 import { inngest, ResumeUploadedEvent } from "@/inngest/client";
 import { createClient } from "@/lib/supabase/server";
 
-// Until `npm run supabase:types` runs against the new migration, the generated
-// types don't know about file_hash / is_current. Loose-typed inserts/updates
-// for the new columns are isolated to this module.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ResumesRow = any;
-
 export type InsertResumeRowResult =
   | { success: true; id: string; deduped?: boolean }
   | {
@@ -64,21 +58,20 @@ export async function insertResumeRow(input: {
 
   // Dedup: if this profile already has a completed resume with the same hash,
   // skip the insert entirely and return the existing row.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resumesTable = supabase.from("resumes") as any;
-  const { data: byHash } = (await resumesTable
+  const { data: byHash } = await supabase
+    .from("resumes")
     .select("id")
     .eq("profile_id", user.id)
     .eq("file_hash", input.fileHash)
     .eq("status", "complete")
     .order("parsed_at", { ascending: false })
     .limit(1)
-    .maybeSingle()) as { data: { id: string } | null };
+    .maybeSingle();
 
   if (byHash) {
     await supabase
       .from("resumes")
-      .update({ is_current: true } as ResumesRow)
+      .update({ is_current: true })
       .eq("id", byHash.id);
     revalidatePath("/dashboard");
     return { success: true, id: byHash.id, deduped: true };
@@ -109,7 +102,7 @@ export async function insertResumeRow(input: {
         raw_file_url: publicUrl,
         file_name: input.fileName,
         file_hash: input.fileHash,
-      } as ResumesRow)
+      })
       .select("id")
       .single();
 

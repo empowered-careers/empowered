@@ -11,11 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type { FetchLinkedInUrlResult };
 
-// DB types catch up to the migration after `npm run supabase:types`. Until
-// then, the new columns (file_hash, last_export_path, parsed_json, etc.)
-// aren't on the generated types — loose-typed access is isolated here.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LinkedinTable = any;
+type ServerSupabase = Awaited<ReturnType<typeof createClient>>;
 
 /**
  * Uses the current Supabase session's LinkedIn `provider_token` to call
@@ -83,9 +79,8 @@ export async function triggerLinkedinSync(input: {
   // Stamp hash + storage path on the row. The path persists so
   // retryLinkedinSync(linkedinProfileId) can re-fetch the file without
   // requiring the user to re-upload.
-  const { error: updateError } = await (
-    supabase.from("linkedin_profiles") as LinkedinTable
-  )
+  const { error: updateError } = await supabase
+    .from("linkedin_profiles")
     .update({
       file_hash: input.fileHash,
       last_export_path: input.storageObjectPath,
@@ -142,9 +137,8 @@ export async function retryLinkedinSync(linkedinProfileId: string): Promise<
     return { success: false, error: "You must be signed in." };
   }
 
-  const { data: row, error: rowError } = await (
-    supabase.from("linkedin_profiles") as LinkedinTable
-  )
+  const { data: row, error: rowError } = await supabase
+    .from("linkedin_profiles")
     .select("id, profile_id, status, last_export_path")
     .eq("id", linkedinProfileId)
     .maybeSingle();
@@ -197,8 +191,7 @@ export async function retryLinkedinSync(linkedinProfileId: string): Promise<
  * "Add your LinkedIn URL first."
  */
 async function ensureLinkedinProfileRow(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: ServerSupabase,
   userId: string
 ): Promise<{
   id: string;

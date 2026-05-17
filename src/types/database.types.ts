@@ -552,12 +552,18 @@ export type Database = {
       }
       linkedin_profiles: {
         Row: {
+          file_hash: string | null
           headline: string | null
           id: string
+          last_export_path: string | null
           linkedin_url: string
+          parsed_json: Json | null
+          parser_model: string | null
           profile_id: string
           profile_score: number | null
+          prompt_version: string | null
           raw_json: Json | null
+          scorer_model: string | null
           status: Database["public"]["Enums"]["linkedin_sync_status"]
           summary: string | null
           sync_error: string | null
@@ -565,12 +571,18 @@ export type Database = {
           synced_at: string | null
         }
         Insert: {
+          file_hash?: string | null
           headline?: string | null
           id?: string
+          last_export_path?: string | null
           linkedin_url: string
+          parsed_json?: Json | null
+          parser_model?: string | null
           profile_id: string
           profile_score?: number | null
+          prompt_version?: string | null
           raw_json?: Json | null
+          scorer_model?: string | null
           status?: Database["public"]["Enums"]["linkedin_sync_status"]
           summary?: string | null
           sync_error?: string | null
@@ -578,12 +590,18 @@ export type Database = {
           synced_at?: string | null
         }
         Update: {
+          file_hash?: string | null
           headline?: string | null
           id?: string
+          last_export_path?: string | null
           linkedin_url?: string
+          parsed_json?: Json | null
+          parser_model?: string | null
           profile_id?: string
           profile_score?: number | null
+          prompt_version?: string | null
           raw_json?: Json | null
+          scorer_model?: string | null
           status?: Database["public"]["Enums"]["linkedin_sync_status"]
           summary?: string | null
           sync_error?: string | null
@@ -594,7 +612,7 @@ export type Database = {
           {
             foreignKeyName: "linkedin_profiles_profile_id_fkey"
             columns: ["profile_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -876,44 +894,68 @@ export type Database = {
       resumes: {
         Row: {
           ats_score: number | null
+          file_hash: string | null
           file_name: string | null
           id: string
+          is_current: boolean
           parse_error: string | null
           parse_started_at: string | null
           parsed_at: string | null
           parsed_json: Json | null
           parsed_text: string | null
+          parser_model: string | null
           profile_id: string
+          prompt_version: string | null
           raw_file_url: string
+          scorer_model: string | null
+          seniority_level: string | null
           status: Database["public"]["Enums"]["resume_status"]
+          superseded_at: string | null
+          total_years_exp: number | null
           uploaded_at: string
         }
         Insert: {
           ats_score?: number | null
+          file_hash?: string | null
           file_name?: string | null
           id?: string
+          is_current?: boolean
           parse_error?: string | null
           parse_started_at?: string | null
           parsed_at?: string | null
           parsed_json?: Json | null
           parsed_text?: string | null
+          parser_model?: string | null
           profile_id: string
+          prompt_version?: string | null
           raw_file_url: string
+          scorer_model?: string | null
+          seniority_level?: string | null
           status?: Database["public"]["Enums"]["resume_status"]
+          superseded_at?: string | null
+          total_years_exp?: number | null
           uploaded_at?: string
         }
         Update: {
           ats_score?: number | null
+          file_hash?: string | null
           file_name?: string | null
           id?: string
+          is_current?: boolean
           parse_error?: string | null
           parse_started_at?: string | null
           parsed_at?: string | null
           parsed_json?: Json | null
           parsed_text?: string | null
+          parser_model?: string | null
           profile_id?: string
+          prompt_version?: string | null
           raw_file_url?: string
+          scorer_model?: string | null
+          seniority_level?: string | null
           status?: Database["public"]["Enums"]["resume_status"]
+          superseded_at?: string | null
+          total_years_exp?: number | null
           uploaded_at?: string
         }
         Relationships: [
