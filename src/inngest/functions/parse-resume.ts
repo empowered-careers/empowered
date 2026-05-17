@@ -20,7 +20,7 @@ export const parseResumeFn = inngest.createFunction(
   {
     id: "parse-resume",
     retries: 2,
-    concurrency: { limit: 10 },
+    concurrency: { limit: 5 },
     triggers: [ResumeUploadedEvent],
     onFailure: async ({ event, error }) => {
       const inner = (event.data as { event?: { data?: { resumeId?: string } } })

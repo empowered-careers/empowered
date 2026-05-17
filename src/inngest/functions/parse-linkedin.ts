@@ -19,7 +19,7 @@ export const parseLinkedinFn = inngest.createFunction(
   {
     id: "parse-linkedin",
     retries: 2,
-    concurrency: { limit: 10 },
+    concurrency: { limit: 5 },
     triggers: [LinkedinUploadedEvent],
     onFailure: async ({ event, error }) => {
       const inner = (
