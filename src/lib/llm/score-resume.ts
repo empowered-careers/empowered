@@ -11,7 +11,8 @@ export async function scoreResume(parsed: ParsedResume): Promise<Scoring> {
 
   // Strip raw_text before sending — it's already factored into parsed structure
   // and would inflate token count. The scorer reads the structured fields.
-  const { raw_text: _ignored, ...payload } = parsed;
+  const payload = { ...parsed } as Partial<ParsedResume>;
+  delete payload.raw_text;
 
   const response = await client.messages.create({
     model: SCORER_MODEL,

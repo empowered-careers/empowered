@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { parseResume } from "../../src/lib/llm/parse-resume";
 import { type Fixture, loadFixtures } from "../shared/fixtures-loader";
 import { exactMatchRate, f1, writeReport } from "../shared/report";

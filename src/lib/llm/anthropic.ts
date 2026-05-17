@@ -17,3 +17,4 @@ export function getAnthropic(): Anthropic {
 export const PARSER_MODEL = env.ANTHROPIC_PARSER_MODEL;
 export const SCORER_MODEL = env.ANTHROPIC_SCORER_MODEL;
 export const PROMPT_VERSION = env.RESUME_PROMPT_VERSION;
+export const LINKEDIN_PROMPT_VERSION = env.LINKEDIN_PROMPT_VERSION;

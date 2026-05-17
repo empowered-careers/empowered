@@ -25,6 +25,7 @@ const envSchema = z.object({
 
   // Versioned at code level; bump when prompts/rubric change
   RESUME_PROMPT_VERSION: z.string().default("1.0.0"),
+  LINKEDIN_PROMPT_VERSION: z.string().default("1.0.0"),
 
   // Node environment
   NODE_ENV: z

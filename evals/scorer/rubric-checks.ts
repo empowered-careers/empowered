@@ -29,7 +29,7 @@ export const RUBRIC_CHECKS: RubricCheck[] = [
   },
   {
     name: "low-dimension-caps-overall",
-    applies: (_p) => true,
+    applies: () => true,
     passes: (_p, s) => {
       const dims = Object.values(s.dimensions);
       const min = Math.min(...dims);

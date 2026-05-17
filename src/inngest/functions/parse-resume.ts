@@ -2,8 +2,8 @@ import { NonRetriableError } from "inngest";
 
 import { PARSER_MODEL, PROMPT_VERSION, SCORER_MODEL } from "@/lib/llm/anthropic";
 import { parseResume } from "@/lib/llm/parse-resume";
-import { scoreResume } from "@/lib/llm/score-resume";
 import type { ParsedResume, Scoring } from "@/lib/llm/schemas";
+import { scoreResume } from "@/lib/llm/score-resume";
 import { createServiceClient } from "@/lib/supabase/service";
 
 import {

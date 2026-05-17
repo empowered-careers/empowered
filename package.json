@@ -18,7 +18,9 @@
     "inngest:dev": "npx inngest-cli@latest dev",
     "eval:parser": "tsx evals/parser/run.ts",
     "eval:scorer": "tsx evals/scorer/run.ts",
-    "eval:all": "npm run eval:parser && npm run eval:scorer"
+    "eval:linkedin-parser": "tsx evals/linkedin-parser/run.ts",
+    "eval:linkedin-scorer": "tsx evals/linkedin-scorer/run.ts",
+    "eval:all": "npm run eval:parser && npm run eval:scorer && npm run eval:linkedin-parser && npm run eval:linkedin-scorer"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",

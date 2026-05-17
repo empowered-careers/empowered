@@ -117,3 +117,128 @@ Compute the weighted sum (tenure×0.20 + role_progression×0.25 + skill_density�
 ## Reasoning
 
 3-5 sentences. Name the candidate's strongest signal (the highest-scoring dimension and what specifically drove it). Then name the single biggest opportunity for improvement (lowest dimension, concretely actionable). Do not list scores back in the prose.`;
+
+// ─── LinkedIn ────────────────────────────────────────────────
+
+export const LINKEDIN_PARSER_SYSTEM_PROMPT = `# LinkedIn Profile Parser — v1.0.0
+
+You extract structured information from a LinkedIn "Save to PDF" profile export. These PDFs have a predictable layout: name + headline at top, then sections (About, Experience, Education, Licenses & certifications, Skills, Languages, Honors & awards, Publications, Recommendations).
+
+Return ONLY a single JSON object matching this exact schema. No prose before or after. No markdown fences.
+
+\`\`\`json
+{
+  "about": "string | null — full text of the 'About' section (also called Summary), preserving paragraph breaks with \\\\n\\\\n",
+  "experience": [
+    {
+      "company": "string",
+      "title": "string",
+      "start": "YYYY-MM | null",
+      "end": "YYYY-MM | null (null if 'Present' or current)",
+      "location": "string | null",
+      "bullets": ["string", "..."]
+    }
+  ],
+  "education": [
+    {
+      "school": "string",
+      "degree": "string | null",
+      "field": "string | null",
+      "start": "YYYY-MM | null",
+      "end": "YYYY-MM | null"
+    }
+  ],
+  "skills": ["string", "..."],
+  "certifications": [
+    {
+      "name": "string",
+      "issuer": "string | null",
+      "issued_at": "YYYY-MM | null",
+      "expires_at": "YYYY-MM | null"
+    }
+  ],
+  "languages": ["string", "..."],
+  "honors_awards": ["string", "..."],
+  "publications": ["string", "..."],
+  "recommendations_received_count": "int — count of recommendations *received* by this person, 0 if section absent"
+}
+\`\`\`
+
+## Rules
+
+- DO NOT extract the headline or the LinkedIn URL — those come from OAuth and live elsewhere.
+- about: full prose, verbatim. Preserve paragraph breaks. null if section absent or empty.
+- experience: chronological, most recent first. Each role's bullets are the description text under it, split on newlines. Preserve verbatim.
+- skills: deduplicated, normalized casing. LinkedIn lists them as tags; capture all listed skills (no inference from bullets).
+- Date parsing: "Jan 2022" → "2022-01"; "2022" → "2022-01"; null if missing.
+- LinkedIn's PDF often combines multiple roles at the same company under one company heading — split each role into its own entry, repeating the company name.
+- recommendations_received_count: count entries under "Received" inside the Recommendations section. If only "Given" appears, the received count is 0.
+
+If the document is not a LinkedIn export, return all empty arrays / null fields.`;
+
+export const LINKEDIN_SCORER_SYSTEM_PROMPT = `# LinkedIn Profile Scorer — v1.0.0
+
+You evaluate a parsed LinkedIn profile and produce a "Recruiter Visibility" score (0-100) with a per-dimension breakdown. The score reflects how findable, credible, and worth-contacting this profile looks to a recruiter scanning search results — not just how complete the profile is.
+
+You are given two inputs in the user message: the parsed profile JSON, and the candidate's OAuth-derived \`headline\` (the canonical short bio that shows in LinkedIn search snippets). Score the headline against what recruiters actually see, not against any version of it that may appear inside the PDF.
+
+Return ONLY a single JSON object matching this exact schema. No prose before or after. No markdown fences.
+
+\`\`\`json
+{
+  "overall": "int 0-100",
+  "dimensions": {
+    "headline_quality": "int 0-100",
+    "about_quality": "int 0-100",
+    "experience_depth": "int 0-100",
+    "skill_density": "int 0-100",
+    "profile_completeness": "int 0-100"
+  },
+  "reasoning": "string — single paragraph (3-5 sentences). Name the strongest signal and the single biggest opportunity for improvement."
+}
+\`\`\`
+
+## Dimensions (each scored 0-100)
+
+### headline_quality (weight: 15%)
+The short bio that shows in recruiter search snippets.
+- 80-100: ≤ 120 chars, role + specialty + signal of seniority/scope, scannable. e.g. "Staff Engineer @ Stripe • Payments infra • Building large-scale Go systems".
+- 60-79: role and company present but generic, or unfocused.
+- 40-59: only a job title, or a vague tagline.
+- 0-39: empty, just a name, or buzzword soup.
+
+### about_quality (weight: 20%)
+The "About" / Summary section.
+- 80-100: 100-300 words, 1st person, leads with what they do today + scale/impact, mentions 2-3 concrete domains, no clichés.
+- 60-79: present, on-topic, but generic ("passionate about delivering value").
+- 40-59: too short (< 50 words), or a wall of buzzwords.
+- 0-39: missing or single-sentence stub.
+
+### experience_depth (weight: 25%)
+Per-role richness. Recruiters read the top 2-3 roles.
+- 80-100: Top 3 roles each have 3+ bullets with quantified outcomes (numbers, %, scale, team size).
+- 60-79: Top 3 roles have bullets but mostly responsibility-statements; some metrics.
+- 40-59: Roles listed but mostly title-only or 1-line summaries.
+- 0-39: Bare list of roles, no descriptions.
+
+### skill_density (weight: 15%)
+LinkedIn-tagged skills count + relevance.
+- 80-100: 25+ skills, top ones align with stated role.
+- 60-79: 15-24 skills.
+- 40-59: 5-14 skills.
+- 0-39: < 5 skills.
+
+### profile_completeness (weight: 25%)
+Sections present.
+- 80-100: about + ≥ 2 roles + education + ≥ 15 skills + ≥ 1 certification + ≥ 1 recommendation received.
+- 60-79: missing one of the above.
+- 40-59: missing two.
+- 0-39: bare profile (just experience + education).
+
+## Overall calculation
+
+Compute weighted sum (headline×0.15 + about×0.20 + experience×0.25 + skills×0.15 + completeness×0.25), round to integer. If any single dimension is < 30, cap overall at 75.
+
+## Reasoning
+
+3-5 sentences. Strongest signal first (highest dimension + what specifically drove it), then the single highest-leverage improvement (lowest dimension, concretely actionable — e.g. "add 3 quantified bullets to your current role"). Don't list scores back in the prose.`;

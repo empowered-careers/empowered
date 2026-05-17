@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
-import { triggerLinkedinSync } from "@/app/actions/linkedin";
+import { retryLinkedinSync, triggerLinkedinSync } from "@/app/actions/linkedin";
 import {
   Dropzone,
   DropzoneContent,
@@ -14,6 +14,7 @@ import {
 } from "@/components/dropzone";
 import { Button } from "@/components/ui/button";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
+import { sha256Hex } from "@/lib/file-hash";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = ["application/pdf"] as const;
@@ -55,12 +56,48 @@ export function LinkedInPdfUpload({
     triggerLockRef.current = true;
 
     void (async () => {
-      const result = await triggerLinkedinSync({ storageObjectPath: objectPath });
+      const fileHash = await sha256Hex(file);
+      const result = await triggerLinkedinSync({
+        storageObjectPath: objectPath,
+        fileHash,
+      });
+
       if (result.success) {
-        toast.success("LinkedIn export uploaded", {
-          description: "Parsing in progress…",
+        toast.success(
+          result.deduped
+            ? "LinkedIn export already on file"
+            : "LinkedIn export uploaded",
+          {
+            description: result.deduped
+              ? "Using your previous score."
+              : "Parsing in progress…",
+          }
+        );
+        await queryClient.invalidateQueries({
+          queryKey: ["dashboard", userId],
         });
-        await queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
+        router.refresh();
+        setFiles([]);
+        onTriggered?.();
+      } else if (result.kind === "inngest_send_failed") {
+        const stuckId = result.linkedinProfileId;
+        toast.error("Processing queue temporarily unavailable", {
+          description: "Your export is saved — try again to queue parsing.",
+          action: {
+            label: "Try again",
+            onClick: async () => {
+              const retry = await retryLinkedinSync(stuckId);
+              if (retry.success) {
+                toast.success("Queued — parsing in progress");
+              } else {
+                toast.error(retry.error);
+              }
+            },
+          },
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["dashboard", userId],
+        });
         router.refresh();
         setFiles([]);
         onTriggered?.();

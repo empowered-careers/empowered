@@ -2,29 +2,41 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { parseResume } from "../../src/lib/llm/parse-resume";
-import type { ParsedResume, Scoring } from "../../src/lib/llm/schemas";
-import { scoreResume } from "../../src/lib/llm/score-resume";
-import { loadFixtures } from "../shared/fixtures-loader";
+import { parseLinkedIn } from "../../src/lib/llm/parse-linkedin";
+import type {
+  LinkedInScoring,
+  ParsedLinkedIn,
+} from "../../src/lib/llm/schemas";
+import { scoreLinkedIn } from "../../src/lib/llm/score-linkedin";
+import { loadLinkedInFixtures } from "../shared/fixtures-loader";
 import { writeReport } from "../shared/report";
 import { RUBRIC_CHECKS } from "./rubric-checks";
 
 type Pair = { stronger: string; weaker: string; reason: string };
 
 async function main() {
-  const fixtures = loadFixtures();
+  const fixtures = loadLinkedInFixtures();
   if (fixtures.length === 0) {
-    console.log("No fixtures. See evals/README.md.");
+    console.log(
+      "No LinkedIn fixtures. See evals/README.md."
+    );
     return;
   }
 
-  // Parse + score every fixture once.
-  const cache = new Map<string, { parsed: ParsedResume; scoring: Scoring }>();
+  const cache = new Map<
+    string,
+    {
+      parsed: ParsedLinkedIn;
+      scoring: LinkedInScoring;
+      headline: string | null;
+    }
+  >();
   for (const fx of fixtures) {
     console.log(`Parsing + scoring ${fx.id}…`);
-    const parsed = await parseResume(fx.pdfBuffer);
-    const scoring = await scoreResume(parsed);
-    cache.set(fx.id, { parsed, scoring });
+    const parsed = await parseLinkedIn(fx.pdfBuffer);
+    const headline = fx.groundTruth.oauth_headline;
+    const scoring = await scoreLinkedIn(parsed, headline);
+    cache.set(fx.id, { parsed, scoring, headline });
   }
 
   // Rubric checks
@@ -34,10 +46,10 @@ async function main() {
     applied: boolean;
     passed: boolean;
   }> = [];
-  for (const [id, { parsed, scoring }] of cache) {
+  for (const [id, { parsed, scoring, headline }] of cache) {
     for (const c of RUBRIC_CHECKS) {
-      const applied = c.applies(parsed);
-      const passed = applied ? c.passes(parsed, scoring) : true;
+      const applied = c.applies(parsed, headline);
+      const passed = applied ? c.passes(parsed, scoring, headline) : true;
       rubricResults.push({ fixture: id, check: c.name, applied, passed });
     }
   }
@@ -48,7 +60,7 @@ async function main() {
       : applied.filter((r) => r.passed).length / applied.length;
 
   // Pairwise accuracy
-  const pairsPath = join(process.cwd(), "evals/scorer/pairs.json");
+  const pairsPath = join(process.cwd(), "evals/linkedin-scorer/pairs.json");
   const pairs = JSON.parse(readFileSync(pairsPath, "utf-8")) as Pair[];
   let correct = 0;
   let evaluated = 0;
@@ -84,7 +96,11 @@ async function main() {
     pairsEvaluated: evaluated,
   };
   console.log("\nSummary:", summary);
-  const path = writeReport("scorer", { summary, rubricResults, pairResults });
+  const path = writeReport("linkedin-scorer", {
+    summary,
+    rubricResults,
+    pairResults,
+  });
   console.log(`Report: ${path}`);
 }
 

@@ -10,7 +10,9 @@
       "Bash(curl -s -o /dev/null -w \"pipeline:%{http_code}\\\\n\" -L http://localhost:3000/pipeline)",
       "Bash(curl -s -o /dev/null -w \"job-board:%{http_code}\\\\n\" -L http://localhost:3000/job-board)",
       "Bash(curl -s -o /dev/null -w \"content:%{http_code}\\\\n\" -L http://localhost:3000/content)",
-      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(npx eslint *)"
     ]
   }
 }

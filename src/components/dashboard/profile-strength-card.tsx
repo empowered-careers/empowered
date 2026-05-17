@@ -13,6 +13,8 @@ import { type FormEvent,useId, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { updateLinkedInUrl } from "@/app/actions/profile";
+import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -93,6 +95,7 @@ export function ProfileStrengthCard({
   resumes,
 }: ProfileStrengthCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const formId = useId();
   const [linkedinDialogOpen, setLinkedinDialogOpen] = useState(false);
   const [linkedinUrlInput, setLinkedinUrlInput] = useState("");
@@ -321,6 +324,19 @@ export function ProfileStrengthCard({
                 Add your LinkedIn URL above to unlock profile scoring
               </p>
             </div>
+          </div>
+        )}
+
+        {/* LinkedIn PDF export upload — unlocks profile scoring */}
+        {profile?.linkedin_url && user?.id && (
+          <div className="mt-5 border-t border-border pt-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Linkedin className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">
+                Score your LinkedIn profile
+              </h3>
+            </div>
+            <LinkedInPdfUpload userId={user.id} />
           </div>
         )}
       </div>

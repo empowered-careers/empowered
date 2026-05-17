@@ -1,8 +1,33 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const FIXTURES_DIR = join(process.cwd(), "evals/parser/fixtures");
-const GROUND_TRUTH_DIR = join(process.cwd(), "evals/parser/ground-truth");
+export type GenericFixture<GT> = {
+  id: string;
+  pdfPath: string;
+  pdfBuffer: Buffer;
+  groundTruth: GT;
+};
+
+export function loadFixturesFrom<GT>(
+  fixturesDir: string,
+  groundTruthDir: string
+): GenericFixture<GT>[] {
+  const fixturesPath = join(process.cwd(), fixturesDir);
+  const gtPath = join(process.cwd(), groundTruthDir);
+  const pdfs = readdirSync(fixturesPath).filter((f) => f.endsWith(".pdf"));
+  return pdfs.map((file) => {
+    const id = file.replace(/\.pdf$/, "");
+    const pdfPath = join(fixturesPath, file);
+    const groundTruthFile = join(gtPath, `${id}.json`);
+    const pdfBuffer = readFileSync(pdfPath);
+    const groundTruth = JSON.parse(
+      readFileSync(groundTruthFile, "utf-8")
+    ) as GT;
+    return { id, pdfPath, pdfBuffer, groundTruth };
+  });
+}
+
+// ─── Resume parser ──────────────────────────────────────────
 
 export type ParserGroundTruth = {
   skills: string[];
@@ -12,23 +37,38 @@ export type ParserGroundTruth = {
   total_years_exp: number | null;
 };
 
-export type Fixture = {
-  id: string;
-  pdfPath: string;
-  pdfBuffer: Buffer;
-  groundTruth: ParserGroundTruth;
-};
+export type Fixture = GenericFixture<ParserGroundTruth>;
 
 export function loadFixtures(): Fixture[] {
-  const pdfs = readdirSync(FIXTURES_DIR).filter((f) => f.endsWith(".pdf"));
-  return pdfs.map((file) => {
-    const id = file.replace(/\.pdf$/, "");
-    const pdfPath = join(FIXTURES_DIR, file);
-    const gtPath = join(GROUND_TRUTH_DIR, `${id}.json`);
-    const pdfBuffer = readFileSync(pdfPath);
-    const groundTruth = JSON.parse(
-      readFileSync(gtPath, "utf-8")
-    ) as ParserGroundTruth;
-    return { id, pdfPath, pdfBuffer, groundTruth };
-  });
+  return loadFixturesFrom<ParserGroundTruth>(
+    "evals/parser/fixtures",
+    "evals/parser/ground-truth"
+  );
+}
+
+// ─── LinkedIn parser ────────────────────────────────────────
+
+export type LinkedInGroundTruth = {
+  about_present: boolean;
+  experience_companies: string[];
+  experience_dates: Array<{
+    company: string;
+    start: string | null;
+    end: string | null;
+  }>;
+  skills: string[];
+  education_schools: string[];
+  certifications_count: number;
+  // Used by the scorer pipeline. Pass through what the user normally would
+  // see in their LinkedIn search snippet.
+  oauth_headline: string | null;
+};
+
+export type LinkedInFixture = GenericFixture<LinkedInGroundTruth>;
+
+export function loadLinkedInFixtures(): LinkedInFixture[] {
+  return loadFixturesFrom<LinkedInGroundTruth>(
+    "evals/linkedin-parser/fixtures",
+    "evals/linkedin-parser/ground-truth"
+  );
 }
