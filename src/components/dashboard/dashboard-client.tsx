@@ -10,7 +10,10 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
-import type { DashboardProfile, DashboardResume } from "@/hooks/use-dashboard-data";
+import type {
+  DashboardProfile,
+  DashboardResume,
+} from "@/hooks/use-dashboard-data";
 
 export interface DashboardClientProps {
   profile: DashboardProfile | null;

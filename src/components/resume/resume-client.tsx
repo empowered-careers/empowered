@@ -1,6 +1,12 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, Clock, FileText, Sparkles } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Sparkles,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -9,11 +15,7 @@ import { ResumeUploader } from "@/components/resume/resume-uploader";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type {
-  ParsedResume,
-  Scoring,
-  SeniorityLevel,
-} from "@/lib/llm/schemas";
+import type { ParsedResume, Scoring, SeniorityLevel } from "@/lib/llm/schemas";
 import type { Database } from "@/types/database.types";
 
 type ResumeStatus = Database["public"]["Enums"]["resume_status"];
@@ -73,14 +75,20 @@ function scoreColorClass(score: number): string {
 function StatusBadge({ status }: { status: ResumeStatus }) {
   if (status === "complete") {
     return (
-      <Badge className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" variant="outline">
+      <Badge
+        className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        variant="outline"
+      >
         Complete
       </Badge>
     );
   }
   if (status === "processing") {
     return (
-      <Badge className="border-border bg-muted text-muted-foreground" variant="outline">
+      <Badge
+        className="border-border bg-muted text-muted-foreground"
+        variant="outline"
+      >
         <Clock className="mr-1 h-3 w-3" />
         Scoring…
       </Badge>
@@ -88,13 +96,19 @@ function StatusBadge({ status }: { status: ResumeStatus }) {
   }
   if (status === "failed") {
     return (
-      <Badge className="border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400" variant="outline">
+      <Badge
+        className="border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
+        variant="outline"
+      >
         Failed
       </Badge>
     );
   }
   return (
-    <Badge className="border-border bg-muted text-muted-foreground" variant="outline">
+    <Badge
+      className="border-border bg-muted text-muted-foreground"
+      variant="outline"
+    >
       Uploading
     </Badge>
   );
@@ -179,12 +193,19 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <StatusBadge status={cur.status} />
                 {cur.seniority_level && (
-                  <Badge variant="outline" className="border-border text-xs text-muted-foreground">
-                    {SENIORITY_LABELS[cur.seniority_level as SeniorityLevel] ?? cur.seniority_level}
+                  <Badge
+                    variant="outline"
+                    className="border-border text-xs text-muted-foreground"
+                  >
+                    {SENIORITY_LABELS[cur.seniority_level as SeniorityLevel] ??
+                      cur.seniority_level}
                   </Badge>
                 )}
                 {cur.total_years_exp !== null && (
-                  <Badge variant="outline" className="border-border text-xs text-muted-foreground">
+                  <Badge
+                    variant="outline"
+                    className="border-border text-xs text-muted-foreground"
+                  >
                     {cur.total_years_exp} yrs experience
                   </Badge>
                 )}
@@ -197,7 +218,9 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
             </div>
             <div
               className={`font-display text-5xl font-semibold ${
-                cur.ats_score === null ? "text-muted-foreground" : scoreColorClass(cur.ats_score)
+                cur.ats_score === null
+                  ? "text-muted-foreground"
+                  : scoreColorClass(cur.ats_score)
               }`}
             >
               {cur.ats_score ?? "—"}
@@ -240,13 +263,13 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
             ATS breakdown
           </h2>
           <DimensionList
-            items={(Object.keys(DIMENSION_LABELS) as (keyof Scoring["dimensions"])[]).map(
-              (k) => ({
-                key: k,
-                label: DIMENSION_LABELS[k],
-                value: scoring.dimensions[k],
-              })
-            )}
+            items={(
+              Object.keys(DIMENSION_LABELS) as (keyof Scoring["dimensions"])[]
+            ).map((k) => ({
+              key: k,
+              label: DIMENSION_LABELS[k],
+              value: scoring.dimensions[k],
+            }))}
           />
           {scoring.reasoning && (
             <blockquote className="mt-6 border-l-2 border-primary bg-muted/30 p-4 text-sm italic text-muted-foreground">
@@ -270,7 +293,11 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {cur.parsed_json.skills.map((s) => (
-                  <Badge key={s} variant="outline" className="border-border text-xs">
+                  <Badge
+                    key={s}
+                    variant="outline"
+                    className="border-border text-xs"
+                  >
                     {s}
                   </Badge>
                 ))}
@@ -342,7 +369,9 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
                   <p className="truncate text-sm font-medium text-foreground">
                     {r.file_name?.trim() || "Untitled resume"}
                     {r.is_current && (
-                      <span className="ml-2 text-xs text-primary">· current</span>
+                      <span className="ml-2 text-xs text-primary">
+                        · current
+                      </span>
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -378,7 +407,8 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
               Want Lauren to rewrite this?
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              A guided resume review with feedback on positioning, impact statements, and ATS keywords.
+              A guided resume review with feedback on positioning, impact
+              statements, and ATS keywords.
             </p>
             {/* TODO(coaching): wire to coaching booking flow once available */}
             <Button asChild size="sm" className="mt-3">

@@ -12,7 +12,9 @@ export type UpdateLinkedInUrlResult =
 /**
  * Updates `profiles.linkedin_url` for the signed-in user (RLS: own row only).
  */
-export async function updateLinkedInUrl(url: string): Promise<UpdateLinkedInUrlResult> {
+export async function updateLinkedInUrl(
+  url: string
+): Promise<UpdateLinkedInUrlResult> {
   const parsed = normalizeLinkedInProfileUrl(url);
   if (!parsed.ok) {
     return { success: false, error: parsed.error };

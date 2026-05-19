@@ -3,7 +3,10 @@
 import { ArrowRight, Lock, Upload, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import type { DashboardProfile, DashboardResume } from "@/hooks/use-dashboard-data";
+import type {
+  DashboardProfile,
+  DashboardResume,
+} from "@/hooks/use-dashboard-data";
 import { isPaidUser } from "@/hooks/use-dashboard-data";
 
 interface QuickActionsProps {
@@ -15,10 +18,7 @@ interface QuickActionsProps {
 
 type CTAState = "no-resume" | "free-with-resume" | "paid";
 
-function getCtaState(
-  paid: boolean,
-  resumes: DashboardResume[]
-): CTAState {
+function getCtaState(paid: boolean, resumes: DashboardResume[]): CTAState {
   if (resumes.length === 0) return "no-resume";
   if (!paid) return "free-with-resume";
   return "paid";

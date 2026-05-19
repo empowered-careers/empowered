@@ -57,7 +57,12 @@ export function Navbar() {
           >
             Log In
           </Link>
-          <Button variant="lime" size="lg" asChild className="h-11 px-6 font-bold">
+          <Button
+            variant="lime"
+            size="lg"
+            asChild
+            className="h-11 px-6 font-bold"
+          >
             <Link href="/login?tab=signup">Get Started</Link>
           </Button>
         </div>

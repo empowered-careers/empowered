@@ -138,9 +138,9 @@ export async function insertResumeRow(input: {
  * `inngest_send_failed` (or when a row has been stuck in `uploading` /
  * `failed` longer than the user is willing to wait).
  */
-export async function retryParseResume(resumeId: string): Promise<
-  { success: true } | { success: false; error: string }
-> {
+export async function retryParseResume(
+  resumeId: string
+): Promise<{ success: true } | { success: false; error: string }> {
   const supabase = await createClient();
   const {
     data: { user },

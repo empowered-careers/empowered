@@ -10,9 +10,15 @@ import { env } from "../../../env";
  */
 export function createServiceClient() {
   if (!env.SUPABASE_SECRET_KEY) {
-    throw new Error("SUPABASE_SECRET_KEY is required for service-role operations");
+    throw new Error(
+      "SUPABASE_SECRET_KEY is required for service-role operations"
+    );
   }
-  return createClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SECRET_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  return createClient<Database>(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.SUPABASE_SECRET_KEY,
+    {
+      auth: { persistSession: false, autoRefreshToken: false },
+    }
+  );
 }

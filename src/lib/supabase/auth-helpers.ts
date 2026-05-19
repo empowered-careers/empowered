@@ -1,3 +1,5 @@
+import type { Session } from "@supabase/supabase-js";
+
 import { createClient as createBrowserClient } from "./client";
 import { createClient as createServerClient } from "./server";
 
@@ -45,7 +47,9 @@ export const auth = {
     return { session, error };
   },
 
-  onAuthStateChange(callback: (event: string, session: any) => void) {
+  onAuthStateChange(
+    callback: (event: string, session: Session | null) => void
+  ) {
     const supabase = createBrowserClient();
     return supabase.auth.onAuthStateChange(callback);
   },
@@ -56,12 +60,14 @@ export const auth = {
    */
   async signInWithOAuth(provider: "google" | "linkedin_oidc") {
     const supabase = createBrowserClient();
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `${siteUrl}/auth/callback`,
+        ...(provider === "linkedin_oidc"
+          ? { scopes: "openid profile email r_profile_basicinfo" }
+          : {}),
       },
     });
     return { data, error };
@@ -74,8 +80,7 @@ export const auth = {
    */
   async resetPasswordForEmail(email: string) {
     const supabase = createBrowserClient();
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${siteUrl}/auth/callback?type=recovery`,
     });

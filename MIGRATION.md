@@ -16,12 +16,14 @@ Supabase has updated their JWT setup from the legacy `anon` key to a new `publis
 ### 1. Update Environment Variables
 
 **Before (Legacy):**
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
 
 **After (Current):**
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
@@ -48,18 +50,18 @@ The following files have been updated in this starter:
 
 - `env.ts` - Environment variable validation
 - `src/lib/supabase/client.ts` - Browser client configuration
-- `src/lib/supabase/server.ts` - Server client configuration  
+- `src/lib/supabase/server.ts` - Server client configuration
 - `src/middleware.ts` - Middleware authentication
 - `README.md` - Documentation updates
 
 ## Key Differences
 
-| Aspect | Legacy Anon Key | New Publishable Key |
-|--------|----------------|-------------------|
-| Format | JWT token | Non-JWT key |
-| Header Usage | `Authorization: Bearer ...` | `apikey: ...` |
-| Security | Standard JWT | Enhanced security |
-| Key Rotation | Manual | Automatic |
+| Aspect       | Legacy Anon Key             | New Publishable Key |
+| ------------ | --------------------------- | ------------------- |
+| Format       | JWT token                   | Non-JWT key         |
+| Header Usage | `Authorization: Bearer ...` | `apikey: ...`       |
+| Security     | Standard JWT                | Enhanced security   |
+| Key Rotation | Manual                      | Automatic           |
 
 ## Timeline
 

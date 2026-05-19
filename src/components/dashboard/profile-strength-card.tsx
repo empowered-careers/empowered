@@ -9,7 +9,7 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent,useId, useState, useTransition } from "react";
+import { type FormEvent, useId, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { updateLinkedInUrl } from "@/app/actions/profile";
@@ -25,7 +25,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import type { DashboardProfile, DashboardResume } from "@/hooks/use-dashboard-data";
+import type {
+  DashboardProfile,
+  DashboardResume,
+} from "@/hooks/use-dashboard-data";
 import { getProfileStrength } from "@/hooks/use-dashboard-data";
 
 interface ProfileStrengthCardProps {
@@ -85,7 +88,8 @@ function buildSteps(
       id: "step-subscription",
       label: "Activate membership",
       description: "Access exclusive job matches",
-      status: profile?.subscription_status === "active" ? "complete" : "incomplete",
+      status:
+        profile?.subscription_status === "active" ? "complete" : "incomplete",
     },
   ];
 }
@@ -99,7 +103,9 @@ export function ProfileStrengthCard({
   const formId = useId();
   const [linkedinDialogOpen, setLinkedinDialogOpen] = useState(false);
   const [linkedinUrlInput, setLinkedinUrlInput] = useState("");
-  const [linkedinFormError, setLinkedinFormError] = useState<string | null>(null);
+  const [linkedinFormError, setLinkedinFormError] = useState<string | null>(
+    null
+  );
   const [isSavingLinkedin, startLinkedinTransition] = useTransition();
 
   const { completed, total, percentage } = getProfileStrength(profile, resumes);
@@ -223,8 +229,9 @@ export function ProfileStrengthCard({
                   )}
                 </div>
               </div>
-              {step.action && step.status === "incomplete" && (
-                step.action.href ? (
+              {step.action &&
+                step.status === "incomplete" &&
+                (step.action.href ? (
                   <a
                     href={step.action.href}
                     target="_blank"
@@ -241,14 +248,15 @@ export function ProfileStrengthCard({
                     className="h-6 shrink-0 px-2 text-xs font-medium text-primary hover:bg-muted"
                     id="btn-add-linkedin-url"
                     onClick={
-                      step.id === "step-linkedin" ? openLinkedinDialog : undefined
+                      step.id === "step-linkedin"
+                        ? openLinkedinDialog
+                        : undefined
                     }
                     type="button"
                   >
                     {step.action.label}
                   </Button>
-                )
-              )}
+                ))}
             </li>
           ))}
         </ul>
@@ -283,7 +291,9 @@ export function ProfileStrengthCard({
                 </label>
                 <Input
                   autoComplete="url"
-                  className={linkedinFormError ? "border-destructive" : undefined}
+                  className={
+                    linkedinFormError ? "border-destructive" : undefined
+                  }
                   disabled={isSavingLinkedin}
                   id={`${formId}-linkedin-url`}
                   name="linkedin_url"

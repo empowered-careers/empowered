@@ -1,6 +1,6 @@
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { type NextRequest,NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { syncLinkedInProfileUrlFromSession } from "@/lib/linkedin-identity-sync";
 
@@ -16,8 +16,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const type = requestUrl.searchParams.get("type");
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? requestUrl.origin;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? requestUrl.origin;
 
   // Password-reset recovery redirect (no code exchange needed server-side;
   // Supabase handles it client-side via the PASSWORD_RECOVERY event).
@@ -73,9 +72,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Exchange failed — redirect back to login with an error hint
-    return NextResponse.redirect(
-      `${siteUrl}/login?error=oauth_error`
-    );
+    return NextResponse.redirect(`${siteUrl}/login?error=oauth_error`);
   }
 
   // No code and no type — fallback to login

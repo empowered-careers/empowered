@@ -54,6 +54,7 @@ Define success criteria. Loop until verified.
 For multi-step tasks, state a brief plan with verification per step. Strong success criteria let you loop independently; weak ones ("make it work") force constant clarification.
 
 > Note: this repo has no automated tests yet — verification often means manual checks (type-check, lint, dev server) or reasoning explicitly about behavior. State what you used to verify.
+
 ## Commands
 
 ```bash
@@ -95,6 +96,7 @@ The app uses a split Server/Client Component pattern for the dashboard:
 - **RLS:** the server Supabase client carries the user's session automatically; RLS policies just work.
 
 Rules:
+
 - No DTO layer — pass Supabase row types straight through. Types come from `src/types/database.types.ts`.
 - Server component: auth check + redirect, initial data fetch, metadata.
 - Client component: state, events, TanStack Query (hydrated from initialData), Realtime hooks, modals.
@@ -104,6 +106,7 @@ Rules:
 For any feature that processes work in the background (resume parsing, ATS scoring, matching, payment confirmations, future LinkedIn audits), follow this pattern. Don't invent a new shape per feature.
 
 **Flow:**
+
 1. Client triggers → server inserts row with `status: 'processing'` → toast 1 ("in progress").
 2. Fire-and-forget POST to `/api/<job>` route. User can navigate away freely.
 3. Background worker updates the row to `status: 'complete'` (plus result fields).
@@ -113,6 +116,7 @@ For any feature that processes work in the background (resume parsing, ATS scori
 **Status enum on each domain table:** `'uploading' | 'processing' | 'complete' | 'failed'` (variants OK where domain demands).
 
 **Hook naming + placement:**
+
 - `useResumeNotifications`, `useAssessmentNotifications`, `useMatchNotifications`, `usePaymentNotifications`
 - Live in `src/hooks/`
 - Subscribe to `postgres_changes` filtered by `profile_id=eq.${userId}`
@@ -124,6 +128,7 @@ For any feature that processes work in the background (resume parsing, ATS scori
 ### Supabase Clients
 
 There are two Supabase clients — use the right one for the context:
+
 - `src/lib/supabase/client.ts` — browser client (`createBrowserClient`), for Client Components and hooks
 - `src/lib/supabase/server.ts` — server client (`createServerClient`), for Server Components, Server Actions, and Route Handlers
 
@@ -146,22 +151,22 @@ RLS is enforced at the database level. When writing queries, don't assume the se
 
 ## Key File Locations
 
-| Purpose | Path |
-|---|---|
-| Root layout + providers | `src/app/layout.tsx` |
-| Auth state + hook | `src/components/providers/auth-provider.tsx` |
-| Dashboard server component | `src/app/dashboard/page.tsx` |
-| Dashboard client component | `src/components/dashboard/dashboard-client.tsx` |
-| Server Actions | `src/app/actions/` |
-| Supabase browser client | `src/lib/supabase/client.ts` |
-| Supabase server client | `src/lib/supabase/server.ts` |
-| TanStack Query keys | `src/lib/query-keys.ts` |
-| DB types (auto-generated) | `src/types/database.types.ts` |
-| Env validation schema | `env.ts` |
-| Site metadata/branding | `src/config/site.ts` |
-| Business/product context | `docs/context.md` |
-| Database schema + enums | `docs/db_schema.md` |
-| Feature list + build status | `docs/ec-feature-list.md` |
-| Sprint plan (what's built vs. deferred) | `docs/ec-sprint-plan.md` |
-| Candidate journey + tier access rules | `docs/ec-candidate-journey.md` |
-| Admin operations + Loops email events | `docs/ec-admin-operations.md` |
+| Purpose                                 | Path                                            |
+| --------------------------------------- | ----------------------------------------------- |
+| Root layout + providers                 | `src/app/layout.tsx`                            |
+| Auth state + hook                       | `src/components/providers/auth-provider.tsx`    |
+| Dashboard server component              | `src/app/dashboard/page.tsx`                    |
+| Dashboard client component              | `src/components/dashboard/dashboard-client.tsx` |
+| Server Actions                          | `src/app/actions/`                              |
+| Supabase browser client                 | `src/lib/supabase/client.ts`                    |
+| Supabase server client                  | `src/lib/supabase/server.ts`                    |
+| TanStack Query keys                     | `src/lib/query-keys.ts`                         |
+| DB types (auto-generated)               | `src/types/database.types.ts`                   |
+| Env validation schema                   | `env.ts`                                        |
+| Site metadata/branding                  | `src/config/site.ts`                            |
+| Business/product context                | `docs/context.md`                               |
+| Database schema + enums                 | `docs/db_schema.md`                             |
+| Feature list + build status             | `docs/ec-feature-list.md`                       |
+| Sprint plan (what's built vs. deferred) | `docs/ec-sprint-plan.md`                        |
+| Candidate journey + tier access rules   | `docs/ec-candidate-journey.md`                  |
+| Admin operations + Loops email events   | `docs/ec-admin-operations.md`                   |

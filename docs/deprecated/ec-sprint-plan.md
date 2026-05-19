@@ -6,19 +6,21 @@
 ---
 
 ## Guiding Rule
+
 Build the funnel before the features. A candidate who can't sign up, upload, and see value in 5 minutes is a lost candidate.
 
 ---
 
 ## Phase 1 Gates
+
 All four must be green before Phase 2 build begins:
 
-| Gate | Status | Sprint That Enables It |
-|---|---|---|
-| 100 free candidates in pool | ⬜ | Sprint 1 + Lauren's content |
-| 30 paid candidates | ⬜ | Sprint 2 |
-| 3–5 employer/agency relationships | ⬜ | Lauren owns — no sprint needed |
-| 10–15 exclusive roles/month | ⬜ | Sprint 3 |
+| Gate                              | Status | Sprint That Enables It         |
+| --------------------------------- | ------ | ------------------------------ |
+| 100 free candidates in pool       | ⬜     | Sprint 1 + Lauren's content    |
+| 30 paid candidates                | ⬜     | Sprint 2                       |
+| 3–5 employer/agency relationships | ⬜     | Lauren owns — no sprint needed |
+| 10–15 exclusive roles/month       | ⬜     | Sprint 3                       |
 
 ---
 
@@ -33,6 +35,7 @@ All four must be green before Phase 2 build begins:
 ---
 
 ## Sprint 1 — First Impression
+
 **Goal:** A new candidate can sign up, upload resume, and immediately see value.
 
 - [ ] Resume upload mandatory before dashboard (gate it)
@@ -48,6 +51,7 @@ All four must be green before Phase 2 build begins:
 ---
 
 ## Sprint 2 — Paywall + Revenue
+
 **Goal:** First dollar in.
 
 - [ ] Stripe integration
@@ -63,6 +67,7 @@ All four must be green before Phase 2 build begins:
 ---
 
 ## Sprint 3 — Job Board Complete
+
 **Goal:** Lauren can operate the job board independently.
 
 - [ ] Admin dashboard — add/edit/remove jobs
@@ -78,6 +83,7 @@ All four must be green before Phase 2 build begins:
 ---
 
 ## Sprint 4 — Assessments
+
 **Goal:** Profile depth that improves matches and drives upsells.
 
 - [ ] Assessment framework — 5 core assessments:
@@ -96,6 +102,7 @@ All four must be green before Phase 2 build begins:
 ---
 
 ## Sprint 5 — LinkedIn Grade + Full Nudge System
+
 **Goal:** Second lead magnet live + conversion nudges firing across all touchpoints.
 
 - [ ] LinkedIn grade (visibility score, keyword gaps)
@@ -115,6 +122,7 @@ All four must be green before Phase 2 build begins:
 ---
 
 ## Sprint 6 — Loops Email Automation
+
 **Goal:** Candidate lifecycle runs on autopilot.
 
 - [ ] Loops account + domain configured
@@ -135,37 +143,37 @@ All four must be green before Phase 2 build begins:
 
 ## Tool Decisions
 
-| Tool | Use Case | When |
-|---|---|---|
-| Loops | Candidate lifecycle emails | Sprint 6 |
-| Google Sheets | Agency + employer tracking | Phase 1 |
-| Pipedrive | Agency + employer CRM | After 10 agencies onboarded |
-| Stripe | Payments + subscriptions | Sprint 2 |
-| PostHog | Analytics | Sprint 1 onwards |
+| Tool          | Use Case                   | When                        |
+| ------------- | -------------------------- | --------------------------- |
+| Loops         | Candidate lifecycle emails | Sprint 6                    |
+| Google Sheets | Agency + employer tracking | Phase 1                     |
+| Pipedrive     | Agency + employer CRM      | After 10 agencies onboarded |
+| Stripe        | Payments + subscriptions   | Sprint 2                    |
+| PostHog       | Analytics                  | Sprint 1 onwards            |
 
 ---
 
 ## Phase 2 — After Gates Are Hit
 
-| Sprint | Focus |
-|---|---|
-| P2-S1 | Full matching algorithm (candidate score × job score) |
-| P2-S2 | Agency portal — role submission + commission tracking |
-| P2-S3 | AI resume rewriting + LinkedIn optimization tools |
-| P2-S4 | Conversational AI assessments |
-| P2-S5 | Referral system |
-| P2-S6 | Pipedrive CRM integration |
+| Sprint | Focus                                                 |
+| ------ | ----------------------------------------------------- |
+| P2-S1  | Full matching algorithm (candidate score × job score) |
+| P2-S2  | Agency portal — role submission + commission tracking |
+| P2-S3  | AI resume rewriting + LinkedIn optimization tools     |
+| P2-S4  | Conversational AI assessments                         |
+| P2-S5  | Referral system                                       |
+| P2-S6  | Pipedrive CRM integration                             |
 
 ---
 
 ## Rough Timeline
 
-| Sprint | Estimated Duration |
-|---|---|
-| Sprint 1 | 1–2 weeks |
-| Sprint 2 | 1 week |
-| Sprint 3 | 1–2 weeks |
-| Sprint 4 | 2 weeks |
-| Sprint 5 | 1 week |
-| Sprint 6 | 1 week |
-| **Total** | **7–9 weeks** |
+| Sprint    | Estimated Duration |
+| --------- | ------------------ |
+| Sprint 1  | 1–2 weeks          |
+| Sprint 2  | 1 week             |
+| Sprint 3  | 1–2 weeks          |
+| Sprint 4  | 2 weeks            |
+| Sprint 5  | 1 week             |
+| Sprint 6  | 1 week             |
+| **Total** | **7–9 weeks**      |

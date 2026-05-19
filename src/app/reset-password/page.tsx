@@ -217,17 +217,15 @@ export default function ResetPasswordPage() {
                     value={password}
                   />
                   <button
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     onClick={() => setShowPassword((v) => !v)}
                     tabIndex={-1}
                     type="button"
                   >
-                    {showPassword ? (
-                      <EyeOff size={16} />
-                    ) : (
-                      <Eye size={16} />
-                    )}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
                 {password.length > 0 && <StrengthBar password={password} />}
@@ -252,19 +250,13 @@ export default function ResetPasswordPage() {
                     value={confirm}
                   />
                   <button
-                    aria-label={
-                      showConfirm ? "Hide password" : "Show password"
-                    }
+                    aria-label={showConfirm ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     onClick={() => setShowConfirm((v) => !v)}
                     tabIndex={-1}
                     type="button"
                   >
-                    {showConfirm ? (
-                      <EyeOff size={16} />
-                    ) : (
-                      <Eye size={16} />
-                    )}
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
                 {mismatch && (

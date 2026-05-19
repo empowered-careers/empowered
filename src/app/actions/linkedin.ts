@@ -124,9 +124,9 @@ export async function triggerLinkedinSync(input: {
  * `inngest_send_failed`, or when a row has been stuck in `processing` /
  * `failed`. Re-reads `last_export_path` from the row — never re-uploads.
  */
-export async function retryLinkedinSync(linkedinProfileId: string): Promise<
-  { success: true } | { success: false; error: string }
-> {
+export async function retryLinkedinSync(
+  linkedinProfileId: string
+): Promise<{ success: true } | { success: false; error: string }> {
   const supabase = await createClient();
   const {
     data: { user },

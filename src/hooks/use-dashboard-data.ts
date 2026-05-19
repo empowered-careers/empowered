@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
-import type { BillingCadence,Plan, SubscriptionStatus } from "@/types/supabase";
+import type {
+  BillingCadence,
+  Plan,
+  SubscriptionStatus,
+} from "@/types/supabase";
 
 export type DashboardProfile = {
   id: string;
@@ -93,9 +97,9 @@ export function getProfileStrength(
   const total = 5;
   let completed = 0;
 
-  if (profile?.full_name) completed++;                     // 1. name filled
-  if (profile?.linkedin_url) completed++;                  // 2. LinkedIn URL
-  if (resumes.length > 0) completed++;                     // 3. resume uploaded
+  if (profile?.full_name) completed++; // 1. name filled
+  if (profile?.linkedin_url) completed++; // 2. LinkedIn URL
+  if (resumes.length > 0) completed++; // 3. resume uploaded
   if (resumes.some((r) => r.ats_score !== null)) completed++; // 4. ATS scored
   // 5. subscription active (any tier counts as step)
   if (profile?.subscription_status === "active") completed++;

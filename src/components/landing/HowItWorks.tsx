@@ -5,18 +5,21 @@ export function HowItWorks() {
     {
       number: "01",
       title: "Get Assessed",
-      description: "Upload your resume, link LinkedIn. We score your profile across 8 dimensions including technical depth, leadership potential, and market value."
+      description:
+        "Upload your resume, link LinkedIn. We score your profile across 8 dimensions including technical depth, leadership potential, and market value.",
     },
     {
       number: "02",
       title: "Access Exclusive Roles",
-      description: "Subscribe to unlock roles that never hit public job boards. These are direct-to-recruiter opportunities from our private network."
+      description:
+        "Subscribe to unlock roles that never hit public job boards. These are direct-to-recruiter opportunities from our private network.",
     },
     {
       number: "03",
       title: "Get Matched",
-      description: "Our algorithm surfaces roles where you're a top 5% fit — moving beyond keyword matching to true competency alignment."
-    }
+      description:
+        "Our algorithm surfaces roles where you're a top 5% fit — moving beyond keyword matching to true competency alignment.",
+    },
   ];
 
   return (
@@ -28,10 +31,11 @@ export function HowItWorks() {
             career breakthrough.
           </h2>
           <p className="font-sans text-lg text-foreground/60">
-            Stop competing in public talent pools. Join the 1% who get hired through private networks.
+            Stop competing in public talent pools. Join the 1% who get hired
+            through private networks.
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-12">
           {steps.map((step) => (
             <div key={step.number} className="relative group">

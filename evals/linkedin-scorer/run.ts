@@ -1,4 +1,3 @@
- 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -17,9 +16,7 @@ type Pair = { stronger: string; weaker: string; reason: string };
 async function main() {
   const fixtures = loadLinkedInFixtures();
   if (fixtures.length === 0) {
-    console.log(
-      "No LinkedIn fixtures. See evals/README.md."
-    );
+    console.log("No LinkedIn fixtures. See evals/README.md.");
     return;
   }
 

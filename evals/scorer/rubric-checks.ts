@@ -18,8 +18,7 @@ export const RUBRIC_CHECKS: RubricCheck[] = [
   {
     name: "no-quantified-bullets-scores-low",
     applies: (p) =>
-      p.work_experience.length > 0 &&
-      countQuantifiedBullets(p) === 0,
+      p.work_experience.length > 0 && countQuantifiedBullets(p) === 0,
     passes: (_p, s) => s.dimensions.impact_signals <= 45,
   },
   {
@@ -44,7 +43,8 @@ function averageTenureYears(p: ParsedResume): number {
     if (!role.start) continue;
     const start = new Date(role.start + "-01");
     const end = role.end ? new Date(role.end + "-01") : new Date();
-    const years = (end.getTime() - start.getTime()) / (365.25 * 24 * 3600 * 1000);
+    const years =
+      (end.getTime() - start.getTime()) / (365.25 * 24 * 3600 * 1000);
     if (years > 0) tenures.push(years);
   }
   if (tenures.length === 0) return 0;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/page-shell";
@@ -80,13 +80,6 @@ function AuthForm() {
   const { signIn, signUp, signInWithOAuth } = useAuth();
   const router = useRouter();
 
-  // Update mode if tab param changes
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab === "signup") setMode("signup");
-    else if (tab === "signin") setMode("signin");
-  }, [searchParams]);
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -151,9 +144,7 @@ function AuthForm() {
             type="button"
           >
             <GoogleIcon />
-            <span>
-              {oauthLoading === "google" ? "Redirecting…" : "Google"}
-            </span>
+            <span>{oauthLoading === "google" ? "Redirecting…" : "Google"}</span>
           </button>
 
           <button
@@ -274,7 +265,9 @@ export default function LoginPage() {
   return (
     <PageShell>
       <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4">
-        <Suspense fallback={<div className="text-muted-foreground">Loading...</div>}>
+        <Suspense
+          fallback={<div className="text-muted-foreground">Loading...</div>}
+        >
           <AuthForm />
         </Suspense>
       </div>
@@ -308,4 +301,3 @@ export default function LoginPage() {
     </PageShell>
   );
 }
-

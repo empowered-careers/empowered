@@ -1,6 +1,10 @@
 import { NonRetriableError } from "inngest";
 
-import { PARSER_MODEL, PROMPT_VERSION, SCORER_MODEL } from "@/lib/llm/anthropic";
+import {
+  PARSER_MODEL,
+  PROMPT_VERSION,
+  SCORER_MODEL,
+} from "@/lib/llm/anthropic";
 import { parseResume } from "@/lib/llm/parse-resume";
 import type { ParsedResume, Scoring } from "@/lib/llm/schemas";
 import { scoreResume } from "@/lib/llm/score-resume";

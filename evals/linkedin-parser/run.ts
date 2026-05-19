@@ -1,4 +1,3 @@
- 
 import { parseLinkedIn } from "../../src/lib/llm/parse-linkedin";
 import {
   type LinkedInFixture,
@@ -21,7 +20,8 @@ async function runOne(fx: LinkedInFixture): Promise<RowResult> {
   try {
     const parsed = await parseLinkedIn(fx.pdfBuffer);
     const about_present_match =
-      (!!parsed.about && parsed.about.length > 0) === fx.groundTruth.about_present;
+      (!!parsed.about && parsed.about.length > 0) ===
+      fx.groundTruth.about_present;
     const companies_match = exactMatchRate(
       parsed.experience.map((e) => e.company),
       fx.groundTruth.experience_companies
@@ -67,15 +67,18 @@ async function runOne(fx: LinkedInFixture): Promise<RowResult> {
 }
 
 function scoreDates(
-  predicted: Array<{ company: string; start: string | null; end: string | null }>,
+  predicted: Array<{
+    company: string;
+    start: string | null;
+    end: string | null;
+  }>,
   expected: Array<{ company: string; start: string | null; end: string | null }>
 ): number {
   if (expected.length === 0) return predicted.length === 0 ? 1 : 0;
   let hits = 0;
   for (const exp of expected) {
     const match = predicted.find(
-      (p) =>
-        p.company.trim().toLowerCase() === exp.company.trim().toLowerCase()
+      (p) => p.company.trim().toLowerCase() === exp.company.trim().toLowerCase()
     );
     if (match && match.start === exp.start && match.end === exp.end) hits += 1;
   }

@@ -133,7 +133,8 @@ export function JobBoardClient() {
             Job Board
           </h1>
           <p className="mt-1 text-muted-foreground text-sm">
-            {JOBS.length} exclusive roles active this month. Filtered to your Plan.
+            {JOBS.length} exclusive roles active this month. Filtered to your
+            Plan.
           </p>
         </div>
       </div>

@@ -5,7 +5,7 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 ## Blocking (pipelines won't work without these)
 
 - [ ] Add `ANTHROPIC_API_KEY=...` to `.env.local`
-- [ ] Sign up at inngest.com, create app `empowered-careers`. Local dev needs nothing else; prod needs `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` in `.env.local` and on the deploy host
+- [x] Sign up at inngest.com, create app `empowered-careers`. Local dev needs nothing else; prod needs `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` in `.env.local` and on the deploy host
 
 ## Local smoke test
 

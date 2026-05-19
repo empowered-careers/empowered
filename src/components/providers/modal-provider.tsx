@@ -23,8 +23,8 @@ type ModalData = {
   cancelText?: string;
   onConfirm?: () => void;
   onCancel?: () => void;
-  component?: React.ComponentType<any>;
-  props?: Record<string, any>;
+  component?: React.ComponentType<Record<string, unknown>>;
+  props?: Record<string, unknown>;
 };
 
 type ModalContextType = {

@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { resolveTabKey, topNavTabs } from "@/components/app-shell/sidebar-config";
+import {
+  resolveTabKey,
+  topNavTabs,
+} from "@/components/app-shell/sidebar-config";
 import { ThemeToggle } from "@/components/app-shell/theme-toggle";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -118,7 +121,9 @@ export function TopNav({ pathname, userName, userEmail }: TopNavProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="flex flex-col gap-0.5">
-              <span className="font-medium text-sm">{userName || "Member"}</span>
+              <span className="font-medium text-sm">
+                {userName || "Member"}
+              </span>
               <span className="font-normal text-muted-foreground text-xs">
                 {userEmail}
               </span>
@@ -130,7 +135,9 @@ export function TopNav({ pathname, userName, userEmail }: TopNavProps) {
             <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut}>
+              Sign out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

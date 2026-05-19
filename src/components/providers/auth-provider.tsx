@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+import type { AuthError, User } from "@supabase/supabase-js";
 import {
   createContext,
   useCallback,
@@ -15,14 +15,22 @@ type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   isRecoveryMode: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<{ error: any }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<{ error: AuthError | null }>;
   signInWithOAuth: (
     provider: "google" | "linkedin_oidc"
-  ) => Promise<{ error: any }>;
-  resetPasswordForEmail: (email: string) => Promise<{ error: any }>;
-  updatePassword: (password: string) => Promise<{ error: any }>;
+  ) => Promise<{ error: AuthError | null }>;
+  resetPasswordForEmail: (
+    email: string
+  ) => Promise<{ error: AuthError | null }>;
+  updatePassword: (password: string) => Promise<{ error: AuthError | null }>;
   refreshUser: () => Promise<void>;
 };
 
@@ -41,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(authUser);
       }
-    } catch (_error) {
+    } catch {
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -93,14 +101,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Initial user fetch
-    refreshUser();
-
-    // Listen for auth state changes
+    // onAuthStateChange emits INITIAL_SESSION on subscribe, so no separate
+    // initial fetch is needed — avoids cascading renders from setState-in-effect.
     const {
       data: { subscription },
     } = auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (
+        event === "INITIAL_SESSION" ||
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED"
+      ) {
         setUser(session?.user ?? null);
         setIsRecoveryMode(false);
       } else if (event === "SIGNED_OUT") {
@@ -118,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [refreshUser]);
+  }, []);
 
   const value = {
     user,

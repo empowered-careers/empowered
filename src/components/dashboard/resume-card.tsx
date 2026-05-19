@@ -51,7 +51,10 @@ function AtsScoreBadge({ score }: { score: number | null }) {
         : "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400";
 
   return (
-    <Badge className={`border text-xs font-semibold ${color}`} variant="outline">
+    <Badge
+      className={`border text-xs font-semibold ${color}`}
+      variant="outline"
+    >
       ATS {score}
     </Badge>
   );
@@ -88,16 +91,15 @@ export function ResumeCard({ resumes }: ResumeCardProps) {
             </h2>
           </div>
         </div>
-        <div className="p-5 text-sm text-muted-foreground">Sign in to upload a resume.</div>
+        <div className="p-5 text-sm text-muted-foreground">
+          Sign in to upload a resume.
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      id="resume-hub"
-      className="flex flex-col border border-border bg-card"
-    >
+    <div id="resume-hub" className="flex flex-col border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
@@ -168,7 +170,8 @@ export function ResumeCard({ resumes }: ResumeCardProps) {
                   </div>
                   <div className="min-w-0 text-left">
                     <p className="truncate text-sm font-medium text-foreground">
-                      {resume.file_name?.trim() || `Resume ${resumes.length - i}`}
+                      {resume.file_name?.trim() ||
+                        `Resume ${resumes.length - i}`}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Uploaded {formatDate(resume.uploaded_at)}

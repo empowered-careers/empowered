@@ -7,7 +7,9 @@ import { type ParsedLinkedIn, ParsedLinkedInSchema } from "./schemas";
  * validated ParsedLinkedIn. The system prompt is cache_control: ephemeral
  * so repeated parses within a 5-minute window hit the prompt cache.
  */
-export async function parseLinkedIn(pdfBuffer: Buffer): Promise<ParsedLinkedIn> {
+export async function parseLinkedIn(
+  pdfBuffer: Buffer
+): Promise<ParsedLinkedIn> {
   const base64 = pdfBuffer.toString("base64");
   const client = getAnthropic();
 

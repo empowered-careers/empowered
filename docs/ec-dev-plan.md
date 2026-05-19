@@ -1,34 +1,51 @@
 # Empowered Careers — Development Plan v2
 
-> Last updated: 2026-05-15
+> Last updated: 2026-05-20
 > Supersedes: `deprecated/ec-sprint-plan.md` (kept for historical reference)
 > Source: alignment review in `C:\Users\pooja\.claude\plans\swift-sniffing-moon.md`
 
 ---
 
-## Progress snapshot (2026-05-15)
+## Progress snapshot (2026-05-20)
 
-What's actually landed on `main` since this plan was written:
+What's actually landed on `main`:
 
-**Shipped**
-- Phase 1 core schema migration (`20260513000000_phase1_core_tables.sql`) — all 11 core tables created with RLS: `employers`, `profiles`, `resumes`, `linkedin_profiles`, `assessments`, `assessment_responses`, `candidate_scores`, `jobs`, `job_scores`, `matches`, `payments`. Enums + `handle_new_user()` trigger included.
-- OAuth identity hardening (`20260513120000_oauth_profiles_sync.sql`, `20260514120000_profile_trigger_iss_and_provider_id.sql`) — `linkedin_provider_id` + `google_provider_id` on profiles; OIDC `iss`/`sub` fallback in the auth trigger; `handle_auth_user_updated()` keeps providers in sync on update.
-- Async job infrastructure (`20260515130000_async_job_status_columns.sql`) — `status` enum + `parse_started_at`/`parse_error` on `resumes`, `sync_started_at`/`sync_error` on `linkedin_profiles`. Realtime publication + `REPLICA IDENTITY FULL` enabled on both.
-- LinkedIn exports storage bucket (`20260515140000_linkedin_exports_bucket.sql`) — 5 MiB PDF-only bucket with per-user folder RLS.
-- LinkedIn identity sync at OAuth callback (`src/lib/linkedin-identity-sync.ts` + `src/app/auth/callback/route.ts`) — calls LinkedIn `/rest/identityMe` + `/v2/me`, normalizes profile URL, writes `linkedin_profiles` with `status='idle'`. Non-blocking; failures don't kill the callback.
-- Async job realtime pattern fully wired: `useResumeNotifications` + `useLinkedinNotifications` hooks, mounted via `src/components/providers/realtime-notifications.tsx` in the root layout. Toasts on complete/failed, invalidates dashboard query keys.
-- API routes scaffolded: `/api/parse-resume` (writes ATS score + parsed text on `resumes`) and `/api/sync-linkedin` (downloads PDF from `linkedin-exports`, parses sections, scores 0–100 on `linkedin_profiles`). **PDF extraction is stubbed** in `src/lib/pdf-extract.ts` — needs `unpdf` or `pdf-parse` wired before either route produces real output.
-- App-shell scaffold under `src/components/app-shell/`: `app-shell.tsx`, `top-nav.tsx`, `contextual-sidebar.tsx`, `sidebar-config.ts`, `completeness-ring.tsx`, `profile-chip.tsx`, `theme-toggle.tsx`. All authenticated routes now live under the `src/app/(app)/` route group (old `src/app/dashboard/` removed).
-- Feature route shells exist under `(app)/`: `dashboard` (wired), `content`, `job-board`, `pipeline` (UI shells only, no data wiring).
-- LinkedIn PDF upload UI (`src/components/linkedin/linkedin-pdf-upload.tsx`) — uploads to bucket, kicks off sync job via `triggerLinkedinSync` action.
-- Design system locked (`docs/design.md`): Cormorant Garamond serif + Montserrat sans, flat (0px radius), warm off-white + electric lime accent, dark-mode tokens in `globals.css`.
-- Service-role Supabase client (`src/lib/supabase/service.ts`) for background job routes.
+**S0 + S1 shipped (foundation + schema)**
 
-**S1 complete ✅** — all schema migrations landed; `database.types.ts` updated manually; docs rewritten for Plan vs. Job Tier vocabulary.
+- Phase 1 core schema migration (`20260513000000_phase1_core_tables.sql`) — all 11 core tables created with RLS.
+- OAuth identity hardening — `linkedin_provider_id` + `google_provider_id` on profiles; OIDC `iss`/`sub` fallback in the auth trigger; `handle_auth_user_updated()` keeps providers in sync.
+- Async job infrastructure — `status` enum + `parse_started_at`/`parse_error` on `resumes`, `sync_started_at`/`sync_error` on `linkedin_profiles`. Realtime publication + `REPLICA IDENTITY FULL` on both.
+- LinkedIn exports storage bucket — 5 MiB PDF-only with per-user folder RLS.
+- S1 schema realign + LLM metadata migrations (`20260516120000_s1_schema_realign.sql`, `20260516130000_resume_llm_metadata.sql`, `20260517000000_linkedin_llm_metadata.sql`).
+- LinkedIn identity sync at OAuth callback — non-blocking; writes `linkedin_profiles` with `status='idle'`.
+- Async job realtime pattern fully wired: `useResumeNotifications` + `useLinkedinNotifications` hooks, mounted via `src/components/providers/realtime-notifications.tsx` in the root layout.
+- App-shell scaffold + `(app)/` route group: `dashboard` (wired), `resume`, `linkedin`, `content`, `job-board`, `pipeline`.
+- Design system locked (`docs/design.md`).
+- Service-role Supabase client (`src/lib/supabase/service.ts`).
 
-**Immediate unblocker for S2**
-- Wire a real PDF extractor in `src/lib/pdf-extract.ts` — both E2 use cases (resume ATS + LinkedIn scoring) currently return stub output. Recommend `unpdf` (works on edge + Node).
-- Run `supabase db push` to apply `20260516120000_s1_schema_realign.sql`, then `npm run supabase:types` to resync from remote.
+**S2 in-flight — resume + LinkedIn pipelines end-to-end ✅**
+
+- **Background-job orchestrator switched from raw API routes to Inngest.** `/api/parse-resume` and `/api/sync-linkedin` are deleted; `src/inngest/functions/parse-resume.ts` and `parse-linkedin.ts` are the canonical workers, registered via `/api/inngest`. Concurrency capped at 5.
+- **PDF extraction approach changed.** `src/lib/pdf-extract.ts` is gone — instead, Anthropic Claude consumes the PDF directly (`src/lib/llm/anthropic.ts` + `parse-resume.ts` / `parse-linkedin.ts`). No `unpdf` / `pdf-parse` dependency.
+- LLM pipeline: `src/lib/llm/` holds `parse-resume`, `parse-linkedin`, `score-resume`, `score-linkedin`, shared `prompts.ts` + `schemas.ts`. Prompt versions in env (`RESUME_PROMPT_VERSION`, `LINKEDIN_PROMPT_VERSION`).
+- Resume flow: upload → file-hash dedup (`src/lib/file-hash.ts`) → Inngest `parse-resume` (extract → score → write `parsed_json`, `ats_score`, `summary`). Supersession handled — prior resume gets `is_current=false`, `superseded_at` stamped. Retry-from-failed UX in `resume-client.tsx`.
+- LinkedIn flow: upload PDF to `linkedin-exports` → Inngest `parse-linkedin` (extract → score → write `parsed_json`, `profile_score`, `summary`). **OAuth fields (`linkedin_url`, `headline`, `raw_json`) are explicitly untouched** by the PDF parser. Works for users who supplied `linkedin_url` via dialog without LinkedIn OAuth (action upserts from `profiles.linkedin_url`). Auth-helper now requests `r_profile_basicinfo` scope on the `linkedin_oidc` provider.
+- Dedicated route pages: `(app)/resume/page.tsx` + `resume-client.tsx`, `(app)/linkedin/page.tsx` + `linkedin-client.tsx`. Sidebar entries updated.
+- Profile Strength card surfaces LinkedIn upload section when `profiles.linkedin_url` is set.
+- Evals harness built: `evals/parser`, `evals/scorer`, `evals/linkedin-parser`, `evals/linkedin-scorer` with shared fixtures-loader + report util. Scripts in `package.json`. Fixtures + ground truth + rubric pairs still need to be populated.
+
+**Open S2 work** — see `docs/todo.md` for live checklist. Still TODO:
+
+- `ANTHROPIC_API_KEY` into `.env.local` (blocker for local smoke test).
+- End-to-end smoke test of resume + LinkedIn pipelines locally.
+- Production Inngest endpoint registration + prod env vars (`INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`).
+- Resume-upload gate before dashboard.
+- Profile completeness calculation (`completeness-ring.tsx` shell exists).
+- Job board data + lock logic; Lauren's manual Tier 1 seeding.
+- Surface LinkedIn `profile_score` badge on dashboard.
+- Eval fixtures + ground truth (≥5 per harness).
+- Stale-`uploading` / stale-`processing` watchdog in notification hooks.
+- Loops subscription to `candidate/resume_parsed` + `candidate/linkedin_parsed` events (events already emitted).
 
 ---
 
@@ -58,28 +75,28 @@ v2 keeps the funnel-first philosophy but reorders work so foundational schema la
 
 All four must be green before Phase 2 work begins:
 
-| Gate | Target | Sprint that enables |
-|---|---|---|
-| Free candidates in pool | 100 | Sprint 1 + content |
-| Paid candidates | 30 | Sprint 2 |
-| Employer/agency relationships | 3–5 | Lauren owns — no sprint |
-| Exclusive roles added per month | 10–15 | Sprint 3 |
+| Gate                            | Target | Sprint that enables     |
+| ------------------------------- | ------ | ----------------------- |
+| Free candidates in pool         | 100    | Sprint 1 + content      |
+| Paid candidates                 | 30     | Sprint 2                |
+| Employer/agency relationships   | 3–5    | Lauren owns — no sprint |
+| Exclusive roles added per month | 10–15  | Sprint 3                |
 
 ---
 
 ## Epics
 
-| ID | Epic | Why it exists | Status |
-|---|---|---|---|
-| E1 | Foundations & Schema Realign | Land Plan/Job-Tier split, applicant pipeline tables, placements, referrals, coaching schema. Doc rewrite. | Not started |
-| E2 | Candidate Activation | Resume gate, ATS score, profile completeness, marketing trust, basic nudges. | Sprint 0 partial |
-| E3 | Paywall & Plans | Stripe, four-Plan model, à la carte products, Plan-based gating. | Not started |
-| E4 | Job Board & Matching v1 | Admin job CRUD, Job Tier assignment, lightweight match score, "why this matches you" reasoning. | Not started |
-| E5 | Assessments | 5 core assessments, dimension scoring, Job Tier 2 unlock. | Not started |
-| E6 | Applicant Pipeline & Placements | Applications table, Lauren's pipeline view, placements + referrals first-class, marketing placement count wired to real data. | Not started |
-| E7 | Coaching Delivery Surface | Hybrid model: external hosting + EC-tracked enrollments, Cal.com booking embed, "My coaching" dashboard. | Not started |
-| E8 | Lifecycle Automation | Full nudge system + Loops event pipeline + sequences. | Not started |
-| E9 | Phase 2 Prep | Employer/agency portal spec, commission tracking schema groundwork. | Not started |
+| ID  | Epic                            | Why it exists                                                                                                                 | Status           |
+| --- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| E1  | Foundations & Schema Realign    | Land Plan/Job-Tier split, applicant pipeline tables, placements, referrals, coaching schema. Doc rewrite.                     | Not started      |
+| E2  | Candidate Activation            | Resume gate, ATS score, profile completeness, marketing trust, basic nudges.                                                  | Sprint 0 partial |
+| E3  | Paywall & Plans                 | Stripe, four-Plan model, à la carte products, Plan-based gating.                                                              | Not started      |
+| E4  | Job Board & Matching v1         | Admin job CRUD, Job Tier assignment, lightweight match score, "why this matches you" reasoning.                               | Not started      |
+| E5  | Assessments                     | 5 core assessments, dimension scoring, Job Tier 2 unlock.                                                                     | Not started      |
+| E6  | Applicant Pipeline & Placements | Applications table, Lauren's pipeline view, placements + referrals first-class, marketing placement count wired to real data. | Not started      |
+| E7  | Coaching Delivery Surface       | Hybrid model: external hosting + EC-tracked enrollments, Cal.com booking embed, "My coaching" dashboard.                      | Not started      |
+| E8  | Lifecycle Automation            | Full nudge system + Loops event pipeline + sequences.                                                                         | Not started      |
+| E9  | Phase 2 Prep                    | Employer/agency portal spec, commission tracking schema groundwork.                                                           | Not started      |
 
 E1–E8 are Phase 1. E9 straddles into Phase 2.
 
@@ -90,6 +107,7 @@ E1–E8 are Phase 1. E9 straddles into Phase 2.
 Sprint length: 1–2 weeks. Total Phase 1 estimate: 10–12 weeks (was 7–9; +2–3 weeks for E6 + E7).
 
 ### Sprint 0 — Foundation (✅ complete)
+
 - Next.js + Supabase + Vercel
 - Auth (Google + LinkedIn OAuth) — hardened with OIDC `iss`/`sub` fallback identity sync
 - Resume upload + storage
@@ -122,27 +140,34 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 
 ---
 
-### Sprint 2 — E2: First Impression (1–2 weeks)
+### Sprint 2 — E2: First Impression (in flight)
+
 **Goal:** new candidate can sign up, upload resume, immediately see value.
 
-**Blocker before kickoff:** `src/lib/pdf-extract.ts` returns a stub. Both `/api/parse-resume` and `/api/sync-linkedin` depend on it. Wire `unpdf` (preferred — edge-compatible) or `pdf-parse` first. Until this is done, ATS scores and LinkedIn profile scores are placeholders.
+**Approach change from original plan:** PDF text extraction is no longer a separate step. Anthropic Claude consumes the uploaded PDF directly via the Files API, so `src/lib/pdf-extract.ts` and the `unpdf`/`pdf-parse` route are obsolete. Background work runs through Inngest functions, not bare API routes.
 
-- [ ] **Wire real PDF extractor** in `src/lib/pdf-extract.ts` (unpdf recommended)
+- [x] **PDF parsing pipeline live** — Anthropic direct-PDF ingestion via `src/lib/llm/parse-resume.ts` + `parse-linkedin.ts`
+- [x] Resume parsing end-to-end — Inngest `parse-resume` writes `parsed_json`, `ats_score`, `summary`; dedup via file hash; supersession + retry UX
+- [x] ATS score calculation + display card on dashboard
+- [x] LinkedIn PDF sync end-to-end — Inngest `parse-linkedin` writes `parsed_json`, `profile_score`, `summary`; OAuth fields preserved
+- [x] Evals harness scaffolded for both parser + scorer on resume and LinkedIn
+- [ ] `ANTHROPIC_API_KEY` configured locally + on prod; Inngest endpoint registered in dashboard
 - [ ] Resume upload mandatory before dashboard (gate it)
-- [ ] Finish resume parsing — replace stub `extractPdfText` and stub ATS scorer in `/api/parse-resume` with real implementations
-- [ ] ATS score calculation + display card (route + realtime hook + status enum already in place from S1)
 - [ ] Dashboard — profile completeness score (0–100); `completeness-ring.tsx` shell already exists, needs calculation logic
-- [ ] LinkedIn PDF sync end-to-end — UI shell (`linkedin-pdf-upload.tsx`) and `/api/sync-linkedin` route exist; needs real PDF extraction + verification of the heuristic LinkedIn section parser
-- [ ] Job board shell — all three Job Tiers visible with correct lock states (locks driven by Plan, not by hardcoded rules); `(app)/job-board/` route + `job-board-client.tsx` shell exist, need data + lock logic
+- [ ] Surface LinkedIn `profile_score` badge in Profile Strength card
+- [ ] Job board shell — all three Job Tiers visible with correct lock states (locks driven by Plan, not by hardcoded rules)
 - [ ] Tier 1 jobs — Lauren manually adds 10–15 curated public roles (budget her time OR plan a Sprint 2.5 importer)
-- [ ] Trust factors on marketing page (placement count reads from `placements` table — zero is fine for now; requires S1 placements table)
+- [ ] Trust factors on marketing page (placement count reads from `placements` table — zero is fine for now)
 - [ ] Basic nudge cards (ATS low → resume review CTA)
+- [ ] Stale-`uploading` / stale-`processing` watchdog in `useResumeNotifications` + `useLinkedinNotifications` (covers silent `inngest.send` failures)
+- [ ] Eval fixtures + ground truth populated (≥5 per harness)
 
 **Exit:** a real candidate signs up, uploads resume, sees their ATS score, sees Job Tier 1 roles.
 
 ---
 
 ### Sprint 3 — E3: Paywall & Plans (1 week)
+
 **Goal:** first dollar in.
 
 - [ ] Stripe integration (customer create, webhook handlers)
@@ -159,6 +184,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 ---
 
 ### Sprint 4 — E4: Job Board & Matching v1 (1–2 weeks)
+
 **Goal:** Lauren operates the job board independently; candidates see matches.
 
 - [ ] Admin: add/edit/remove/archive jobs
@@ -173,6 +199,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 ---
 
 ### Sprint 5 — E5: Assessments (2 weeks)
+
 **Goal:** profile depth that improves matches and drives upsells.
 
 - [ ] Assessment runner UI (multi-step form, save-resume)
@@ -187,6 +214,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 ---
 
 ### Sprint 6 — E6: Applicant Pipeline & Placements (1–2 weeks)
+
 **Goal:** end-to-end loop closes. Express-interest → placed is a real, tracked flow.
 
 - [ ] Application status enum: `interested`, `submitted`, `screening`, `interviewing`, `offer`, `placed`, `rejected`, `withdrawn`
@@ -203,6 +231,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 ---
 
 ### Sprint 7 — E7: Coaching Delivery Surface (1–2 weeks)
+
 **Goal:** what's sold can actually be consumed.
 
 - [ ] `coaching_products` catalog admin (name, description, external_url, type: module / session-pack / 1:1)
@@ -218,6 +247,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 ---
 
 ### Sprint 8 — E8: Nudges + Lifecycle Automation (1–2 weeks)
+
 **Goal:** Lauren stops manually chasing candidates.
 
 - [ ] LinkedIn grade (visibility score, keyword gaps) + display card
@@ -236,6 +266,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 ## Phase 2 — After Gates Hit
 
 ### Sprint P2-1 — E9: Employer/Agency Portal (2 weeks)
+
 - Employer/agency auth + portal
 - Role submission flow
 - Candidate-interest view (no PII pre-match)
@@ -243,20 +274,24 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 - Migrate Lauren's Google Sheets agency data into `employers` + `commissions`
 
 ### Sprint P2-2 — Full Matching Algorithm
+
 - Weighted candidate-score × job-score (use `job_scores` weights table)
 - Replace keyword overlap with dimension match
 - A/B match reasoning quality
 
 ### Sprint P2-3 — AI Tools (Conversion Levers)
+
 - AI resume rewrite (Claude API)
 - AI LinkedIn optimization
 - Conversational assessments (replaces multi-step forms)
 
 ### Sprint P2-4 — Pipedrive CRM Integration
+
 - Migrate from Google Sheets to Pipedrive
 - Sync employers, applications, placements bidirectionally
 
 ### Sprint P2-5 — Expanded Assessments
+
 - Add Mindset/Saboteur and Communication Style assessments (the 8-9 from `context.md` original vision)
 - Add `mindset_score`, `communication_score` back to `candidate_scores`
 
@@ -264,18 +299,18 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 
 ## Timeline
 
-| Sprint | Focus | Duration |
-|---|---|---|
-| S0 | Foundation (done) | — |
-| S1 | Schema realign + doc rewrite | 1 wk |
-| S2 | First impression | 1–2 wk |
-| S3 | Paywall & Plans | 1 wk |
-| S4 | Job board & matching v1 | 1–2 wk |
-| S5 | Assessments | 2 wk |
-| S6 | Applicant pipeline & placements | 1–2 wk |
-| S7 | Coaching delivery | 1–2 wk |
-| S8 | Nudges + lifecycle | 1–2 wk |
-| **Phase 1 total** | | **10–14 wk** |
+| Sprint            | Focus                           | Duration     |
+| ----------------- | ------------------------------- | ------------ |
+| S0                | Foundation (done)               | —            |
+| S1                | Schema realign + doc rewrite    | 1 wk         |
+| S2                | First impression                | 1–2 wk       |
+| S3                | Paywall & Plans                 | 1 wk         |
+| S4                | Job board & matching v1         | 1–2 wk       |
+| S5                | Assessments                     | 2 wk         |
+| S6                | Applicant pipeline & placements | 1–2 wk       |
+| S7                | Coaching delivery               | 1–2 wk       |
+| S8                | Nudges + lifecycle              | 1–2 wk       |
+| **Phase 1 total** |                                 | **10–14 wk** |
 
 ---
 

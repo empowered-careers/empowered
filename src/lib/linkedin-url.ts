@@ -14,7 +14,9 @@ export type NormalizeLinkedInUrlResult =
  * Normalize and validate a LinkedIn profile URL for storage in `profiles.linkedin_url`.
  * Accepts standard /in/… URLs and LinkedIn-hosted `profile-thirdparty-redirect` URLs.
  */
-export function normalizeLinkedInProfileUrl(raw: string): NormalizeLinkedInUrlResult {
+export function normalizeLinkedInProfileUrl(
+  raw: string
+): NormalizeLinkedInUrlResult {
   const trimmed = raw.trim();
   if (!trimmed) {
     return { ok: false, error: "Enter your LinkedIn profile URL" };

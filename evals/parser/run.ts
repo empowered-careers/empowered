@@ -1,4 +1,3 @@
- 
 import { parseResume } from "../../src/lib/llm/parse-resume";
 import { type Fixture, loadFixtures } from "../shared/fixtures-loader";
 import { exactMatchRate, f1, writeReport } from "../shared/report";
@@ -21,14 +20,18 @@ async function runOne(fx: Fixture): Promise<RowResult> {
       parsed.work_experience.map((w) => w.company),
       fx.groundTruth.companies
     );
-    const dates_accuracy = scoreDates(parsed.work_experience, fx.groundTruth.dates);
+    const dates_accuracy = scoreDates(
+      parsed.work_experience,
+      fx.groundTruth.dates
+    );
     const seniority_match =
       parsed.seniority_level === fx.groundTruth.seniority_level;
     const years_within_2 =
       fx.groundTruth.total_years_exp === null
         ? parsed.total_years_exp === null
         : parsed.total_years_exp !== null &&
-          Math.abs(parsed.total_years_exp - fx.groundTruth.total_years_exp) <= 2;
+          Math.abs(parsed.total_years_exp - fx.groundTruth.total_years_exp) <=
+            2;
     return {
       id: fx.id,
       skills_f1,
@@ -51,7 +54,11 @@ async function runOne(fx: Fixture): Promise<RowResult> {
 }
 
 function scoreDates(
-  predicted: Array<{ company: string; start: string | null; end: string | null }>,
+  predicted: Array<{
+    company: string;
+    start: string | null;
+    end: string | null;
+  }>,
   expected: Array<{ company: string; start: string | null; end: string | null }>
 ): number {
   if (expected.length === 0) return predicted.length === 0 ? 1 : 0;

@@ -5,6 +5,7 @@ A modern, production-ready Next.js starter template with TypeScript, Tailwind CS
 ## 🚀 Tech Stack
 
 ### Frontend
+
 - **Next.js 15** - React framework with App Router
 - **React 19** - Latest React features
 - **TypeScript** - Type-safe development
@@ -12,6 +13,7 @@ A modern, production-ready Next.js starter template with TypeScript, Tailwind CS
 - **shadcn/ui** - Beautiful, accessible UI components
 
 ### Backend & Database
+
 - **Supabase** - Backend-as-a-Service with PostgreSQL
 - **Authentication** - Built-in auth with multiple providers
 - **Real-time** - Live data synchronization
@@ -19,6 +21,7 @@ A modern, production-ready Next.js starter template with TypeScript, Tailwind CS
 - **Row Level Security (RLS)** - Database security policies
 
 ### State Management & UI
+
 - **Auth Provider** - Centralized authentication state management
 - **Modal Provider** - Global modal system with shadcn Dialog
 - **Query Provider** - TanStack Query for server state management
@@ -26,6 +29,7 @@ A modern, production-ready Next.js starter template with TypeScript, Tailwind CS
 - **Toast Notifications** - Sonner for user feedback
 
 ### Development Tools
+
 - **Biome** - Fast linter and formatter (replaces ESLint/Prettier)
 - **Ultracite** - AI-ready code quality tools
 - **Husky** - Git hooks for code quality
@@ -36,39 +40,46 @@ A modern, production-ready Next.js starter template with TypeScript, Tailwind CS
 ## 🛠️ Getting Started
 
 ### Prerequisites
+
 - **Node.js 20.11.0 LTS** (pinned in `.nvmrc`)
 - npm, yarn, pnpm, or bun
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <your-repo-url>
    cd nextjs-starter-gt
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up Git hooks**
+
    ```bash
    npm run prepare
    ```
 
 4. **Set up environment variables**
+
    ```bash
    cp .env.local.example .env.local
    ```
-   
+
    Update `.env.local` with your Supabase credentials:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -199,16 +210,18 @@ The starter includes dark/light mode support using `next-themes`:
    - Publishable key
 
 3. **Update environment variables**
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_project_url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
    ```
 
 4. **Generate TypeScript types** (optional)
+
    ```bash
    npm run supabase:types
    ```
-   
+
    **Note**: `src/types/supabase.ts` is generated automatically - do not edit manually.
 
 5. **Enable Row Level Security (RLS)**
@@ -217,6 +230,7 @@ The starter includes dark/light mode support using `next-themes`:
 ## 🎯 Features
 
 ### Core Framework
+
 - ✅ **Next.js 15** with App Router and Turbopack
 - ✅ **React 19** with latest features
 - ✅ **TypeScript** strict mode with path aliases
@@ -224,12 +238,14 @@ The starter includes dark/light mode support using `next-themes`:
 - ✅ **shadcn/ui** components with Radix UI primitives
 
 ### Backend & Database
+
 - ✅ **Supabase** integration with SSR support
 - ✅ **Authentication** with centralized state management
 - ✅ **Real-time** data synchronization
 - ✅ **Row Level Security (RLS)** for database security
 
 ### State Management & UI
+
 - ✅ **Auth Provider** - Centralized authentication with React Context
 - ✅ **Modal Provider** - Global modal system with shadcn Dialog
 - ✅ **Query Provider** - TanStack Query for server state management
@@ -237,6 +253,7 @@ The starter includes dark/light mode support using `next-themes`:
 - ✅ **Toast Notifications** - Sonner for user feedback
 
 ### Development & Quality
+
 - ✅ **Biome** linting and formatting (replaces ESLint/Prettier)
 - ✅ **Ultracite** AI-ready code quality tools
 - ✅ **Husky** pre-commit hooks with lint-staged
@@ -244,6 +261,7 @@ The starter includes dark/light mode support using `next-themes`:
 - ✅ **Environment validation** with Zod
 
 ### Production Ready
+
 - ✅ **Error boundaries** (`error.tsx`, `not-found.tsx`, `loading.tsx`)
 - ✅ **Health check** API endpoint (`/api/health`)
 - ✅ **Auth middleware** for protected routes (`/dashboard/*`)
@@ -254,13 +272,16 @@ The starter includes dark/light mode support using `next-themes`:
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 1. Push your code to GitHub
 2. Connect your repository to Vercel
 3. Add environment variables in Vercel dashboard
 4. Deploy!
 
 ### Other Platforms
+
 This starter works with any platform that supports Next.js:
+
 - Netlify
 - Railway
 - DigitalOcean App Platform
@@ -269,6 +290,7 @@ This starter works with any platform that supports Next.js:
 ## 🎯 Using the Providers
 
 ### Auth Provider
+
 The `AuthProvider` provides centralized authentication state management:
 
 ```tsx
@@ -276,9 +298,9 @@ import { useAuth } from "@/components/providers/auth-provider";
 
 function MyComponent() {
   const { user, isLoading, signIn, signOut } = useAuth();
-  
+
   if (isLoading) return <div>Loading...</div>;
-  
+
   return (
     <div>
       {user ? (
@@ -295,6 +317,7 @@ function MyComponent() {
 ```
 
 ### Modal Provider
+
 The `ModalProvider` provides a global modal system:
 
 ```tsx
@@ -302,7 +325,7 @@ import { useModal } from "@/components/providers/modal-provider";
 
 function MyComponent() {
   const { openModal } = useModal();
-  
+
   const showConfirmation = () => {
     openModal({
       type: "confirmation",
@@ -315,22 +338,26 @@ function MyComponent() {
       },
     });
   };
-  
+
   return <button onClick={showConfirmation}>Show Modal</button>;
 }
 ```
 
 ### Query Provider (TanStack Query)
+
 The `QueryProvider` provides powerful data fetching and caching:
 
 ```tsx
 import { useUser } from "@/hooks/use-user";
-import { useSupabaseQuery, useSupabaseMutation } from "@/hooks/use-supabase-query";
+import {
+  useSupabaseQuery,
+  useSupabaseMutation,
+} from "@/hooks/use-supabase-query";
 
 function MyComponent() {
   // Use the built-in user query
   const { data: user, isLoading, error } = useUser();
-  
+
   // Custom Supabase query
   const { data: posts, isLoading: postsLoading } = useSupabaseQuery(
     ["posts"],
@@ -341,7 +368,7 @@ function MyComponent() {
       return data;
     }
   );
-  
+
   // Mutation with automatic cache invalidation
   const createPost = useSupabaseMutation(
     async (postData) => {
@@ -358,10 +385,10 @@ function MyComponent() {
       invalidateQueries: [["posts"]], // Refetch posts after creating
     }
   );
-  
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  
+
   return (
     <div>
       <h1>Welcome, {user?.email}!</h1>
@@ -386,6 +413,7 @@ These artifacts help maintain code quality and consistency when using AI assista
 ## 🚀 Common Tasks
 
 ### Adding a New Page
+
 ```bash
 # Create a new page
 mkdir src/app/your-page
@@ -393,11 +421,13 @@ touch src/app/your-page/page.tsx
 ```
 
 ### Adding a Protected Route
+
 1. Create your page in `src/app/protected-route/`
 2. The middleware will automatically protect it
 3. Users will be redirected to `/login` if not authenticated
 
 ### Adding a shadcn/ui Component
+
 ```bash
 # Add a new component (installs to src/components/ui/)
 npx shadcn@latest add [component-name]
@@ -407,12 +437,14 @@ npx shadcn@latest add dialog
 ```
 
 ### Generating Supabase Types
+
 ```bash
 # Generate TypeScript types from your Supabase schema
 npm run supabase:types
 ```
 
 ### Code Quality Commands
+
 ```bash
 # Check for issues
 npm run check
@@ -428,6 +460,7 @@ npm run type-check
 ```
 
 ### Environment Variables
+
 The project includes Zod validation for environment variables in `env.ts`. Add new variables there and update `.env.local.example`:
 
 ```typescript
@@ -445,10 +478,11 @@ const envSchema = z.object({
 If you're updating from a project using the legacy `anon` key, follow these steps:
 
 1. **Update your environment variables**:
+
    ```bash
    # Old (legacy)
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-   
+
    # New (current)
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
    ```
@@ -465,9 +499,11 @@ If you're updating from a project using the legacy `anon` key, follow these step
 **Note**: Store secrets in your deployment platform (Vercel/Actions secrets), not in `.env.local`.
 
 ### Error Boundaries & UX
+
 The starter includes built-in error handling:
+
 - `error.tsx` - Catches JavaScript errors in route segments
-- `not-found.tsx` - 404 page for unknown routes  
+- `not-found.tsx` - 404 page for unknown routes
 - `loading.tsx` - Loading UI for async operations
 - `/api/health` - Health check endpoint (returns status, version, environment)
 - `/api/og` - Dynamic Open Graph image generator for social sharing
@@ -475,6 +511,7 @@ The starter includes built-in error handling:
 - `/sitemap.xml` - XML sitemap for search engines
 
 ### Open Graph Image Generator
+
 Generate dynamic OG images for social sharing:
 
 ```bash
@@ -486,11 +523,13 @@ curl "http://localhost:3000/api/og?title=My%20Page&description=This%20is%20my%20
 ```
 
 **Parameters:**
+
 - `title` - Page title (default: "Next.js Starter")
 - `description` - Page description
 - `theme` - "light" or "dark" (default: "light")
 
 ### SEO & Metadata
+
 The starter includes comprehensive SEO features:
 
 - **Title templates** - Automatic page titles with site name
@@ -502,6 +541,7 @@ The starter includes comprehensive SEO features:
 - **Meta tags** - Keywords, descriptions, and author info
 
 **Example page metadata:**
+
 ```tsx
 export const metadata: Metadata = {
   title: "My Page",
@@ -515,7 +555,9 @@ export const metadata: Metadata = {
 ```
 
 ### Health Check Endpoint
+
 Test the health endpoint:
+
 ```bash
 curl http://localhost:3000/api/health
 # Returns: {"status":"ok","timestamp":"...","version":"1.0.0","environment":"development"}
@@ -532,6 +574,7 @@ curl http://localhost:3000/api/health
 ## 🔧 VS Code Setup
 
 ### Recommended Extensions
+
 Install these VS Code extensions for the best experience:
 
 ```json
@@ -545,6 +588,7 @@ Install these VS Code extensions for the best experience:
 ```
 
 The project includes `.vscode/settings.json` with:
+
 - Biome as default formatter
 - Format on save enabled
 - Tailwind IntelliSense configured

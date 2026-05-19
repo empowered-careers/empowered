@@ -10,10 +10,7 @@ import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type {
-  LinkedInScoring,
-  ParsedLinkedIn,
-} from "@/lib/llm/schemas";
+import type { LinkedInScoring, ParsedLinkedIn } from "@/lib/llm/schemas";
 import type { Database } from "@/types/database.types";
 
 type LinkedinStatus = Database["public"]["Enums"]["linkedin_sync_status"];
@@ -60,7 +57,13 @@ function scoreColorClass(score: number): string {
   return "text-red-600 dark:text-red-400";
 }
 
-function EmptyState({ userId, linkedinUrl }: { userId: string; linkedinUrl: string | null }) {
+function EmptyState({
+  userId,
+  linkedinUrl,
+}: {
+  userId: string;
+  linkedinUrl: string | null;
+}) {
   return (
     <div className="space-y-6">
       <header>
@@ -68,7 +71,8 @@ function EmptyState({ userId, linkedinUrl }: { userId: string; linkedinUrl: stri
           LinkedIn Grade
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload your LinkedIn PDF export to get a profile score and optimization tips.
+          Upload your LinkedIn PDF export to get a profile score and
+          optimization tips.
         </p>
       </header>
       {linkedinUrl && (
@@ -101,7 +105,9 @@ export function LinkedinClient({
 
   const isEmpty =
     !linkedin ||
-    (linkedin.status === "idle" && !linkedin.parsed_json && linkedin.profile_score === null);
+    (linkedin.status === "idle" &&
+      !linkedin.parsed_json &&
+      linkedin.profile_score === null);
 
   if (isEmpty) {
     return <EmptyState userId={userId} linkedinUrl={profileLinkedinUrl} />;
@@ -154,7 +160,9 @@ export function LinkedinClient({
             </div>
             <div className="min-w-0">
               {row.headline && (
-                <p className="text-sm font-medium text-foreground">{row.headline}</p>
+                <p className="text-sm font-medium text-foreground">
+                  {row.headline}
+                </p>
               )}
               <a
                 className="block truncate text-xs text-primary hover:underline"
@@ -166,7 +174,10 @@ export function LinkedinClient({
               </a>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {row.status === "processing" && (
-                  <Badge className="border-border bg-muted text-muted-foreground" variant="outline">
+                  <Badge
+                    className="border-border bg-muted text-muted-foreground"
+                    variant="outline"
+                  >
                     <Clock className="mr-1 h-3 w-3" />
                     Scoring…
                   </Badge>
@@ -236,7 +247,9 @@ export function LinkedinClient({
           </h2>
           <DimensionList
             items={(
-              Object.keys(DIMENSION_LABELS) as (keyof LinkedInScoring["dimensions"])[]
+              Object.keys(
+                DIMENSION_LABELS
+              ) as (keyof LinkedInScoring["dimensions"])[]
             ).map((k) => ({
               key: k,
               label: DIMENSION_LABELS[k],
@@ -330,7 +343,11 @@ export function LinkedinClient({
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {parsed.skills.map((s) => (
-                  <Badge key={s} variant="outline" className="border-border text-xs">
+                  <Badge
+                    key={s}
+                    variant="outline"
+                    className="border-border text-xs"
+                  >
                     {s}
                   </Badge>
                 ))}
@@ -346,9 +363,14 @@ export function LinkedinClient({
               <div className="space-y-1.5">
                 {parsed.certifications.map((c, i) => (
                   <div key={i} className="text-sm">
-                    <span className="font-medium text-foreground">{c.name}</span>
+                    <span className="font-medium text-foreground">
+                      {c.name}
+                    </span>
                     {c.issuer && (
-                      <span className="text-muted-foreground"> · {c.issuer}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {c.issuer}
+                      </span>
                     )}
                   </div>
                 ))}

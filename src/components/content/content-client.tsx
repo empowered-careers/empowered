@@ -99,7 +99,7 @@ const BROWSE: ContentItem[] = [
   {
     id: "pricing",
     tag: "Article · 9 min",
-    title: "From \"we should raise prices\" to a real model",
+    title: 'From "we should raise prices" to a real model',
     meta: "Guest · May Habib",
     plan: "Free",
     type: "article",

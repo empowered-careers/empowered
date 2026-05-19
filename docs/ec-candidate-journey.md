@@ -6,6 +6,7 @@
 ---
 
 ## Core Principle
+
 The product is one thing: **access to exclusive roles.**
 Everything else — ATS score, LinkedIn grade, assessments, resume tools — are conversion levers pushing candidates toward paying for that access.
 
@@ -14,7 +15,7 @@ Everything else — ATS score, LinkedIn grade, assessments, resume tools — are
 ## Stage 1 — Discovery
 
 - Candidate sees Lauren's LinkedIn post / newsletter / ad
-- CTA: *"Get matched to roles you won't find anywhere else"*
+- CTA: _"Get matched to roles you won't find anywhere else"_
 - Lands on marketing page
 - Trust factors visible before signup:
   - Active role count by category and level
@@ -41,19 +42,23 @@ Everything else — ATS score, LinkedIn grade, assessments, resume tools — are
 Three things visible immediately:
 
 ### 1. Job Board Preview — All Three Tiers
+
 - **Tier 1 (public/curated):** Fully visible and browsable
-- **Tier 2 (semi-exclusive):** Company and level visible, role title blurred — *"Complete your profile to unlock"*
-- **Tier 3 (exclusive):** Fully locked — *"X exclusive roles active this month — subscribe to access"*
+- **Tier 2 (semi-exclusive):** Company and level visible, role title blurred — _"Complete your profile to unlock"_
+- **Tier 3 (exclusive):** Fully locked — _"X exclusive roles active this month — subscribe to access"_
 
 ### 2. Profile Completeness Card
+
 - Score out of 100
 - Each incomplete item shows exactly what it unlocks
 
 ### 3. Nudge Cards (Personalized)
+
 Shown immediately based on what's been completed:
-- Resume uploaded → ATS score runs → *"Your resume scores 54/100 — candidates with 80+ get 3x more callbacks"*
-- LinkedIn connected → grade runs → *"Your LinkedIn visibility is low — recruiters may not be finding you"*
-- No assessments → *"Candidates with complete profiles get matched to 2x more roles"*
+
+- Resume uploaded → ATS score runs → _"Your resume scores 54/100 — candidates with 80+ get 3x more callbacks"_
+- LinkedIn connected → grade runs → _"Your LinkedIn visibility is low — recruiters may not be finding you"_
+- No assessments → _"Candidates with complete profiles get matched to 2x more roles"_
 
 ---
 
@@ -62,25 +67,28 @@ Shown immediately based on what's been completed:
 Each action is self-motivated — improves match quality and shows real signal to the candidate.
 
 ### Resume Upload + ATS Score (Immediate)
+
 - Score displayed with full breakdown
-- Nudge: *"Want Lauren to rewrite this? Book a resume review →"*
+- Nudge: _"Want Lauren to rewrite this? Book a resume review →"_
 
 ### LinkedIn Grade (Immediate)
+
 - Visibility score + keyword gaps
 - Free tip shown, paid service for full rewrite
-- Nudge: *"Your headline isn't optimized for recruiter search →"*
+- Nudge: _"Your headline isn't optimized for recruiter search →"_
 
 ### Assessments — Progressive, Not Mandatory
 
-| Assessment | What Candidate Gets | Nudge Toward |
-|---|---|---|
-| Role Clarity | Target role defined, shown on profile | Tier 2 unlock |
-| Values + Environment | Culture fit card | Tier 2 unlock |
-| Strengths | Zone of genius summary | Coaching upsell |
-| Leadership Style | Style card + blind spots | Coaching upsell |
-| Big Wins | Impact statement draft | Resume review upsell |
+| Assessment           | What Candidate Gets                   | Nudge Toward         |
+| -------------------- | ------------------------------------- | -------------------- |
+| Role Clarity         | Target role defined, shown on profile | Tier 2 unlock        |
+| Values + Environment | Culture fit card                      | Tier 2 unlock        |
+| Strengths            | Zone of genius summary                | Coaching upsell      |
+| Leadership Style     | Style card + blind spots              | Coaching upsell      |
+| Big Wins             | Impact statement draft                | Resume review upsell |
 
 Each completed assessment:
+
 - Visibly improves match score
 - Unlocks more Tier 2 roles
 - Triggers a specific nudge based on the result
@@ -91,10 +99,10 @@ Each completed assessment:
 
 Completing 2–3 assessments + resume upload unlocks Tier 2.
 
-*"You've unlocked 12 semi-exclusive roles — these aren't on LinkedIn yet."*
+_"You've unlocked 12 semi-exclusive roles — these aren't on LinkedIn yet."_
 
 Tier 3 remains locked with a persistent but non-intrusive banner:
-*"X exclusive roles this month. Subscribed members only."*
+_"X exclusive roles this month. Subscribed members only."_
 
 ---
 
@@ -102,14 +110,14 @@ Tier 3 remains locked with a persistent but non-intrusive banner:
 
 Not a single hard gate — multiple natural conversion moments:
 
-| Trigger | Nudge |
-|---|---|
-| Views Tier 3 locked roles | *"Subscribe to unlock — from $X/month"* |
-| ATS score below 70 | *"Book a resume review with Lauren"* |
-| LinkedIn grade low | *"Get a full LinkedIn audit"* |
-| Completes all assessments | *"Your profile is complete — see your full matches"* |
-| 7 days inactive | Email: *"3 new exclusive roles match your profile"* |
-| Applies to Tier 2 role | *"Want Lauren to prep you for this interview?"* |
+| Trigger                   | Nudge                                                |
+| ------------------------- | ---------------------------------------------------- |
+| Views Tier 3 locked roles | _"Subscribe to unlock — from $X/month"_              |
+| ATS score below 70        | _"Book a resume review with Lauren"_                 |
+| LinkedIn grade low        | _"Get a full LinkedIn audit"_                        |
+| Completes all assessments | _"Your profile is complete — see your full matches"_ |
+| 7 days inactive           | Email: _"3 new exclusive roles match your profile"_  |
+| Applies to Tier 2 role    | _"Want Lauren to prep you for this interview?"_      |
 
 Every nudge is specific, not generic — based on actual score or behavior.
 
@@ -118,20 +126,23 @@ Every nudge is specific, not generic — based on actual score or behavior.
 ## Stage 7 — Paid Zone
 
 ### Subscription Unlocks
+
 - Full Tier 3 job access
-- Match reasoning per role — *"Why this matches you"*
+- Match reasoning per role — _"Why this matches you"_
 - New match alerts (email + in-app)
 - Express interest / apply per role
 
 ### À La Carte Purchases
+
 - Resume rewrite (Brand Magnification)
 - LinkedIn audit + rewrite
 - Interview prep (Distinguished Dialogues)
 - Coaching sessions (North Star, Mindset Mastery, Career Navigator etc.)
 
 ### Upsells Within Paid Zone
-- *"You matched to a VP Engineering role — want interview prep?"*
-- *"Your resume hasn't been updated in 60 days — this role requires X skill you haven't highlighted"*
+
+- _"You matched to a VP Engineering role — want interview prep?"_
+- _"Your resume hasn't been updated in 60 days — this role requires X skill you haven't highlighted"_
 
 **Rule: Any payment = Tier 3 access unlocked.**
 
@@ -140,7 +151,7 @@ Every nudge is specific, not generic — based on actual score or behavior.
 ## Stage 8 — Placement + Flywheel
 
 - Candidate placed → success story captured
-- Referral CTA: *"Know a Director or VP who's looking?"*
+- Referral CTA: _"Know a Director or VP who's looking?"_
 - Testimonial feeds back to marketing page
 - Lauren's placement stats update
 - New candidate enters top of funnel
@@ -149,8 +160,8 @@ Every nudge is specific, not generic — based on actual score or behavior.
 
 ## Job Board Tier Definition
 
-| Tier | Source | Access | Purpose |
-|---|---|---|---|
-| Tier 1 | Public / curated by Lauren | On signup | Show immediate value, set baseline |
-| Tier 2 | Agency submitted, non-priority | Complete 2-3 assessments | Reward engagement, prove exclusivity |
-| Tier 3 | Lauren's direct clients, priority roles | Paid subscription | The moat. Never posted publicly. |
+| Tier   | Source                                  | Access                   | Purpose                              |
+| ------ | --------------------------------------- | ------------------------ | ------------------------------------ |
+| Tier 1 | Public / curated by Lauren              | On signup                | Show immediate value, set baseline   |
+| Tier 2 | Agency submitted, non-priority          | Complete 2-3 assessments | Reward engagement, prove exclusivity |
+| Tier 3 | Lauren's direct clients, priority roles | Paid subscription        | The moat. Never posted publicly.     |

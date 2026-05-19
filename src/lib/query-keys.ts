@@ -38,7 +38,7 @@ export const queryKeys = {
   // Posts (example)
   posts: {
     all: ["posts"] as const,
-    list: (filters?: Record<string, any>) =>
+    list: (filters?: Record<string, unknown>) =>
       ["posts", "list", filters] as const,
     detail: (id: string) => ["posts", "detail", id] as const,
     byUser: (userId: string) => ["posts", "byUser", userId] as const,
