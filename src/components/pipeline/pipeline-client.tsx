@@ -1,62 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
+import {
+  PipelineCard,
+  type PipelineCardData,
+} from "@/components/pipeline/pipeline-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import type { ApplicationStatus } from "@/types/db";
 
-// MOCK DATA — replace in S6 with matches/jobs query
-const STAGES = [
+const STAGES: { key: ApplicationStatus; title: string }[] = [
   { key: "interested", title: "Interested" },
   { key: "submitted", title: "Submitted" },
   { key: "screening", title: "Screening" },
   { key: "interviewing", title: "Interviewing" },
   { key: "offer", title: "Offer" },
   { key: "placed", title: "Placed" },
-] as const;
+  { key: "rejected", title: "Rejected" },
+  { key: "withdrawn", title: "Withdrawn" },
+];
 
-type Tier = "T1" | "T2" | "T3";
-
-interface SampleCard {
-  title: string;
-  company: string;
-  tier: Tier;
-  score: number;
+export interface PipelineClientProps {
+  cards: PipelineCardData[];
 }
 
-const SAMPLE: Record<(typeof STAGES)[number]["key"], SampleCard[]> = {
-  interested: [
-    { title: "Head of Product", company: "Linear", tier: "T3", score: 91 },
-    { title: "Director, Platform", company: "Vercel", tier: "T2", score: 84 },
-    { title: "VP Engineering", company: "Ramp", tier: "T3", score: 79 },
-    { title: "Sr. Director PM", company: "Notion", tier: "T2", score: 76 },
-  ],
-  submitted: [
-    { title: "VP Product", company: "Acme", tier: "T3", score: 88 },
-    { title: "Director, Growth", company: "Figma", tier: "T2", score: 81 },
-    { title: "Head of Eng", company: "Census", tier: "T2", score: 73 },
-  ],
-  screening: [
-    { title: "VP Product", company: "Datadog", tier: "T3", score: 85 },
-    { title: "Sr PM, Infra", company: "Cloudflare", tier: "T2", score: 77 },
-  ],
-  interviewing: [
-    { title: "Director, Pricing", company: "Stripe", tier: "T3", score: 93 },
-    { title: "Head of Product", company: "Retool", tier: "T2", score: 82 },
-  ],
-  offer: [{ title: "VP Eng", company: "Brex", tier: "T3", score: 89 }],
-  placed: [],
-};
-
-const TIER_CLASS: Record<Tier, string> = {
-  T1: "bg-muted text-muted-foreground",
-  T2: "bg-accent/15 text-accent",
-  T3: "bg-chart-4/15 text-chart-4",
-};
-
-export function PipelineClient() {
+export function PipelineClient({ cards }: PipelineClientProps) {
   const [view, setView] = useState<"kanban" | "list">("kanban");
-  const total = Object.values(SAMPLE).reduce((s, arr) => s + arr.length, 0);
+
+  const byStage = useMemo(() => {
+    const buckets: Record<ApplicationStatus, PipelineCardData[]> = {
+      interested: [],
+      submitted: [],
+      screening: [],
+      interviewing: [],
+      offer: [],
+      placed: [],
+      rejected: [],
+      withdrawn: [],
+    };
+    for (const c of cards) buckets[c.status].push(c);
+    return buckets;
+  }, [cards]);
+
+  const active = cards.filter(
+    (c) => c.status !== "rejected" && c.status !== "withdrawn"
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -66,7 +55,8 @@ export function PipelineClient() {
             Pipeline
           </h1>
           <p className="mt-1 text-muted-foreground text-sm">
-            {total} active conversations across {STAGES.length} stages.
+            {active} active {active === 1 ? "conversation" : "conversations"}{" "}
+            across {STAGES.length} stages.
           </p>
         </div>
         <Tabs
@@ -80,10 +70,20 @@ export function PipelineClient() {
         </Tabs>
       </div>
 
-      {view === "kanban" ? (
-        <div className="grid grid-cols-6 gap-3.5">
+      {cards.length === 0 && (
+        <div className="border border-border bg-card p-12 text-center text-sm text-muted-foreground">
+          You haven&apos;t expressed interest in any roles yet. Head to the{" "}
+          <Link href="/job-board" className="text-foreground underline">
+            job board
+          </Link>{" "}
+          to start your pipeline.
+        </div>
+      )}
+
+      {cards.length > 0 && view === "kanban" && (
+        <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4 xl:grid-cols-8">
           {STAGES.map((stage) => {
-            const cards = SAMPLE[stage.key];
+            const stageCards = byStage[stage.key];
             return (
               <div
                 className="min-h-[480px] border border-border bg-card p-3"
@@ -94,42 +94,17 @@ export function PipelineClient() {
                     {stage.title}
                   </span>
                   <span className="bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                    {cards.length}
+                    {stageCards.length}
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {cards.length === 0 ? (
+                  {stageCards.length === 0 ? (
                     <div className="px-2 py-8 text-center text-[12px] text-muted-foreground">
-                      Your first placement
-                      <br />
-                      starts here.
+                      —
                     </div>
                   ) : (
-                    cards.map((c) => (
-                      <div
-                        className="cursor-pointer border border-border bg-background p-3 transition-colors hover:border-foreground/40"
-                        key={`${c.company}-${c.title}`}
-                      >
-                        <div className="mb-0.5 font-medium text-[13px] leading-tight">
-                          {c.title}
-                        </div>
-                        <div className="mb-2 text-[11.5px] text-muted-foreground">
-                          {c.company}
-                        </div>
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span
-                            className={cn(
-                              "px-1.5 py-0.5 font-semibold text-[10px] uppercase tracking-[0.08em]",
-                              TIER_CLASS[c.tier]
-                            )}
-                          >
-                            {c.tier}
-                          </span>
-                          <span className="font-semibold text-accent">
-                            {c.score}%
-                          </span>
-                        </div>
-                      </div>
+                    stageCards.map((c) => (
+                      <PipelineCard key={c.applicationId} data={c} />
                     ))
                   )}
                 </div>
@@ -137,7 +112,9 @@ export function PipelineClient() {
             );
           })}
         </div>
-      ) : (
+      )}
+
+      {cards.length > 0 && view === "list" && (
         <div className="border border-border bg-card">
           <table className="w-full text-[13px]">
             <thead>
@@ -146,35 +123,24 @@ export function PipelineClient() {
                 <th className="px-4 py-3 text-left font-medium">Company</th>
                 <th className="px-4 py-3 text-left font-medium">Stage</th>
                 <th className="px-4 py-3 text-left font-medium">Tier</th>
-                <th className="px-4 py-3 text-right font-medium">Match</th>
               </tr>
             </thead>
             <tbody>
               {STAGES.flatMap((s) =>
-                SAMPLE[s.key].map((c) => (
+                byStage[s.key].map((c) => (
                   <tr
                     className="border-border border-b last:border-0"
-                    key={`${s.key}-${c.company}-${c.title}`}
+                    key={c.applicationId}
                   >
-                    <td className="px-4 py-3">{c.title}</td>
+                    <td className="px-4 py-3">{c.job.title}</td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {c.company}
+                      {c.job.company_name}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {s.title}
                     </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "px-1.5 py-0.5 font-semibold text-[10px] uppercase tracking-[0.08em]",
-                          TIER_CLASS[c.tier]
-                        )}
-                      >
-                        {c.tier}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-accent">
-                      {c.score}%
+                    <td className="px-4 py-3 text-muted-foreground capitalize">
+                      {c.job.job_tier.replace("_", " ")}
                     </td>
                   </tr>
                 ))

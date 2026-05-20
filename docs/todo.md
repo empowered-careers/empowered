@@ -7,6 +7,13 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [ ] Add `ANTHROPIC_API_KEY=...` to `.env.local`
 - [x] Sign up at inngest.com, create app `empowered-careers`. Local dev needs nothing else; prod needs `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` in `.env.local` and on the deploy host
 
+## Admin substrate + job board (post-S2)
+
+- [ ] In Supabase Studio: `update profiles set role = 'admin' where id = '<lauren-auth-uid>';`
+- [ ] Sign in as Lauren, visit `/admin/jobs`, seed 10–15 Tier 1 roles
+- [ ] Smoke test the candidate loop: sign in as a `plan='free'` test user, visit `/job-board`, bookmark a card, click Express interest, confirm the consent modal, then visit `/pipeline` and see the card in the Interested column
+- [ ] Adversarial RLS check via Supabase Studio with a candidate JWT: `insert into jobs ...` blocked, `select * from applications where profile_id != auth.uid()` blocked, `update applications set status='offer' where id=<own row>` blocked
+
 ## Local smoke test
 
 - [ ] Terminal 1: `npm run inngest:dev` (Inngest dev server on `localhost:8288`)

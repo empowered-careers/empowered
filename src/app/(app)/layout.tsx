@@ -36,7 +36,7 @@ export default async function AppGroupLayout({
     supabase
       .from("profiles")
       .select(
-        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status"
+        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status, role"
       )
       .eq("id", user.id)
       .single(),
@@ -47,8 +47,19 @@ export default async function AppGroupLayout({
       .order("uploaded_at", { ascending: false }),
   ]);
 
-  const profile = (profileResult.data as DashboardProfile | null) ?? null;
+  const profile =
+    (profileResult.data as (DashboardProfile & { role?: string }) | null) ??
+    null;
   const resumes = (resumesResult.data as DashboardResume[]) ?? [];
+
+  // Employer accounts shouldn't land on candidate routes. /employer ships with
+  // the agency-portal plan; until then bounce to the marketing root (avoids
+  // looping inside the (app) group).
+  if (profile?.role === "employer") {
+    redirect("/");
+  }
+
+  const isAdmin = profile?.role === "admin";
 
   const { percentage } = getProfileStrength(profile, resumes);
 
@@ -76,6 +87,7 @@ export default async function AppGroupLayout({
   return (
     <AppShell
       completeness={percentage}
+      isAdmin={isAdmin}
       subline={planLabel}
       userEmail={user.email ?? ""}
       userName={userName}

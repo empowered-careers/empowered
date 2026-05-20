@@ -14,7 +14,9 @@
       "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
       "Bash(npx eslint *)",
       "Bash(gh run *)",
-      "PowerShell(npm run *)"
+      "PowerShell(npm run *)",
+      "Bash(awk -F: '/^\\\\s{6}[a-z_]+:/')",
+      "Bash(npx prettier *)"
     ]
   }
 }

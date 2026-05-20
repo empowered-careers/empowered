@@ -1,142 +1,111 @@
 "use client";
 
-import { Lock } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { JobCard } from "@/components/job-board/job-card";
+import { TierLockedBanner } from "@/components/job-board/tier-locked-banner";
+import { canSeeJobTier } from "@/lib/plan";
 import { cn } from "@/lib/utils";
+import type {
+  ApplicationStatus,
+  JobCardFields,
+  JobTier,
+  Plan,
+} from "@/types/db";
 
-// MOCK DATA — replace in S4 with jobs query, scored by candidate fit
-type Tier = "Tier 1" | "Tier 2" | "Tier 3";
+type FilterKey =
+  | "all"
+  | "tier_1"
+  | "tier_2"
+  | "tier_3"
+  | "remote"
+  | "salary_200k";
 
-interface SampleJob {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  tier: Tier;
-  postedLabel: string;
-  salary: string;
-  seniority: string;
-  matchPct: number;
-  reasoning: string;
-  locked?: boolean;
-  lockSub?: string;
+const FILTERS: { key: FilterKey; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "tier_1", label: "Tier 1" },
+  { key: "tier_2", label: "Tier 2" },
+  { key: "tier_3", label: "Tier 3" },
+  { key: "remote", label: "Remote" },
+  { key: "salary_200k", label: "$200k+" },
+];
+
+function matchesFilter(job: JobCardFields, filter: FilterKey): boolean {
+  switch (filter) {
+    case "all":
+      return true;
+    case "tier_1":
+    case "tier_2":
+    case "tier_3":
+      return job.job_tier === filter;
+    case "remote":
+      return job.remote_policy === "remote";
+    case "salary_200k":
+      return (job.salary_max ?? 0) >= 200_000;
+  }
 }
 
-const JOBS: SampleJob[] = [
-  {
-    id: "vercel-1",
-    title: "Director, Platform Engineering",
-    company: "Vercel · Remote (US)",
-    location: "Remote",
-    tier: "Tier 2",
-    postedLabel: "Posted 2d ago",
-    salary: "$240–280k",
-    seniority: "Director",
-    matchPct: 84,
-    reasoning:
-      "Your Big Wins around developer tooling scale-up and your values match (autonomy, craft) align tightly.",
-  },
-  {
-    id: "linear-1",
-    title: "Head of Product",
-    company: "Linear · Remote",
-    location: "Remote",
-    tier: "Tier 3",
-    postedLabel: "Posted 4d ago",
-    salary: "$280–340k",
-    seniority: "VP",
-    matchPct: 91,
-    reasoning:
-      "Direct-client role. Lauren placed two PMs here in 2024. Leadership style match: hands-on builder.",
-  },
-  {
-    id: "stealth-1",
-    title: "VP Engineering",
-    company: "Stealth · Series B",
-    location: "Remote",
-    tier: "Tier 3",
-    postedLabel: "Exclusive",
-    salary: "$300k+",
-    seniority: "VP",
-    matchPct: 88,
-    reasoning: "Lauren's direct client. Founder previously CTO at a unicorn.",
-    locked: true,
-    lockSub: "Plus 11 others this month. Plan 3 from $480/mo.",
-  },
-  {
-    id: "notion-1",
-    title: "Sr. Director, PM",
-    company: "Notion · SF / Remote",
-    location: "SF",
-    tier: "Tier 1",
-    postedLabel: "Posted 1d ago",
-    salary: "$250–290k",
-    seniority: "Director",
-    matchPct: 76,
-    reasoning:
-      "Curated by Lauren. Strong values fit. Leadership style might require stretch on cross-functional buy-in.",
-  },
-  {
-    id: "figma-1",
-    title: "Director, Growth",
-    company: "Figma · NY",
-    location: "NY",
-    tier: "Tier 2",
-    postedLabel: "Posted 3d ago",
-    salary: "$220–260k",
-    seniority: "Director",
-    matchPct: 81,
-    reasoning:
-      "Strong overlap on impact dimension. Your last role's growth experiments are a direct fit.",
-  },
-  {
-    id: "stripe-1",
-    title: "Director, Pricing & Packaging",
-    company: "Stripe · Remote",
-    location: "Remote",
-    tier: "Tier 3",
-    postedLabel: "Exclusive",
-    salary: "$260–310k",
-    seniority: "Director",
-    matchPct: 93,
-    reasoning: "Highest fit this month. Direct client.",
-    locked: true,
-    lockSub: "93% match. Unlocks today.",
-  },
-];
+export interface JobBoardClientProps {
+  jobs: JobCardFields[];
+  savedJobIds: string[];
+  applicationStatusByJobId: Record<string, ApplicationStatus>;
+  plan: Plan;
+}
 
-const FILTERS = [
-  "All",
-  "Job Tier 1",
-  "Job Tier 2",
-  "Job Tier 3",
-  "Remote",
-  "$200k+",
-];
+export function JobBoardClient({
+  jobs,
+  savedJobIds,
+  applicationStatusByJobId,
+  plan,
+}: JobBoardClientProps) {
+  const [active, setActive] = useState<FilterKey>("all");
 
-const TIER_CLASS: Record<Tier, string> = {
-  "Tier 1": "bg-muted text-muted-foreground",
-  "Tier 2": "bg-accent/15 text-accent",
-  "Tier 3": "bg-chart-4/15 text-chart-4",
-};
+  const savedSet = useMemo(() => new Set(savedJobIds), [savedJobIds]);
 
-export function JobBoardClient() {
-  const [active, setActive] = useState("All");
+  const filtered = useMemo(
+    () => jobs.filter((j) => matchesFilter(j, active)),
+    [jobs, active]
+  );
+
+  // Group visible jobs by tier, with tier-2 / tier-3 hidden behind locked banners
+  // when plan can't see them.
+  const visibleByTier = useMemo(() => {
+    const buckets: Record<JobTier, JobCardFields[]> = {
+      tier_1: [],
+      tier_2: [],
+      tier_3: [],
+    };
+    for (const job of filtered) {
+      if (canSeeJobTier(plan, job.job_tier)) buckets[job.job_tier].push(job);
+    }
+    return buckets;
+  }, [filtered, plan]);
+
+  const tierCounts = useMemo(() => {
+    const counts: Record<JobTier, number> = { tier_1: 0, tier_2: 0, tier_3: 0 };
+    for (const j of jobs) counts[j.job_tier] += 1;
+    return counts;
+  }, [jobs]);
+
+  const totalVisible =
+    visibleByTier.tier_1.length +
+    visibleByTier.tier_2.length +
+    visibleByTier.tier_3.length;
+
+  const lockedTiers: JobTier[] = (["tier_2", "tier_3"] as const).filter(
+    (t) => !canSeeJobTier(plan, t)
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="font-display font-medium text-3xl tracking-tight">
-            Job Board
-          </h1>
-          <p className="mt-1 text-muted-foreground text-sm">
-            {JOBS.length} exclusive roles active this month. Filtered to your
-            Plan.
-          </p>
-        </div>
+      <div>
+        <h1 className="font-display font-medium text-3xl tracking-tight">
+          Job Board
+        </h1>
+        <p className="mt-1 text-muted-foreground text-sm">
+          {jobs.length} exclusive {jobs.length === 1 ? "role" : "roles"} active
+          this month. Filtered to your Plan.
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 border border-border bg-card p-3">
@@ -144,110 +113,45 @@ export function JobBoardClient() {
           <button
             className={cn(
               "border px-3 py-1.5 text-[12px] transition-colors",
-              active === f
+              active === f.key
                 ? "border-accent bg-accent text-accent-foreground"
                 : "border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground"
             )}
-            key={f}
-            onClick={() => setActive(f)}
+            key={f.key}
+            onClick={() => setActive(f.key)}
             type="button"
           >
-            {f}
+            {f.label}
           </button>
         ))}
-        <button
-          className="ml-auto border border-border bg-background px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-          type="button"
-        >
-          Match 80%+
-        </button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {JOBS.map((job) => (
-          <div
-            className={cn(
-              "relative overflow-hidden border border-border bg-card p-5 transition-colors",
-              !job.locked && "hover:border-foreground/40"
-            )}
-            key={job.id}
-          >
-            <div className="mb-2 flex items-center gap-2.5">
-              <span
-                className={cn(
-                  "px-1.5 py-0.5 font-semibold text-[10px] uppercase tracking-[0.08em]",
-                  TIER_CLASS[job.tier]
-                )}
-              >
-                {job.tier}
-              </span>
-              <span className="text-[11.5px] text-muted-foreground">
-                {job.postedLabel}
-              </span>
-            </div>
-            <div
-              className={cn(
-                "font-medium text-[15px] text-foreground",
-                job.locked && "blur-sm select-none"
-              )}
-            >
-              {job.title}
-            </div>
-            <div
-              className={cn(
-                "mt-0.5 mb-3 text-[12.5px] text-muted-foreground",
-                job.locked && "blur-sm select-none"
-              )}
-            >
-              {job.company}
-            </div>
-            <div className="mb-3 flex gap-3 text-[12px] text-muted-foreground">
-              <span>{job.salary}</span>
-              <span>·</span>
-              <span>{job.seniority}</span>
-            </div>
-            <div className="mb-3 flex items-center gap-2">
-              <div className="h-1 flex-1 bg-muted">
-                <div
-                  className="h-full bg-accent"
-                  style={{ width: `${job.matchPct}%` }}
-                />
-              </div>
-              <span className="font-semibold text-[12px] text-accent">
-                {job.matchPct}%
-              </span>
-            </div>
-            <div className="mb-4 border-accent border-l-2 bg-muted px-3 py-2.5 text-[12px] text-muted-foreground italic">
-              {job.reasoning}
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" type="button">
-                Express interest
-              </Button>
-              {!job.locked && (
-                <Button size="sm" type="button" variant="ghost">
-                  Save
-                </Button>
-              )}
-            </div>
+      {totalVisible === 0 && (
+        <div className="border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          No roles match the current filters.
+        </div>
+      )}
 
-            {job.locked && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-background/60 to-background/95 p-6 text-center backdrop-blur-[2px]">
-                <Lock className="mb-2.5 size-5 text-accent" />
-                <div className="mb-1 font-medium text-[13px]">
-                  Plan 3 unlocks this role
-                </div>
-                <div className="mb-3 text-[12px] text-muted-foreground">
-                  {job.lockSub}
-                </div>
-                <Button size="sm" type="button">
-                  Upgrade
-                </Button>
-              </div>
-            )}
+      {(["tier_1", "tier_2", "tier_3"] as const).map((tier) => {
+        const visible = visibleByTier[tier];
+        if (visible.length === 0) return null;
+        return (
+          <div key={tier} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {visible.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                saved={savedSet.has(job.id)}
+                applicationStatus={applicationStatusByJobId[job.id] ?? null}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        );
+      })}
+
+      {lockedTiers.map((tier) => (
+        <TierLockedBanner key={tier} tier={tier} count={tierCounts[tier]} />
+      ))}
     </div>
   );
 }

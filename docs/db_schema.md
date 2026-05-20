@@ -28,6 +28,9 @@ Core user table, keyed by Supabase auth `id`.
 | plan                    | enum (`free` \| `plan_1` \| `plan_2` \| `plan_3`)                      |
 | billing_cadence         | enum (`one_time` \| `monthly` \| `annual`) — null when `plan = 'free'` |
 | subscription_status     | enum                                                                   |
+| role                    | enum (`candidate` \| `admin` \| `employer`) — default `candidate`      |
+| employer_id             | → employers — non-null when `role = 'employer'`                        |
+| internal_notes          | text — admin-only free-text per-candidate notes                        |
 | onboarding_completed_at | timestamptz                                                            |
 | created_at / updated_at | timestamptz                                                            |
 
@@ -218,6 +221,29 @@ Express-interest → placed pipeline. Created when a candidate clicks
 
 `UNIQUE (profile_id, job_id)`.
 
+Candidate-facing RLS (added in `20260520030000_applications_candidate_rls.sql`):
+read own rows, insert own rows only at `status='interested'`, self-update
+only to `status='withdrawn'`. Admin blanket policy `applications_admin_all`
+(in `20260520040000_admin_rls.sql`) stacks on top; employer policies will
+layer additively from `docs/ec-admin-agency-plan.md`.
+Table is in the `supabase_realtime` publication with `REPLICA IDENTITY FULL`
+so the candidate notification hook sees prev/next row diffs.
+
+---
+
+### `saved_jobs`
+
+Candidate bookmarks on the job board (separate from `applications` — bookmarking
+does not share PII with the employer).
+
+| column     | type        |
+| ---------- | ----------- |
+| profile_id | → profiles  |
+| job_id     | → jobs      |
+| created_at | timestamptz |
+
+`PRIMARY KEY (profile_id, job_id)`. RLS: self-only read/insert/delete.
+
 ---
 
 ### `placements`
@@ -351,6 +377,7 @@ Stripe payment records.
 | enum                      | values                                                                                             |
 | ------------------------- | -------------------------------------------------------------------------------------------------- |
 | `plan`                    | `free`, `plan_1`, `plan_2`, `plan_3`                                                               |
+| `user_role`               | `candidate`, `admin`, `employer`                                                                   |
 | `billing_cadence`         | `one_time`, `monthly`, `annual`                                                                    |
 | `subscription_status`     | `active`, `canceled`, `expired`, `trial`                                                           |
 | `job_status`              | `active`, `filled`, `expired`                                                                      |
@@ -373,8 +400,12 @@ Stripe payment records.
 
 ## Functions
 
-| function                     | returns                                                                                    |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| `is_paid_subscriber()`       | boolean — `true` when current user's `plan <> 'free'` and `subscription_status = 'active'` |
-| `handle_new_user()`          | trigger — populates `profiles` on `auth.users` INSERT                                      |
-| `handle_auth_user_updated()` | trigger — syncs email / providers on `auth.users` UPDATE                                   |
+| function                     | returns                                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `is_paid_subscriber()`       | boolean — `true` when current user's `plan <> 'free'` and `subscription_status = 'active'`                       |
+| `is_admin()`                 | boolean — `true` when current user's `profiles.role = 'admin'` (SECURITY DEFINER)                                |
+| `is_employer()`              | boolean — `true` when current user's `profiles.role = 'employer'` (SECURITY DEFINER)                             |
+| `current_employer_id()`      | uuid — current user's `profiles.employer_id` (SECURITY DEFINER; null for non-employer roles)                     |
+| `can_see_job_tier(p, t)`     | boolean — Tier 1 always; Tier 2 for `plan_1/2/3`; Tier 3 for `plan_3`. Mirrored client-side in `src/lib/plan.ts` |
+| `handle_new_user()`          | trigger — populates `profiles` on `auth.users` INSERT                                                            |
+| `handle_auth_user_updated()` | trigger — syncs email / providers on `auth.users` UPDATE                                                         |

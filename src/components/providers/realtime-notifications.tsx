@@ -1,5 +1,6 @@
 "use client";
 
+import { useApplicationNotifications } from "@/hooks/use-application-notifications";
 import { useLinkedinNotifications } from "@/hooks/use-linkedin-notifications";
 import { useResumeNotifications } from "@/hooks/use-resume-notifications";
 
@@ -11,5 +12,6 @@ import { useResumeNotifications } from "@/hooks/use-resume-notifications";
 export function RealtimeNotifications() {
   useResumeNotifications();
   useLinkedinNotifications();
+  useApplicationNotifications();
   return null;
 }

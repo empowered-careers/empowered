@@ -89,7 +89,7 @@ export const sidebarConfig: Record<string, SidebarSection[]> = {
     {
       label: "Saved",
       items: [
-        { icon: Star, label: "Saved roles" },
+        { icon: Star, label: "Saved roles", href: "/job-board/saved" },
         { icon: Search, label: "Saved searches" },
       ],
     },

@@ -97,9 +97,19 @@ The app uses a split Server/Client Component pattern for the dashboard:
 
 Rules:
 
-- No DTO layer — pass Supabase row types straight through. Types come from `src/types/database.types.ts`.
+- No DTO layer — pass Supabase row types straight through.
 - Server component: auth check + redirect, initial data fetch, metadata.
 - Client component: state, events, TanStack Query (hydrated from initialData), Realtime hooks, modals.
+
+#### Derived types: always import from `src/types/db.ts`
+
+`src/types/database.types.ts` is the auto-generated Supabase schema and should not be imported directly at call sites. Instead, every enum alias, full-row alias, and narrow column-subset type lives in `src/types/db.ts` and is imported from there.
+
+- **Never** write `Database["public"]["Enums"]["..."]` or `Database["public"]["Tables"]["..."]["Row"]` inline in a page, component, or server action. Add (or reuse) an export in `db.ts` and import from there.
+- For list views that select a subset of columns, add **both** the SELECT column string (e.g. `JOB_CARD_COLUMNS`) and the matching `Pick<>` type (e.g. `JobCardFields`) to `db.ts` so they stay in sync. Use the column constant in the Supabase `.select(...)` call.
+- After running `npm run supabase:types`, `db.ts` does not need to change unless the underlying schema gains a new enum or table you want to expose.
+
+When adding a new feature that touches an unfamiliar table or enum, the first step is to add its aliases to `db.ts` — not to inline-derive them in the first file that needs them.
 
 ### Async background jobs (Realtime notification pattern)
 

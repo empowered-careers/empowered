@@ -786,14 +786,17 @@ export type Database = {
           billing_cadence: Database["public"]["Enums"]["billing_cadence"] | null
           created_at: string
           email: string
+          employer_id: string | null
           full_name: string | null
           google_provider_id: string | null
           id: string
+          internal_notes: string | null
           linkedin_provider_id: string | null
           linkedin_url: string | null
           onboarding_completed_at: string | null
           phone: string | null
           plan: Database["public"]["Enums"]["plan"]
+          role: Database["public"]["Enums"]["user_role"]
           stripe_customer_id: string | null
           subscription_status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
@@ -804,14 +807,17 @@ export type Database = {
             | null
           created_at?: string
           email: string
+          employer_id?: string | null
           full_name?: string | null
           google_provider_id?: string | null
           id: string
+          internal_notes?: string | null
           linkedin_provider_id?: string | null
           linkedin_url?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan"]
+          role?: Database["public"]["Enums"]["user_role"]
           stripe_customer_id?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
@@ -822,19 +828,30 @@ export type Database = {
             | null
           created_at?: string
           email?: string
+          employer_id?: string | null
           full_name?: string | null
           google_provider_id?: string | null
           id?: string
+          internal_notes?: string | null
           linkedin_provider_id?: string | null
           linkedin_url?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan"]
+          role?: Database["public"]["Enums"]["user_role"]
           stripe_customer_id?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
@@ -968,11 +985,54 @@ export type Database = {
           },
         ]
       }
+      saved_jobs: {
+        Row: {
+          created_at: string
+          job_id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          job_id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          job_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_jobs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_jobs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_see_job_tier: {
+        Args: {
+          p: Database["public"]["Enums"]["plan"]
+          t: Database["public"]["Enums"]["job_tier"]
+        }
+        Returns: boolean
+      }
+      current_employer_id: { Args: never; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
+      is_employer: { Args: never; Returns: boolean }
       is_paid_subscriber: { Args: never; Returns: boolean }
     }
     Enums: {
@@ -1016,6 +1076,7 @@ export type Database = {
       remote_policy: "remote" | "hybrid" | "onsite"
       resume_status: "uploading" | "processing" | "complete" | "failed"
       subscription_status: "active" | "canceled" | "expired" | "trial"
+      user_role: "candidate" | "admin" | "employer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1190,6 +1251,7 @@ export const Constants = {
       remote_policy: ["remote", "hybrid", "onsite"],
       resume_status: ["uploading", "processing", "complete", "failed"],
       subscription_status: ["active", "canceled", "expired", "trial"],
+      user_role: ["candidate", "admin", "employer"],
     },
   },
 } as const

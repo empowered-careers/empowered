@@ -13,6 +13,8 @@ export interface AppShellProps {
   completeness: number;
   /** e.g. "Plan 2 · Senior PM" */
   subline?: string;
+  /** When true, surface the Admin entry in the top-nav profile menu. */
+  isAdmin?: boolean;
   children: React.ReactNode;
 }
 
@@ -21,13 +23,19 @@ export function AppShell({
   userEmail,
   completeness,
   subline,
+  isAdmin,
   children,
 }: AppShellProps) {
   const pathname = usePathname();
 
   return (
     <TooltipProvider delayDuration={200}>
-      <TopNav pathname={pathname} userEmail={userEmail} userName={userName} />
+      <TopNav
+        isAdmin={isAdmin}
+        pathname={pathname}
+        userEmail={userEmail}
+        userName={userName}
+      />
       <div className="flex min-h-[calc(100vh-3.5rem)]">
         <ContextualSidebar
           completeness={completeness}

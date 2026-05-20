@@ -34,6 +34,15 @@ What's actually landed on `main`:
 - Profile Strength card surfaces LinkedIn upload section when `profiles.linkedin_url` is set.
 - Evals harness built: `evals/parser`, `evals/scorer`, `evals/linkedin-parser`, `evals/linkedin-scorer` with shared fixtures-loader + report util. Scripts in `package.json`. Fixtures + ground truth + rubric pairs still need to be populated.
 
+**S2 closeout (2026-05-20) — admin substrate + job board + pipeline shipped**
+
+- Phase 0 #0 — Role enum migration (`20260520000000_role_enum.sql`): `profiles.role` (`candidate`/`admin`/`employer`), `employer_id` FK, `internal_notes`, plus `is_admin()` / `is_employer()` / `current_employer_id()` SECURITY DEFINER helpers. Authoritative source: `docs/done/ec-admin-super-plan.md`.
+- Phase 0 #1 — Admin shell (`src/app/admin/layout.tsx`, `admin-sidebar.tsx`, empty `/admin` overview). Server-side role guard; sidebar groups routes by sprint slice so S4/S6/S7 deliverables slot in.
+- S2 #2 — Job Board Plan A (`docs/done/ec-job-board-plan.md`): `jobs` RLS rewrite + `can_see_job_tier(plan, job_tier)` + system employer seed + `saved_jobs` table. `/job-board` real-data board with filters + tier-locked banners; `/job-board/[id]` detail with plan gating; `/job-board/saved`; `/admin/jobs` list + create + `[id]/edit`. `src/lib/plan.ts` mirrors the SQL helper client-side.
+- S2 #3 — Candidate Pipeline Plan B (`docs/done/ec-candidate-pipeline-plan.md`): `applications` candidate-facing RLS (read self, insert at `interested`, self-update only to `withdrawn`) + realtime publication. `expressInterest` / `withdrawApplication` server actions. Express Interest CTA with PII consent modal on `JobCard` + `/job-board/[id]`. `/pipeline` kanban (8 columns matching `application_status`), per-card withdraw, `useApplicationNotifications` realtime hook mounted in `RealtimeNotifications`.
+
+S4/S6 partial credit landed via the pipeline plan: `applications` writes, express-interest CTA, candidate-side kanban. Lauren still updates non-interested statuses via Supabase Studio until `/admin/applications` ships in S6.
+
 **Open S2 work** — see `docs/todo.md` for live checklist. Still TODO:
 
 - `ANTHROPIC_API_KEY` into `.env.local` (blocker for local smoke test).
@@ -41,7 +50,7 @@ What's actually landed on `main`:
 - Production Inngest endpoint registration + prod env vars (`INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`).
 - Resume-upload gate before dashboard.
 - Profile completeness calculation (`completeness-ring.tsx` shell exists).
-- Job board data + lock logic; Lauren's manual Tier 1 seeding.
+- Promote Lauren's profile to `role='admin'` in Supabase Studio and seed Tier 1 roles via `/admin/jobs`.
 - Surface LinkedIn `profile_score` badge on dashboard.
 - Eval fixtures + ground truth (≥5 per harness).
 - Stale-`uploading` / stale-`processing` watchdog in notification hooks.
@@ -155,8 +164,10 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 - [ ] Resume upload mandatory before dashboard (gate it)
 - [ ] Dashboard — profile completeness score (0–100); `completeness-ring.tsx` shell already exists, needs calculation logic
 - [ ] Surface LinkedIn `profile_score` badge in Profile Strength card
-- [ ] Job board shell — all three Job Tiers visible with correct lock states (locks driven by Plan, not by hardcoded rules)
-- [ ] Tier 1 jobs — Lauren manually adds 10–15 curated public roles (budget her time OR plan a Sprint 2.5 importer)
+- [x] Job board shell — all three Job Tiers visible with correct lock states (locks driven by Plan via `can_see_job_tier` + `src/lib/plan.ts`)
+- [x] `/admin/jobs` CRUD so Lauren can seed Tier 1 herself (job-board plan A)
+- [x] Express Interest CTA + candidate `/pipeline` kanban (pipeline plan B — pulled forward from S4/S6)
+- [ ] Tier 1 jobs — Lauren manually adds 10–15 curated public roles via `/admin/jobs`
 - [ ] Trust factors on marketing page (placement count reads from `placements` table — zero is fine for now)
 - [ ] Basic nudge cards (ATS low → resume review CTA)
 - [ ] Stale-`uploading` / stale-`processing` watchdog in `useResumeNotifications` + `useLinkedinNotifications` (covers silent `inngest.send` failures)
@@ -187,12 +198,14 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 
 **Goal:** Lauren operates the job board independently; candidates see matches.
 
-- [ ] Admin: add/edit/remove/archive jobs
-- [ ] Admin: assign `job_tier`, fill date, status
+Some scope already landed in S2 via the job-board + pipeline plans. Remaining S4 work is matching + Lauren's candidate pool view.
+
+- [x] Admin: add/edit/archive jobs (landed in S2 via `docs/done/ec-job-board-plan.md`)
+- [x] Admin: assign `job_tier`, status (same)
+- [x] Express interest CTA → writes to `applications` table at `interested` (landed in S2 via `docs/done/ec-candidate-pipeline-plan.md`)
 - [ ] Match score v1 (resume keyword overlap + Plan visibility filter)
 - [ ] Match reasoning (AI-generated, single sentence — Claude API)
-- [ ] Express interest CTA → writes to `applications` table at `interested` status
-- [ ] Candidate pool view for Lauren (filter by Plan, completeness, role type)
+- [ ] Candidate pool view for Lauren — `/admin/candidates` + `/admin/payments` (admin-super slice 1, see `docs/done/ec-admin-super-plan.md`)
 
 **Exit:** Lauren adds exclusive roles; candidates see Plan-appropriate matches; expression of interest creates a real `applications` row.
 
@@ -217,10 +230,12 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 
 **Goal:** end-to-end loop closes. Express-interest → placed is a real, tracked flow.
 
-- [ ] Application status enum: `interested`, `submitted`, `screening`, `interviewing`, `offer`, `placed`, `rejected`, `withdrawn`
-- [ ] Application history audit trail (status_changes table or jsonb log)
-- [ ] Lauren's pipeline view: kanban or table grouped by status, per-job and per-candidate filters
-- [ ] Internal notes on applications
+The candidate side of the pipeline landed in S2 via `docs/done/ec-candidate-pipeline-plan.md`. S6 owns Lauren's admin kanban + the placement flow.
+
+- [x] Application status enum + candidate-facing kanban at `/pipeline` (landed in S2)
+- [x] Application history audit trail (`applications.status_log` jsonb exists from S1; appends are admin-driven)
+- [ ] Lauren's pipeline view: `/admin/applications` kanban (admin-super slice 2, see `docs/done/ec-admin-super-plan.md`)
+- [ ] Internal notes on applications (admin-super slice 2)
 - [ ] Mark-as-placed flow → creates `placements` row, triggers success-story email via Loops
 - [ ] Marketing page placement count reads from `placements` table
 - [ ] Referrals: candidate can submit a referral → writes to `referrals` table, sends invite via Loops

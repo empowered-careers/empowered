@@ -27,6 +27,7 @@ export interface TopNavProps {
   pathname: string;
   userName: string;
   userEmail: string;
+  isAdmin?: boolean;
 }
 
 function initials(name: string, email: string): string {
@@ -36,7 +37,12 @@ function initials(name: string, email: string): string {
   return letters.join("") || "U";
 }
 
-export function TopNav({ pathname, userName, userEmail }: TopNavProps) {
+export function TopNav({
+  pathname,
+  userName,
+  userEmail,
+  isAdmin,
+}: TopNavProps) {
   const activeKey = resolveTabKey(pathname);
   const { signOut } = useAuth();
   const router = useRouter();
@@ -134,6 +140,14 @@ export function TopNav({ pathname, userName, userEmail }: TopNavProps) {
             </DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">Admin console</Link>
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               Sign out
