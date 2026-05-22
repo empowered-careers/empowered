@@ -44,7 +44,7 @@ export const sidebarConfig: Record<string, SidebarSection[]> = {
     {
       label: "Profile",
       items: [
-        { icon: User, label: "My Profile", href: "/dashboard" },
+        { icon: User, label: "My Profile", href: "/profile" },
         { icon: FileText, label: "Resume", href: "/resume" },
         { icon: List, label: "Assessments" },
         { icon: LinkIcon, label: "LinkedIn Grade", href: "/linkedin" },
@@ -124,8 +124,13 @@ export const topNavTabs: { key: string; label: string; href: string }[] = [
 ];
 
 export function resolveTabKey(pathname: string): string {
-  // Resume + LinkedIn live under the Profile section of the Dashboard tab.
-  if (pathname.startsWith("/resume") || pathname.startsWith("/linkedin")) {
+  // Resume + LinkedIn + Profile + Onboarding live under the Dashboard tab.
+  if (
+    pathname.startsWith("/resume") ||
+    pathname.startsWith("/linkedin") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/onboarding")
+  ) {
     return "/dashboard";
   }
   const match = topNavTabs.find((t) => pathname.startsWith(t.key));

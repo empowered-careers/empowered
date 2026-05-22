@@ -43,10 +43,12 @@ export function JobCard({
   job,
   saved,
   applicationStatus = null,
+  needsExpressInterestPrefs = false,
 }: {
   job: JobCardFields;
   saved: boolean;
   applicationStatus?: ApplicationStatus | null;
+  needsExpressInterestPrefs?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -94,6 +96,7 @@ export function JobCard({
           jobId={job.id}
           jobTitle={job.title}
           applicationStatus={applicationStatus}
+          needsPrefs={needsExpressInterestPrefs}
         />
         <Button asChild size="sm" variant="outline">
           <Link href={`/job-board/${job.id}`}>View role</Link>

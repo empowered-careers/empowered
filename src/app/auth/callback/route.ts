@@ -2,6 +2,7 @@ import { createServerClient as createSupabaseServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 
+import { reconcileLeadForUser } from "@/lib/leads-reconcile";
 import { syncLinkedInProfileUrlFromSession } from "@/lib/linkedin-identity-sync";
 
 /**
@@ -65,6 +66,21 @@ export async function GET(request: NextRequest) {
           await syncLinkedInProfileUrlFromSession(supabase);
         } catch {
           // Non-fatal: user can add LinkedIn URL manually from the dashboard.
+        }
+      }
+
+      // Lead reconciliation — match the new signup's email to a pending
+      // leads row (from a webinar registration) and stamp acquisition data
+      // onto the profile. Non-blocking: never fail the OAuth redirect on a
+      // reconciliation error.
+      if (session?.user) {
+        try {
+          await reconcileLeadForUser(supabase, {
+            id: session.user.id,
+            email: session.user.email ?? null,
+          });
+        } catch {
+          // swallow — acquisition attribution is best-effort.
         }
       }
 

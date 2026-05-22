@@ -153,6 +153,92 @@ export type Database = {
         }
         Relationships: []
       }
+      candidate_preferences: {
+        Row: {
+          blocklist_companies: string[]
+          created_at: string
+          current_location: string | null
+          current_salary_cents: number | null
+          current_salary_currency: string | null
+          expected_salary_currency: string | null
+          expected_salary_max_cents: number | null
+          expected_salary_min_cents: number | null
+          id: string
+          industries: string[]
+          notice_period_days: number | null
+          preferred_domains: string[]
+          profile_id: string
+          remote_preference:
+            | Database["public"]["Enums"]["remote_preference"]
+            | null
+          switch_urgency: Database["public"]["Enums"]["switch_urgency"] | null
+          target_companies: string[]
+          target_role: string | null
+          target_seniority: string | null
+          updated_at: string
+          willing_to_relocate: boolean | null
+          work_authorization: Database["public"]["Enums"]["work_auth"] | null
+        }
+        Insert: {
+          blocklist_companies?: string[]
+          created_at?: string
+          current_location?: string | null
+          current_salary_cents?: number | null
+          current_salary_currency?: string | null
+          expected_salary_currency?: string | null
+          expected_salary_max_cents?: number | null
+          expected_salary_min_cents?: number | null
+          id?: string
+          industries?: string[]
+          notice_period_days?: number | null
+          preferred_domains?: string[]
+          profile_id: string
+          remote_preference?:
+            | Database["public"]["Enums"]["remote_preference"]
+            | null
+          switch_urgency?: Database["public"]["Enums"]["switch_urgency"] | null
+          target_companies?: string[]
+          target_role?: string | null
+          target_seniority?: string | null
+          updated_at?: string
+          willing_to_relocate?: boolean | null
+          work_authorization?: Database["public"]["Enums"]["work_auth"] | null
+        }
+        Update: {
+          blocklist_companies?: string[]
+          created_at?: string
+          current_location?: string | null
+          current_salary_cents?: number | null
+          current_salary_currency?: string | null
+          expected_salary_currency?: string | null
+          expected_salary_max_cents?: number | null
+          expected_salary_min_cents?: number | null
+          id?: string
+          industries?: string[]
+          notice_period_days?: number | null
+          preferred_domains?: string[]
+          profile_id?: string
+          remote_preference?:
+            | Database["public"]["Enums"]["remote_preference"]
+            | null
+          switch_urgency?: Database["public"]["Enums"]["switch_urgency"] | null
+          target_companies?: string[]
+          target_role?: string | null
+          target_seniority?: string | null
+          updated_at?: string
+          willing_to_relocate?: boolean | null
+          work_authorization?: Database["public"]["Enums"]["work_auth"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidate_scores: {
         Row: {
           communication_score: number | null
@@ -444,6 +530,63 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          duration_min: number
+          event_type: Database["public"]["Enums"]["event_type"]
+          host_name: string
+          id: string
+          is_past: boolean
+          is_published: boolean
+          max_seats: number | null
+          replay_url: string | null
+          scheduled_at: string
+          slug: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          event_type?: Database["public"]["Enums"]["event_type"]
+          host_name?: string
+          id?: string
+          is_past?: boolean
+          is_published?: boolean
+          max_seats?: number | null
+          replay_url?: string | null
+          scheduled_at: string
+          slug: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          event_type?: Database["public"]["Enums"]["event_type"]
+          host_name?: string
+          id?: string
+          is_past?: boolean
+          is_published?: boolean
+          max_seats?: number | null
+          replay_url?: string | null
+          scheduled_at?: string
+          slug?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       job_scores: {
         Row: {
           communication_weight: number
@@ -546,6 +689,66 @@ export type Database = {
             columns: ["submitted_by"]
             isOneToOne: false
             referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          attended_at: string | null
+          converted_at: string | null
+          converted_profile_id: string | null
+          created_at: string
+          email: string
+          event_id: string | null
+          full_name: string | null
+          id: string
+          registered_at: string
+          source: string
+          source_ref: string | null
+          updated_at: string
+        }
+        Insert: {
+          attended_at?: string | null
+          converted_at?: string | null
+          converted_profile_id?: string | null
+          created_at?: string
+          email: string
+          event_id?: string | null
+          full_name?: string | null
+          id?: string
+          registered_at?: string
+          source: string
+          source_ref?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attended_at?: string | null
+          converted_at?: string | null
+          converted_profile_id?: string | null
+          created_at?: string
+          email?: string
+          event_id?: string | null
+          full_name?: string | null
+          id?: string
+          registered_at?: string
+          source?: string
+          source_ref?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_converted_profile_id_fkey"
+            columns: ["converted_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -783,6 +986,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          acquisition_ref: string | null
+          acquisition_source: string | null
           billing_cadence: Database["public"]["Enums"]["billing_cadence"] | null
           created_at: string
           email: string
@@ -791,6 +996,7 @@ export type Database = {
           google_provider_id: string | null
           id: string
           internal_notes: string | null
+          lead_id: string | null
           linkedin_provider_id: string | null
           linkedin_url: string | null
           onboarding_completed_at: string | null
@@ -802,6 +1008,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          acquisition_ref?: string | null
+          acquisition_source?: string | null
           billing_cadence?:
             | Database["public"]["Enums"]["billing_cadence"]
             | null
@@ -812,6 +1020,7 @@ export type Database = {
           google_provider_id?: string | null
           id: string
           internal_notes?: string | null
+          lead_id?: string | null
           linkedin_provider_id?: string | null
           linkedin_url?: string | null
           onboarding_completed_at?: string | null
@@ -823,6 +1032,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          acquisition_ref?: string | null
+          acquisition_source?: string | null
           billing_cadence?:
             | Database["public"]["Enums"]["billing_cadence"]
             | null
@@ -833,6 +1044,7 @@ export type Database = {
           google_provider_id?: string | null
           id?: string
           internal_notes?: string | null
+          lead_id?: string | null
           linkedin_provider_id?: string | null
           linkedin_url?: string | null
           onboarding_completed_at?: string | null
@@ -849,6 +1061,13 @@ export type Database = {
             columns: ["employer_id"]
             isOneToOne: false
             referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -1054,6 +1273,7 @@ export type Database = {
         | "canceled"
       commission_status: "pending" | "invoiced" | "paid" | "written_off"
       enrollment_status: "active" | "completed" | "expired" | "refunded"
+      event_type: "webinar" | "workshop" | "ama" | "masterclass"
       job_status: "active" | "filled" | "expired"
       job_tier: "tier_1" | "tier_2" | "tier_3"
       linkedin_sync_status: "idle" | "processing" | "complete" | "failed"
@@ -1074,9 +1294,17 @@ export type Database = {
       referral_status: "invited" | "signed_up" | "placed"
       relationship_type: "direct_client" | "agency_partner"
       remote_policy: "remote" | "hybrid" | "onsite"
+      remote_preference: "remote" | "hybrid" | "onsite" | "flexible"
       resume_status: "uploading" | "processing" | "complete" | "failed"
       subscription_status: "active" | "canceled" | "expired" | "trial"
+      switch_urgency: "actively_looking" | "open" | "passive" | "not_looking"
       user_role: "candidate" | "admin" | "employer"
+      work_auth:
+        | "us_citizen"
+        | "us_permanent_resident"
+        | "us_visa_needed"
+        | "eu_citizen"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1227,6 +1455,7 @@ export const Constants = {
       ],
       commission_status: ["pending", "invoiced", "paid", "written_off"],
       enrollment_status: ["active", "completed", "expired", "refunded"],
+      event_type: ["webinar", "workshop", "ama", "masterclass"],
       job_status: ["active", "filled", "expired"],
       job_tier: ["tier_1", "tier_2", "tier_3"],
       linkedin_sync_status: ["idle", "processing", "complete", "failed"],
@@ -1249,9 +1478,18 @@ export const Constants = {
       referral_status: ["invited", "signed_up", "placed"],
       relationship_type: ["direct_client", "agency_partner"],
       remote_policy: ["remote", "hybrid", "onsite"],
+      remote_preference: ["remote", "hybrid", "onsite", "flexible"],
       resume_status: ["uploading", "processing", "complete", "failed"],
       subscription_status: ["active", "canceled", "expired", "trial"],
+      switch_urgency: ["actively_looking", "open", "passive", "not_looking"],
       user_role: ["candidate", "admin", "employer"],
+      work_auth: [
+        "us_citizen",
+        "us_permanent_resident",
+        "us_visa_needed",
+        "eu_citizen",
+        "other",
+      ],
     },
   },
 } as const

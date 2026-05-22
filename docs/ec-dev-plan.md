@@ -1,6 +1,6 @@
 # Empowered Careers — Development Plan v2
 
-> Last updated: 2026-05-20
+> Last updated: 2026-05-21
 > Supersedes: `deprecated/ec-sprint-plan.md` (kept for historical reference)
 > Source: alignment review in `C:\Users\pooja\.claude\plans\swift-sniffing-moon.md`
 
@@ -42,6 +42,18 @@ What's actually landed on `main`:
 - S2 #3 — Candidate Pipeline Plan B (`docs/done/ec-candidate-pipeline-plan.md`): `applications` candidate-facing RLS (read self, insert at `interested`, self-update only to `withdrawn`) + realtime publication. `expressInterest` / `withdrawApplication` server actions. Express Interest CTA with PII consent modal on `JobCard` + `/job-board/[id]`. `/pipeline` kanban (8 columns matching `application_status`), per-card withdraw, `useApplicationNotifications` realtime hook mounted in `RealtimeNotifications`.
 
 S4/S6 partial credit landed via the pipeline plan: `applications` writes, express-interest CTA, candidate-side kanban. Lauren still updates non-interested statuses via Supabase Studio until `/admin/applications` ships in S6.
+
+**Events & Growth Loop shipped (2026-05-21) — parallel sprint, see `docs/done/ec-events-growth-plan.md`**
+
+- Migrations (`20260521000000_events_table.sql`, `20260521010000_leads_table.sql`, `20260521020000_profiles_acquisition_columns.sql`): `events` + `leads` tables with RLS keyed on `is_admin()`; `profiles.lead_id`/`acquisition_source`/`acquisition_ref` for conversion attribution.
+- Public marketing surface: `/events` listing, `/events/[slug]` landing with registration form, `/events/[slug]/confirmed` momentum-capture page with platform teaser + share nudge. No auth required.
+- API: `POST /api/events/register` (channel-tagged via `?src=` URL param, upserts on `(email, event_id)`), `POST /api/events/attend` (bulk + single).
+- OAuth callback patched (`src/app/auth/callback/route.ts` + `src/lib/leads-reconcile.ts`): non-blocking lead match on email → stamps `converted_profile_id` + `profiles.acquisition_source` + fires `lead.converted` to Loops.
+- Admin shell additions: `/admin/events` CRUD list + create form, `/admin/events/[id]` analytics + registrants, `/admin/events/[id]/edit`, `/admin/leads` cross-event lead list with CSV export. Bulk-attend form for Zoom CSV upload. Sidebar slot wired in `admin-sidebar.tsx`.
+- Loops client (`src/lib/loops/`) emits `lead.registered`, `lead.attended`, `lead.converted` events. Sequence copy still needs to be built in the Loops dashboard (ops, not code).
+- Notify-setup landed (`docs/done/notify-setup.md`): `GMAIL_SENDER` + transactional email plumbing for the platform side of the loop.
+
+**Candidate preferences capture shipped (2026-05-22)** — `candidate_preferences` table (Tier A required at onboarding, Tier B at first Express Interest, Tier C optional). Soft-gate banner on `/dashboard` + `/job-board` redirect until `profiles.onboarding_completed_at` is stamped. `/onboarding/preferences` form + new `/profile` edit surface (sections: identity, job preferences, comp + location, target companies + blocklist). Profile-strength card now 6 steps. Plan: see `C:\Users\pooja\.claude\plans\partitioned-purring-journal.md`.
 
 **Open S2 work** — see `docs/todo.md` for live checklist. Still TODO:
 
@@ -205,7 +217,7 @@ Some scope already landed in S2 via the job-board + pipeline plans. Remaining S4
 - [x] Express interest CTA → writes to `applications` table at `interested` (landed in S2 via `docs/done/ec-candidate-pipeline-plan.md`)
 - [ ] Match score v1 (resume keyword overlap + Plan visibility filter)
 - [ ] Match reasoning (AI-generated, single sentence — Claude API)
-- [ ] Candidate pool view for Lauren — `/admin/candidates` + `/admin/payments` (admin-super slice 1, see `docs/done/ec-admin-super-plan.md`)
+- [x] Candidate pool view for Lauren — `/admin/candidates` + `/admin/payments` (admin-super slice 1, shipped 2026-05-20 via `docs/done/ec-admin-super-plan.md`)
 
 **Exit:** Lauren adds exclusive roles; candidates see Plan-appropriate matches; expression of interest creates a real `applications` row.
 
@@ -234,9 +246,9 @@ The candidate side of the pipeline landed in S2 via `docs/done/ec-candidate-pipe
 
 - [x] Application status enum + candidate-facing kanban at `/pipeline` (landed in S2)
 - [x] Application history audit trail (`applications.status_log` jsonb exists from S1; appends are admin-driven)
-- [ ] Lauren's pipeline view: `/admin/applications` kanban (admin-super slice 2, see `docs/done/ec-admin-super-plan.md`)
-- [ ] Internal notes on applications (admin-super slice 2)
-- [ ] Mark-as-placed flow → creates `placements` row, triggers success-story email via Loops
+- [x] Lauren's pipeline view: `/admin/applications` kanban (admin-super slice 2, shipped 2026-05-20 via `docs/done/ec-admin-super-plan.md`)
+- [x] Internal notes on applications (admin-super slice 2)
+- [x] Mark-as-placed flow → creates `placements` row + commission row for agency partners (success-story Loops trigger still pending)
 - [ ] Marketing page placement count reads from `placements` table
 - [ ] Referrals: candidate can submit a referral → writes to `referrals` table, sends invite via Loops
 - [ ] Referral attribution tracked through to placement
@@ -249,7 +261,7 @@ The candidate side of the pipeline landed in S2 via `docs/done/ec-candidate-pipe
 
 **Goal:** what's sold can actually be consumed.
 
-- [ ] `coaching_products` catalog admin (name, description, external_url, type: module / session-pack / 1:1)
+- [x] `coaching_products` catalog admin (name, description, external_url, type: module / session-pack / 1:1) — admin-super slice 3, shipped 2026-05-20
 - [ ] Enrollment grant on à la carte purchase or Plan 3 activation
 - [ ] Webhook ingestion endpoint for external host (Kajabi or Teachable) → updates `enrollments.progress`
 - [ ] Cal.com embed for 1:1 booking → writes to `coaching_sessions`

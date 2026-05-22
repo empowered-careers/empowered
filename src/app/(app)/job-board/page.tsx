@@ -22,20 +22,45 @@ export default async function JobBoardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [jobsResult, savedResult, applicationsResult, profileResult] =
-    await Promise.all([
-      supabase
-        .from("jobs")
-        .select(JOB_CARD_COLUMNS)
-        .eq("status", "active")
-        .order("posted_at", { ascending: false }),
-      supabase.from("saved_jobs").select("job_id").eq("profile_id", user.id),
-      supabase
-        .from("applications")
-        .select("job_id, status")
-        .eq("profile_id", user.id),
-      supabase.from("profiles").select("plan").eq("id", user.id).single(),
-    ]);
+  const [
+    jobsResult,
+    savedResult,
+    applicationsResult,
+    profileResult,
+    prefsResult,
+  ] = await Promise.all([
+    supabase
+      .from("jobs")
+      .select(JOB_CARD_COLUMNS)
+      .eq("status", "active")
+      .order("posted_at", { ascending: false }),
+    supabase.from("saved_jobs").select("job_id").eq("profile_id", user.id),
+    supabase
+      .from("applications")
+      .select("job_id, status")
+      .eq("profile_id", user.id),
+    supabase
+      .from("profiles")
+      .select("plan, onboarding_completed_at")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("candidate_preferences")
+      .select(
+        "expected_salary_min_cents, expected_salary_max_cents, current_location, remote_preference"
+      )
+      .eq("profile_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const profileRow = profileResult.data as {
+    plan: Plan;
+    onboarding_completed_at: string | null;
+  } | null;
+
+  if (!profileRow?.onboarding_completed_at) {
+    redirect("/onboarding/preferences");
+  }
 
   const jobs = (jobsResult.data ?? []) as JobCardFields[];
   const savedJobIds = ((savedResult.data ?? []) as { job_id: string }[]).map(
@@ -48,8 +73,14 @@ export default async function JobBoardPage() {
   }[]) {
     applicationStatusByJobId[row.job_id] = row.status;
   }
-  const plan = ((profileResult.data as { plan: Plan } | null)?.plan ??
-    "free") as Plan;
+  const plan = (profileRow?.plan ?? "free") as Plan;
+  const prefs = prefsResult.data;
+  const needsExpressInterestPrefs =
+    !prefs ||
+    prefs.expected_salary_min_cents == null ||
+    prefs.expected_salary_max_cents == null ||
+    !prefs.current_location ||
+    !prefs.remote_preference;
 
   return (
     <div className="px-10 py-8">
@@ -58,6 +89,7 @@ export default async function JobBoardPage() {
         savedJobIds={savedJobIds}
         applicationStatusByJobId={applicationStatusByJobId}
         plan={plan}
+        needsExpressInterestPrefs={needsExpressInterestPrefs}
       />
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -47,8 +49,27 @@ export function DashboardClient({
     }
   };
 
+  const onboardingPending = profile && !profile.onboarding_completed_at;
+
   return (
     <div className="mx-auto max-w-6xl space-y-7 py-4">
+      {onboardingPending && (
+        <div className="flex items-center gap-3 border border-yellow-500/40 bg-yellow-500/10 px-4 py-3">
+          <AlertCircle className="h-4 w-4 shrink-0 text-yellow-600 dark:text-yellow-500" />
+          <div className="flex-1 text-sm">
+            <span className="font-medium text-foreground">
+              Complete your profile to unlock matches
+            </span>
+            <span className="ml-2 text-muted-foreground">
+              — takes 90 seconds.
+            </span>
+          </div>
+          <Button asChild size="sm">
+            <Link href="/onboarding/preferences">Start</Link>
+          </Button>
+        </div>
+      )}
+
       {/* ── Top Section ──────────────────────────────────────────── */}
       <DashboardHeader profile={profile} userEmail={userEmail} />
 

@@ -58,6 +58,11 @@ export const queryKeys = {
     saved: (userId: string) => ["jobs", "saved", userId] as const,
   },
 
+  // Candidate preferences (one row per profile)
+  preferences: {
+    detail: (userId: string) => ["preferences", "detail", userId] as const,
+  },
+
   // Applications (candidate pipeline)
   applications: {
     forUser: (userId: string) => ["applications", "forUser", userId] as const,
@@ -96,7 +101,24 @@ export const queryKeys = {
     coaching: {
       all: ["admin", "coaching"] as const,
     },
+    events: {
+      all: ["admin", "events"] as const,
+      detail: (id: string) => ["admin", "events", id] as const,
+      registrants: (id: string) =>
+        ["admin", "events", id, "registrants"] as const,
+    },
+    leads: {
+      all: ["admin", "leads"] as const,
+      list: (filters?: Record<string, unknown>) =>
+        ["admin", "leads", "list", filters] as const,
+    },
     overview: ["admin", "overview"] as const,
+  },
+
+  // Public events surface (marketing acquisition pages).
+  events: {
+    all: ["events"] as const,
+    bySlug: (slug: string) => ["events", "bySlug", slug] as const,
   },
 } as const;
 

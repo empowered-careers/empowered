@@ -85,6 +85,13 @@ function buildSteps(
       status: hasAtsScore ? "complete" : "incomplete",
     },
     {
+      id: "step-preferences",
+      label: "Job preferences",
+      description: "Tell us what you're looking for",
+      status: profile?.onboarding_completed_at ? "complete" : "incomplete",
+      action: profile?.onboarding_completed_at ? undefined : { label: "Start" },
+    },
+    {
       id: "step-subscription",
       label: "Activate membership",
       description: "Access exclusive job matches",
@@ -250,7 +257,9 @@ export function ProfileStrengthCard({
                     onClick={
                       step.id === "step-linkedin"
                         ? openLinkedinDialog
-                        : undefined
+                        : step.id === "step-preferences"
+                          ? () => router.push("/onboarding/preferences")
+                          : undefined
                     }
                     type="button"
                   >

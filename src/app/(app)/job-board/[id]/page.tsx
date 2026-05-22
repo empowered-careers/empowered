@@ -41,29 +41,52 @@ export default async function JobDetailPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [jobResult, profileResult, savedResult, applicationResult] =
-    await Promise.all([
-      supabase.from("jobs").select("*").eq("id", id).maybeSingle(),
-      supabase.from("profiles").select("plan").eq("id", user.id).single(),
-      supabase
-        .from("saved_jobs")
-        .select("job_id")
-        .eq("profile_id", user.id)
-        .eq("job_id", id)
-        .maybeSingle(),
-      supabase
-        .from("applications")
-        .select("status")
-        .eq("profile_id", user.id)
-        .eq("job_id", id)
-        .maybeSingle(),
-    ]);
+  const [
+    jobResult,
+    profileResult,
+    savedResult,
+    applicationResult,
+    prefsResult,
+  ] = await Promise.all([
+    supabase.from("jobs").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("plan, onboarding_completed_at")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("saved_jobs")
+      .select("job_id")
+      .eq("profile_id", user.id)
+      .eq("job_id", id)
+      .maybeSingle(),
+    supabase
+      .from("applications")
+      .select("status")
+      .eq("profile_id", user.id)
+      .eq("job_id", id)
+      .maybeSingle(),
+    supabase
+      .from("candidate_preferences")
+      .select(
+        "expected_salary_min_cents, expected_salary_max_cents, current_location, remote_preference"
+      )
+      .eq("profile_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const profileRow = profileResult.data as {
+    plan: Plan;
+    onboarding_completed_at: string | null;
+  } | null;
+  if (!profileRow?.onboarding_completed_at) {
+    redirect("/onboarding/preferences");
+  }
 
   const job = jobResult.data as JobRow | null;
   if (!job) notFound();
 
-  const plan = ((profileResult.data as { plan: Plan } | null)?.plan ??
-    "free") as Plan;
+  const plan = (profileRow?.plan ?? "free") as Plan;
   if (!canSeeJobTier(plan, job.job_tier)) {
     redirect("/job-board");
   }
@@ -72,6 +95,14 @@ export default async function JobDetailPage({
   const applicationStatus =
     (applicationResult.data as { status: ApplicationStatus } | null)?.status ??
     null;
+
+  const prefs = prefsResult.data;
+  const needsExpressInterestPrefs =
+    !prefs ||
+    prefs.expected_salary_min_cents == null ||
+    prefs.expected_salary_max_cents == null ||
+    !prefs.current_location ||
+    !prefs.remote_preference;
 
   return (
     <div className="mx-auto max-w-3xl px-10 py-8">
@@ -136,6 +167,7 @@ export default async function JobDetailPage({
           jobId={id}
           jobTitle={job.title}
           applicationStatus={applicationStatus}
+          needsPrefs={needsExpressInterestPrefs}
           size="default"
         />
         <form

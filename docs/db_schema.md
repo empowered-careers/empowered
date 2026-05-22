@@ -31,6 +31,9 @@ Core user table, keyed by Supabase auth `id`.
 | role                    | enum (`candidate` \| `admin` \| `employer`) — default `candidate`      |
 | employer_id             | → employers — non-null when `role = 'employer'`                        |
 | internal_notes          | text — admin-only free-text per-candidate notes                        |
+| lead_id                 | → leads — set at OAuth callback when email matches a lead row          |
+| acquisition_source      | text — mirrors `leads.source` at conversion (`linkedin` / `email` / …) |
+| acquisition_ref         | text — mirrors `leads.source_ref` (campaign slug, post id, etc.)       |
 | onboarding_completed_at | timestamptz                                                            |
 | created_at / updated_at | timestamptz                                                            |
 
@@ -46,9 +49,16 @@ One or more resumes per profile.
 | profile_id                     | → profiles                                                   |
 | raw_file_url                   | text                                                         |
 | file_name                      | text                                                         |
+| file_hash                      | text — content hash for dedup + supersession detection       |
+| is_current                     | boolean — only one row per profile is current at a time      |
+| superseded_at                  | timestamptz — stamped when a newer resume supersedes this    |
 | parsed_text                    | text                                                         |
 | parsed_json                    | jsonb                                                        |
 | ats_score                      | int                                                          |
+| seniority_level                | text — derived by LLM parser                                 |
+| total_years_exp                | numeric                                                      |
+| parser_model / scorer_model    | text — Anthropic model id used                               |
+| prompt_version                 | text — `RESUME_PROMPT_VERSION` at parse time                 |
 | status                         | enum (`uploading` \| `processing` \| `complete` \| `failed`) |
 | parse_started_at / parse_error | timestamptz / text                                           |
 | uploaded_at / parsed_at        | timestamptz                                                  |
@@ -59,18 +69,23 @@ One or more resumes per profile.
 
 Synced LinkedIn data per profile.
 
-| column                       | type                                                    |
-| ---------------------------- | ------------------------------------------------------- |
-| id                           | uuid (PK)                                               |
-| profile_id                   | → profiles                                              |
-| linkedin_url                 | text                                                    |
-| headline                     | text                                                    |
-| summary                      | text                                                    |
-| profile_score                | int                                                     |
-| raw_json                     | jsonb                                                   |
-| status                       | enum (`idle` \| `processing` \| `complete` \| `failed`) |
-| sync_started_at / sync_error | timestamptz / text                                      |
-| synced_at                    | timestamptz                                             |
+| column                       | type                                                          |
+| ---------------------------- | ------------------------------------------------------------- |
+| id                           | uuid (PK)                                                     |
+| profile_id                   | → profiles (unique)                                           |
+| linkedin_url                 | text — OAuth-sourced; never touched by the PDF parser         |
+| headline                     | text — OAuth-sourced; never touched by the PDF parser         |
+| raw_json                     | jsonb — OAuth identity payload; never touched by the parser   |
+| summary                      | text — derived by LLM from the uploaded PDF                   |
+| parsed_json                  | jsonb — full parsed structure from the PDF                    |
+| profile_score                | int                                                           |
+| file_hash                    | text — content hash for dedup on PDF uploads                  |
+| last_export_path             | text — storage path of the last LinkedIn "Save to PDF" upload |
+| parser_model / scorer_model  | text — Anthropic model id used                                |
+| prompt_version               | text — `LINKEDIN_PROMPT_VERSION` at parse time                |
+| status                       | enum (`idle` \| `processing` \| `complete` \| `failed`)       |
+| sync_started_at / sync_error | timestamptz / text                                            |
+| synced_at                    | timestamptz                                                   |
 
 ---
 
@@ -125,6 +140,43 @@ and should be left null by Phase 1 code.
 | mindset_score       | int                 | P2    |
 | communication_score | int                 | P2    |
 | updated_at          | timestamptz         | —     |
+
+---
+
+### `candidate_preferences`
+
+Job-seeking preferences captured at onboarding (Tier A — required, soft gate)
+and at first Express Interest (Tier B — comp + location). The remaining
+fields are optional, editable from `/profile`. One row per profile.
+
+| column                                                | type                              |
+| ----------------------------------------------------- | --------------------------------- |
+| id                                                    | uuid (PK)                         |
+| profile_id                                            | → profiles (unique)               |
+| target_role                                           | text                              |
+| target_seniority                                      | text — mirrors resume seniority   |
+| industries                                            | text[]                            |
+| switch_urgency                                        | enum `switch_urgency`             |
+| notice_period_days                                    | int                               |
+| work_authorization                                    | enum `work_auth`                  |
+| expected_salary_min_cents / expected_salary_max_cents | int                               |
+| expected_salary_currency                              | text — default `'USD'`            |
+| current_location                                      | text                              |
+| remote_preference                                     | enum `remote_preference`          |
+| current_salary_cents                                  | int                               |
+| current_salary_currency                               | text — default `'USD'`            |
+| willing_to_relocate                                   | boolean                           |
+| target_companies                                      | text[] — free text, keyed later   |
+| blocklist_companies                                   | text[] — never shown to employers |
+| preferred_domains                                     | text[]                            |
+| created_at / updated_at                               | timestamptz                       |
+
+RLS: `candidate_preferences_self` (self read/insert/update keyed on
+`profile_id = auth.uid()`); `candidate_preferences_admin` overlay via
+`is_admin()` so Lauren can read + update everything from the admin console.
+
+Stamping `profiles.onboarding_completed_at` is what releases the soft gate;
+the gate is checked in `/dashboard` (banner) and `/job-board` (redirect).
 
 ---
 
@@ -243,6 +295,62 @@ does not share PII with the employer).
 | created_at | timestamptz |
 
 `PRIMARY KEY (profile_id, job_id)`. RLS: self-only read/insert/delete.
+
+---
+
+### `events`
+
+Public-facing marketing events (webinars / workshops / AMAs / masterclasses).
+Drives `/events` listing + `/events/[slug]` registration. See
+`docs/done/ec-events-growth-plan.md`.
+
+| column                  | type                                                     |
+| ----------------------- | -------------------------------------------------------- |
+| id                      | uuid (PK)                                                |
+| slug                    | text (unique) — channel-tagged URL slug                  |
+| title                   | text                                                     |
+| subtitle                | text                                                     |
+| description             | text                                                     |
+| event_type              | enum (`webinar` \| `workshop` \| `ama` \| `masterclass`) |
+| host_name               | text — default `'Lauren Laughlin'`                       |
+| scheduled_at            | timestamptz                                              |
+| duration_min            | int — default 60                                         |
+| max_seats               | int — null = unlimited                                   |
+| cover_image_url         | text                                                     |
+| replay_url              | text — set post-event                                    |
+| is_published            | boolean — draft/live toggle                              |
+| is_past                 | boolean — flipped by Lauren or auto after `scheduled_at` |
+| created_at / updated_at | timestamptz                                              |
+
+RLS: `events_read_public` (select for anon + authenticated when
+`is_published = true`); `events_admin_all` (all ops gated on `is_admin()`).
+
+---
+
+### `leads`
+
+Pre-platform registrants captured from `/events/[slug]` (and other future
+acquisition surfaces). Bridges anonymous event registration → authenticated
+platform signup via email match in the OAuth callback.
+
+| column                  | type                                                                             |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| id                      | uuid (PK)                                                                        |
+| email                   | text                                                                             |
+| full_name               | text                                                                             |
+| source                  | text — `linkedin` \| `email` \| `instagram` \| `direct` \| `referral` \| `other` |
+| source_ref              | text — campaign slug / post id / etc.                                            |
+| event_id                | → events — null if the lead wasn't tied to an event                              |
+| registered_at           | timestamptz                                                                      |
+| attended_at             | timestamptz — set by bulk-attend CSV upload or future Zoom webhook               |
+| converted_profile_id    | → profiles — stamped at OAuth callback when email matches                        |
+| converted_at            | timestamptz                                                                      |
+| created_at / updated_at | timestamptz                                                                      |
+
+`UNIQUE (email, event_id)` — one registration per email per event. Service-role
+writes from `/api/events/register` bypass RLS. Read policies:
+`leads_admin_read` + `leads_admin_update` (gated on `is_admin()`). No
+candidate-self read — candidates don't need their own lead row visible.
 
 ---
 
@@ -384,6 +492,10 @@ Stripe payment records.
 | `job_tier`                | `tier_1`, `tier_2`, `tier_3`                                                                       |
 | `remote_policy`           | `remote`, `hybrid`, `onsite`                                                                       |
 | `relationship_type`       | `direct_client`, `agency_partner`                                                                  |
+| `event_type`              | `webinar`, `workshop`, `ama`, `masterclass`                                                        |
+| `switch_urgency`          | `actively_looking`, `open`, `passive`, `not_looking`                                               |
+| `work_auth`               | `us_citizen`, `us_permanent_resident`, `us_visa_needed`, `eu_citizen`, `other`                     |
+| `remote_preference`       | `remote`, `hybrid`, `onsite`, `flexible`                                                           |
 | `product_type`            | `webinar`, `resume_review`, `linkedin_review`, `interview_prep`, `subscription`                    |
 | `payment_status`          | `succeeded`, `pending`, `failed`                                                                   |
 | `resume_status`           | `uploading`, `processing`, `complete`, `failed`                                                    |

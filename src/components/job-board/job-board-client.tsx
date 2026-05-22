@@ -50,6 +50,7 @@ export interface JobBoardClientProps {
   savedJobIds: string[];
   applicationStatusByJobId: Record<string, ApplicationStatus>;
   plan: Plan;
+  needsExpressInterestPrefs: boolean;
 }
 
 export function JobBoardClient({
@@ -57,6 +58,7 @@ export function JobBoardClient({
   savedJobIds,
   applicationStatusByJobId,
   plan,
+  needsExpressInterestPrefs,
 }: JobBoardClientProps) {
   const [active, setActive] = useState<FilterKey>("all");
 
@@ -143,6 +145,7 @@ export function JobBoardClient({
                 job={job}
                 saved={savedSet.has(job.id)}
                 applicationStatus={applicationStatusByJobId[job.id] ?? null}
+                needsExpressInterestPrefs={needsExpressInterestPrefs}
               />
             ))}
           </div>

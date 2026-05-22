@@ -4,10 +4,12 @@ import type { LucideIcon } from "lucide-react";
 import {
   Briefcase,
   Building2,
+  CalendarDays,
   GraduationCap,
   LayoutDashboard,
   Receipt,
   Send,
+  Sparkles,
   Trophy,
   Users,
   Wallet,
@@ -39,6 +41,13 @@ const adminNav: AdminNavSection[] = [
       { icon: Briefcase, label: "Jobs", href: "/admin/jobs" },
       { icon: Users, label: "Candidates", href: "/admin/candidates" },
       { icon: Wallet, label: "Payments", href: "/admin/payments" },
+    ],
+  },
+  {
+    label: "Growth (S5)",
+    items: [
+      { icon: CalendarDays, label: "Events", href: "/admin/events" },
+      { icon: Sparkles, label: "Leads", href: "/admin/leads" },
     ],
   },
   {

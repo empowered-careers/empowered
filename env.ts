@@ -23,6 +23,10 @@ const envSchema = z.object({
   INNGEST_EVENT_KEY: z.string().optional(),
   INNGEST_SIGNING_KEY: z.string().optional(),
 
+  // Loops (transactional email + lifecycle events). Optional in dev — when
+  // unset, lead.* event firing is a no-op so local registration still works.
+  LOOPS_API_KEY: z.string().optional(),
+
   // Versioned at code level; bump when prompts/rubric change
   RESUME_PROMPT_VERSION: z.string().default("1.0.0"),
   LINKEDIN_PROMPT_VERSION: z.string().default("1.0.0"),

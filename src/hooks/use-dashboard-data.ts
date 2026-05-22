@@ -16,6 +16,7 @@ export type DashboardProfile = {
   plan: Plan;
   billing_cadence: BillingCadence | null;
   subscription_status: SubscriptionStatus;
+  onboarding_completed_at: string | null;
 };
 
 export type DashboardResume = {
@@ -38,7 +39,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status"
+        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status, onboarding_completed_at"
       )
       .eq("id", userId)
       .single(),
@@ -94,14 +95,15 @@ export function getProfileStrength(
   profile: DashboardProfile | null,
   resumes: DashboardResume[]
 ): { completed: number; total: number; percentage: number } {
-  const total = 5;
+  const total = 6;
   let completed = 0;
 
   if (profile?.full_name) completed++; // 1. name filled
   if (profile?.linkedin_url) completed++; // 2. LinkedIn URL
   if (resumes.length > 0) completed++; // 3. resume uploaded
   if (resumes.some((r) => r.ats_score !== null)) completed++; // 4. ATS scored
-  // 5. subscription active (any tier counts as step)
+  if (profile?.onboarding_completed_at) completed++; // 5. job preferences
+  // 6. subscription active (any tier counts as step)
   if (profile?.subscription_status === "active") completed++;
 
   return {

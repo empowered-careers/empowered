@@ -36,7 +36,7 @@ export default async function AppGroupLayout({
     supabase
       .from("profiles")
       .select(
-        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status, role"
+        "id, full_name, linkedin_url, linkedin_provider_id, plan, billing_cadence, subscription_status, onboarding_completed_at, role"
       )
       .eq("id", user.id)
       .single(),
