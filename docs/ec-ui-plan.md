@@ -72,7 +72,7 @@ Collapsible (Slack/Asana pattern). Pinned profile chip at bottom on all tabs: ph
 ### Sub-pages (sidebar items)
 
 - **My Profile** — name, headline, current role, target role, location, photo. Inline edit, no separate edit page.
-- **Resume** — current version + version history, ATS score breakdown, staleness indicator, "request rewrite" CTA. Upload new replaces, doesn't append blindly.
+- **Resume** — current version + version history, Resume score breakdown, staleness indicator, "request rewrite" CTA. Upload new replaces, doesn't append blindly.
 - **Assessments** — list of 5 (Phase 1) / 8–9 (Phase 2) with status (locked/available/complete) + dimension score visualization. Click → assessment runner.
 - **LinkedIn Grade** — visibility score, headline analysis, keyword gaps, free tip + paid audit CTA.
 

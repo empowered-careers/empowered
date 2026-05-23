@@ -42,7 +42,7 @@ export default async function AppGroupLayout({
       .single(),
     supabase
       .from("resumes")
-      .select("id, uploaded_at, ats_score, file_name")
+      .select("id, uploaded_at, resume_score, file_name")
       .eq("profile_id", user.id)
       .order("uploaded_at", { ascending: false }),
   ]);
@@ -52,11 +52,9 @@ export default async function AppGroupLayout({
     null;
   const resumes = (resumesResult.data as DashboardResume[]) ?? [];
 
-  // Employer accounts shouldn't land on candidate routes. /employer ships with
-  // the agency-portal plan; until then bounce to the marketing root (avoids
-  // looping inside the (app) group).
+  // Employer accounts have their own portal at /employer.
   if (profile?.role === "employer") {
-    redirect("/");
+    redirect("/employer");
   }
 
   const isAdmin = profile?.role === "admin";

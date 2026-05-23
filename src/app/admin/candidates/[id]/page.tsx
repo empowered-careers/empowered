@@ -56,7 +56,7 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
     supabase
       .from("resumes")
       .select(
-        "id, file_name, uploaded_at, ats_score, status, seniority_level, total_years_exp"
+        "id, file_name, uploaded_at, resume_score, status, seniority_level, total_years_exp"
       )
       .eq("profile_id", id)
       .eq("is_current", true)
@@ -148,8 +148,8 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
                 <dd className="capitalize">{resume.status}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">ATS score</dt>
-                <dd>{resume.ats_score ?? "—"}</dd>
+                <dt className="text-muted-foreground">Resume score</dt>
+                <dd>{resume.resume_score ?? "—"}</dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">Seniority</dt>

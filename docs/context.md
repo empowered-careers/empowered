@@ -35,7 +35,7 @@ Candidates pay to enter the ecosystem via:
 
 **Any payment = lifetime access to the private job board.**
 
-Free tier exists as a lead magnet (AI-powered resume score, ATS check, LinkedIn grade) — but the job board is gated. If it's free on ChatGPT, it's free here. If it requires Lauren's network or judgment, it's paid.
+Free tier exists as a lead magnet (AI-powered Resume score at upload, LinkedIn grade) — but the job board is gated. The job-vs-resume ATS Score is unlocked when a paid candidate views a specific role. If it's free on ChatGPT, it's free here. If it requires Lauren's network or judgment, it's paid.
 
 ### Stream 2 — B2B / Placement Revenue
 
@@ -195,13 +195,13 @@ No SaaS tool can replicate: _"These aren't scraped jobs. These are roles we acti
 
 ## Business Model
 
-| Tier             | Access                                       | Price point |
-| ---------------- | -------------------------------------------- | ----------- |
-| Free             | AI tools (resume score, ATS, LinkedIn grade) | $0          |
-| Entry paid       | Any webinar or à la carte service            | $TBD        |
-| Coaching modules | Career Symmetry sessions (recorded)          | $TBD        |
-| 1:1 coaching     | High-ticket, Lauren's time                   | $2k+        |
-| All paid tiers   | Lifetime access to private job board         | Included    |
+| Tier             | Access                                  | Price point |
+| ---------------- | --------------------------------------- | ----------- |
+| Free             | AI tools (Resume score, LinkedIn grade) | $0          |
+| Entry paid       | Any webinar or à la carte service       | $TBD        |
+| Coaching modules | Career Symmetry sessions (recorded)     | $TBD        |
+| 1:1 coaching     | High-ticket, Lauren's time              | $2k+        |
+| All paid tiers   | Lifetime access to private job board    | Included    |
 
 **Stream 2:** Placement fees from direct employer clients + commission from agency network hires.
 

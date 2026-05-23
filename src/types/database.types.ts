@@ -289,6 +289,44 @@ export type Database = {
           },
         ]
       }
+      client_companies: {
+        Row: {
+          agency_employer_id: string
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          agency_employer_id: string
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          agency_employer_id?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_companies_agency_employer_id_fkey"
+            columns: ["agency_employer_id"]
+            isOneToOne: false
+            referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_products: {
         Row: {
           created_at: string
@@ -636,6 +674,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          client_company_id: string | null
           company_name: string
           description: string | null
           expires_at: string | null
@@ -652,6 +691,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          client_company_id?: string | null
           company_name: string
           description?: string | null
           expires_at?: string | null
@@ -668,6 +708,7 @@ export type Database = {
           title: string
         }
         Update: {
+          client_company_id?: string | null
           company_name?: string
           description?: string | null
           expires_at?: string | null
@@ -684,6 +725,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_client_company_id_fkey"
+            columns: ["client_company_id"]
+            isOneToOne: false
+            referencedRelation: "client_companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobs_submitted_by_fkey"
             columns: ["submitted_by"]
@@ -1129,7 +1177,6 @@ export type Database = {
       }
       resumes: {
         Row: {
-          ats_score: number | null
           file_hash: string | null
           file_name: string | null
           id: string
@@ -1143,6 +1190,7 @@ export type Database = {
           profile_id: string
           prompt_version: string | null
           raw_file_url: string
+          resume_score: number | null
           scorer_model: string | null
           seniority_level: string | null
           status: Database["public"]["Enums"]["resume_status"]
@@ -1151,7 +1199,6 @@ export type Database = {
           uploaded_at: string
         }
         Insert: {
-          ats_score?: number | null
           file_hash?: string | null
           file_name?: string | null
           id?: string
@@ -1165,6 +1212,7 @@ export type Database = {
           profile_id: string
           prompt_version?: string | null
           raw_file_url: string
+          resume_score?: number | null
           scorer_model?: string | null
           seniority_level?: string | null
           status?: Database["public"]["Enums"]["resume_status"]
@@ -1173,7 +1221,6 @@ export type Database = {
           uploaded_at?: string
         }
         Update: {
-          ats_score?: number | null
           file_hash?: string | null
           file_name?: string | null
           id?: string
@@ -1187,6 +1234,7 @@ export type Database = {
           profile_id?: string
           prompt_version?: string | null
           raw_file_url?: string
+          resume_score?: number | null
           scorer_model?: string | null
           seniority_level?: string | null
           status?: Database["public"]["Enums"]["resume_status"]

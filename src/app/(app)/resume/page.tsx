@@ -24,7 +24,7 @@ export default async function ResumePage() {
   const { data, error } = await supabase
     .from("resumes")
     .select(
-      "id, file_name, raw_file_url, ats_score, parsed_json, status, uploaded_at, parsed_at, parse_error, is_current, seniority_level, total_years_exp"
+      "id, file_name, raw_file_url, resume_score, parsed_json, status, uploaded_at, parsed_at, parse_error, is_current, seniority_level, total_years_exp"
     )
     .eq("profile_id", user.id)
     .order("uploaded_at", { ascending: false });

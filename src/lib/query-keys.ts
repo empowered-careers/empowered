@@ -115,6 +115,26 @@ export const queryKeys = {
     overview: ["admin", "overview"] as const,
   },
 
+  // Employer console — agency + direct-client portal at /employer/*
+  employer: {
+    jobs: {
+      all: ["employer", "jobs"] as const,
+      detail: (id: string) => ["employer", "jobs", id] as const,
+    },
+    applications: {
+      all: ["employer", "applications"] as const,
+      detail: (id: string) => ["employer", "applications", id] as const,
+    },
+    clients: {
+      all: ["employer", "clients"] as const,
+      detail: (id: string) => ["employer", "clients", id] as const,
+    },
+    placements: {
+      all: ["employer", "placements"] as const,
+    },
+    overview: ["employer", "overview"] as const,
+  },
+
   // Public events surface (marketing acquisition pages).
   events: {
     all: ["events"] as const,

@@ -30,7 +30,7 @@ function formatDate(iso: string): string {
   });
 }
 
-function AtsScoreBadge({ score }: { score: number | null }) {
+function ResumeScoreBadge({ score }: { score: number | null }) {
   if (score === null) {
     return (
       <Badge
@@ -55,7 +55,7 @@ function AtsScoreBadge({ score }: { score: number | null }) {
       className={`border text-xs font-semibold ${color}`}
       variant="outline"
     >
-      ATS {score}
+      Resume {score}
     </Badge>
   );
 }
@@ -148,7 +148,7 @@ export function ResumeCard({ resumes }: ResumeCardProps) {
           <div className="flex flex-1 flex-col py-4 text-center">
             <p className="mb-1 font-semibold text-foreground">No resume yet</p>
             <p className="mb-4 text-sm text-muted-foreground">
-              Upload your resume to get an ATS score and unlock job matching
+              Upload your resume to get a Resume score and unlock job matching
             </p>
             <ResumeUploader
               key={dropzoneKey}
@@ -179,7 +179,7 @@ export function ResumeCard({ resumes }: ResumeCardProps) {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <AtsScoreBadge score={resume.ats_score} />
+                  <ResumeScoreBadge score={resume.resume_score} />
                   <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
               </div>

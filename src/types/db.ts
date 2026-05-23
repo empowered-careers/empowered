@@ -48,6 +48,12 @@ export type CandidatePreferencesInsert =
   Database["public"]["Tables"]["candidate_preferences"]["Insert"];
 export type CandidatePreferencesUpdate =
   Database["public"]["Tables"]["candidate_preferences"]["Update"];
+export type ClientCompanyRow =
+  Database["public"]["Tables"]["client_companies"]["Row"];
+export type ClientCompanyInsert =
+  Database["public"]["Tables"]["client_companies"]["Insert"];
+export type ClientCompanyUpdate =
+  Database["public"]["Tables"]["client_companies"]["Update"];
 
 // --- Narrow column-subset types for list views ---
 // Keep the SELECT column string in JOB_CARD_COLUMNS and this Pick in sync.

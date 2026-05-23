@@ -116,7 +116,7 @@ export const parseResumeFn = inngest.createFunction(
         .update({
           parsed_text: parsed.raw_text,
           parsed_json: { ...parsed, scoring },
-          ats_score: scoring.overall,
+          resume_score: scoring.overall,
           seniority_level: parsed.seniority_level,
           total_years_exp: parsed.total_years_exp,
           status: "complete",
@@ -136,10 +136,10 @@ export const parseResumeFn = inngest.createFunction(
       CandidateResumeParsedEvent.create({
         resumeId,
         profileId: resume.profile_id,
-        atsScore: scoring.overall,
+        resumeScore: scoring.overall,
       })
     );
 
-    return { resumeId, atsScore: scoring.overall, deduped: !!duplicate };
+    return { resumeId, resumeScore: scoring.overall, deduped: !!duplicate };
   }
 );

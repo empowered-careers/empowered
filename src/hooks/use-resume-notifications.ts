@@ -40,7 +40,7 @@ export function useResumeNotifications() {
 
           if (prev.status === "processing" && next.status === "complete") {
             toast.success("Resume parsed", {
-              description: "Your ATS score is ready.",
+              description: "Your Resume score is ready.",
               action: {
                 label: "View",
                 onClick: () => router.push("/dashboard#resume-hub"),

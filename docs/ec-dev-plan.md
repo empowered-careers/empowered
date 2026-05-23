@@ -1,6 +1,6 @@
 # Empowered Careers — Development Plan v2
 
-> Last updated: 2026-05-21
+> Last updated: 2026-05-23
 > Supersedes: `deprecated/ec-sprint-plan.md` (kept for historical reference)
 > Source: alignment review in `C:\Users\pooja\.claude\plans\swift-sniffing-moon.md`
 
@@ -28,7 +28,7 @@ What's actually landed on `main`:
 - **Background-job orchestrator switched from raw API routes to Inngest.** `/api/parse-resume` and `/api/sync-linkedin` are deleted; `src/inngest/functions/parse-resume.ts` and `parse-linkedin.ts` are the canonical workers, registered via `/api/inngest`. Concurrency capped at 5.
 - **PDF extraction approach changed.** `src/lib/pdf-extract.ts` is gone — instead, Anthropic Claude consumes the PDF directly (`src/lib/llm/anthropic.ts` + `parse-resume.ts` / `parse-linkedin.ts`). No `unpdf` / `pdf-parse` dependency.
 - LLM pipeline: `src/lib/llm/` holds `parse-resume`, `parse-linkedin`, `score-resume`, `score-linkedin`, shared `prompts.ts` + `schemas.ts`. Prompt versions in env (`RESUME_PROMPT_VERSION`, `LINKEDIN_PROMPT_VERSION`).
-- Resume flow: upload → file-hash dedup (`src/lib/file-hash.ts`) → Inngest `parse-resume` (extract → score → write `parsed_json`, `ats_score`, `summary`). Supersession handled — prior resume gets `is_current=false`, `superseded_at` stamped. Retry-from-failed UX in `resume-client.tsx`.
+- Resume flow: upload → file-hash dedup (`src/lib/file-hash.ts`) → Inngest `parse-resume` (extract → score → write `parsed_json`, `resume_score`, `summary`). Supersession handled — prior resume gets `is_current=false`, `superseded_at` stamped. Retry-from-failed UX in `resume-client.tsx`.
 - LinkedIn flow: upload PDF to `linkedin-exports` → Inngest `parse-linkedin` (extract → score → write `parsed_json`, `profile_score`, `summary`). **OAuth fields (`linkedin_url`, `headline`, `raw_json`) are explicitly untouched** by the PDF parser. Works for users who supplied `linkedin_url` via dialog without LinkedIn OAuth (action upserts from `profiles.linkedin_url`). Auth-helper now requests `r_profile_basicinfo` scope on the `linkedin_oidc` provider.
 - Dedicated route pages: `(app)/resume/page.tsx` + `resume-client.tsx`, `(app)/linkedin/page.tsx` + `linkedin-client.tsx`. Sidebar entries updated.
 - Profile Strength card surfaces LinkedIn upload section when `profiles.linkedin_url` is set.
@@ -53,7 +53,27 @@ S4/S6 partial credit landed via the pipeline plan: `applications` writes, expres
 - Loops client (`src/lib/loops/`) emits `lead.registered`, `lead.attended`, `lead.converted` events. Sequence copy still needs to be built in the Loops dashboard (ops, not code).
 - Notify-setup landed (`docs/done/notify-setup.md`): `GMAIL_SENDER` + transactional email plumbing for the platform side of the loop.
 
-**Candidate preferences capture shipped (2026-05-22)** — `candidate_preferences` table (Tier A required at onboarding, Tier B at first Express Interest, Tier C optional). Soft-gate banner on `/dashboard` + `/job-board` redirect until `profiles.onboarding_completed_at` is stamped. `/onboarding/preferences` form + new `/profile` edit surface (sections: identity, job preferences, comp + location, target companies + blocklist). Profile-strength card now 6 steps. Plan: see `C:\Users\pooja\.claude\plans\partitioned-purring-journal.md`.
+**Candidate preferences capture shipped (2026-05-22)** — `candidate_preferences` table (Tier A required at onboarding, Tier B at first Express Interest, Tier C optional). Soft-gate banner on `/dashboard` + `/job-board` redirect until `profiles.onboarding_completed_at` is stamped. `/onboarding/preferences` form + new `/profile` edit surface (sections: identity, job preferences, comp + location, target companies + blocklist). Profile-strength card now 6 steps. Plan: see `docs/done/ec-candidate-preferences-plan.md`.
+
+**Resume Score rename shipped (2026-05-23)** — `resumes.ats_score` → `resumes.resume_score` migration (`20260523000000_resume_score_rename.sql`). Disambiguates the upload-time job-agnostic LLM score from the future candidate-vs-job match score (`matches.match_score`, S4). Column rename only — no UI / hook / prompt changes were needed beyond a grep-and-replace across `src/` and `docs/`.
+
+**Recruiters portal — in flight (2026-05-23)** — Sprint P2-1 from `docs/ec-admin-recruiters-plan.md` is being built ahead of phase-gate. Shipped so far:
+
+- Migrations: `20260523000000_client_companies.sql` (table + `jobs.client_company_id` FK + RLS) and `20260523000001_employer_rls.sql` (employer-scoped policies on jobs / applications / profiles / resumes / linkedin_profiles / candidate_scores / assessment_responses / placements — keyed on `jobs.submitted_by = current_employer_id()`, with `placed` excluded from the employer with-check so commissions stay admin-only).
+- Auth shell: `src/app/employer/layout.tsx` (allows `role in ('admin','employer')` so Lauren can impersonation-view; bounces unlinked employers to `/employer-not-linked`).
+- Routes: `/employer` overview tiles (active roles, interested candidates, placements), `/employer/jobs` list + create, `/employer/jobs/[id]/edit`, `/employer/applications` list. Jobs are force-tagged `tier_2`; agency users see a `client_company_id` picker, direct clients don't.
+- Server actions (`src/app/actions/employer.ts`): `createJob`, `updateJob`, `archiveJob`, `advanceApplicationStatus` (employer-allowed statuses only: `screening`/`interviewing`/`offer`/`rejected`; appends to `applications.status_log`).
+- Components: `employer-sidebar.tsx`, `job-form.tsx` (client-aware), `candidate-card.tsx`, `application-status-mover.tsx`.
+- Helper: `requireEmployer()` in `src/lib/auth/require-role.ts`.
+
+Still to build before Sprint P2-1 closes:
+
+- `/employer/applications/[id]` detail (candidate-card + status-mover hookup; routes from the list page link here)
+- `/employer/clients` + `/employer/clients/[id]` (agency-only client_companies CRUD); `createClientCompany` / `updateClientCompany` server actions
+- `/employer/placements` (read-only)
+- `useEmployerApplicationNotifications` realtime hook + mount in the employer layout
+- Loops "first-application alert" event for new expressions of interest on an employer's jobs
+- Admin `inviteEmployerContact` is wired but currently errors with an "until /employer ships" explanatory string — flip it on once the routes above land
 
 **Open S2 work** — see `docs/todo.md` for live checklist. Still TODO:
 
@@ -110,7 +130,7 @@ All four must be green before Phase 2 work begins:
 | ID  | Epic                            | Why it exists                                                                                                                 | Status           |
 | --- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | E1  | Foundations & Schema Realign    | Land Plan/Job-Tier split, applicant pipeline tables, placements, referrals, coaching schema. Doc rewrite.                     | Not started      |
-| E2  | Candidate Activation            | Resume gate, ATS score, profile completeness, marketing trust, basic nudges.                                                  | Sprint 0 partial |
+| E2  | Candidate Activation            | Resume gate, Resume score, profile completeness, marketing trust, basic nudges.                                               | Sprint 0 partial |
 | E3  | Paywall & Plans                 | Stripe, four-Plan model, à la carte products, Plan-based gating.                                                              | Not started      |
 | E4  | Job Board & Matching v1         | Admin job CRUD, Job Tier assignment, lightweight match score, "why this matches you" reasoning.                               | Not started      |
 | E5  | Assessments                     | 5 core assessments, dimension scoring, Job Tier 2 unlock.                                                                     | Not started      |
@@ -168,8 +188,8 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 **Approach change from original plan:** PDF text extraction is no longer a separate step. Anthropic Claude consumes the uploaded PDF directly via the Files API, so `src/lib/pdf-extract.ts` and the `unpdf`/`pdf-parse` route are obsolete. Background work runs through Inngest functions, not bare API routes.
 
 - [x] **PDF parsing pipeline live** — Anthropic direct-PDF ingestion via `src/lib/llm/parse-resume.ts` + `parse-linkedin.ts`
-- [x] Resume parsing end-to-end — Inngest `parse-resume` writes `parsed_json`, `ats_score`, `summary`; dedup via file hash; supersession + retry UX
-- [x] ATS score calculation + display card on dashboard
+- [x] Resume parsing end-to-end — Inngest `parse-resume` writes `parsed_json`, `resume_score`, `summary`; dedup via file hash; supersession + retry UX
+- [x] Resume score calculation + display card on dashboard
 - [x] LinkedIn PDF sync end-to-end — Inngest `parse-linkedin` writes `parsed_json`, `profile_score`, `summary`; OAuth fields preserved
 - [x] Evals harness scaffolded for both parser + scorer on resume and LinkedIn
 - [ ] `ANTHROPIC_API_KEY` configured locally + on prod; Inngest endpoint registered in dashboard
@@ -185,7 +205,7 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 - [ ] Stale-`uploading` / stale-`processing` watchdog in `useResumeNotifications` + `useLinkedinNotifications` (covers silent `inngest.send` failures)
 - [ ] Eval fixtures + ground truth populated (≥5 per harness)
 
-**Exit:** a real candidate signs up, uploads resume, sees their ATS score, sees Job Tier 1 roles.
+**Exit:** a real candidate signs up, uploads resume, sees their Resume score, sees Job Tier 1 roles.
 
 ---
 
@@ -215,7 +235,7 @@ Some scope already landed in S2 via the job-board + pipeline plans. Remaining S4
 - [x] Admin: add/edit/archive jobs (landed in S2 via `docs/done/ec-job-board-plan.md`)
 - [x] Admin: assign `job_tier`, status (same)
 - [x] Express interest CTA → writes to `applications` table at `interested` (landed in S2 via `docs/done/ec-candidate-pipeline-plan.md`)
-- [ ] Match score v1 (resume keyword overlap + Plan visibility filter)
+- [ ] Match score v1 — the **ATS Score** (resume-vs-job fit, resume keyword overlap + Plan visibility filter). Writes to `matches.match_score`. Distinct from the upload-time Resume Score on `resumes.resume_score`.
 - [ ] Match reasoning (AI-generated, single sentence — Claude API)
 - [x] Candidate pool view for Lauren — `/admin/candidates` + `/admin/payments` (admin-super slice 1, shipped 2026-05-20 via `docs/done/ec-admin-super-plan.md`)
 
@@ -292,13 +312,20 @@ The candidate side of the pipeline landed in S2 via `docs/done/ec-candidate-pipe
 
 ## Phase 2 — After Gates Hit
 
-### Sprint P2-1 — E9: Employer/Agency Portal (2 weeks)
+### Sprint P2-1 — E9: Recruiters Portal (in flight, pulled forward — 2026-05-23)
 
-- Employer/agency auth + portal
-- Role submission flow
-- Candidate-interest view (no PII pre-match)
-- Commission tracking + payout history
-- Migrate Lauren's Google Sheets agency data into `employers` + `commissions`
+Authoritative plan: `docs/ec-admin-recruiters-plan.md`. Single `/employer/*` portal serves both direct clients and agency partners (distinguished by `employers.relationship_type`). **PII policy overridden** from the original spec: employer users see full candidate PII on expression of interest, surfaced via consent at the candidate-side CTA.
+
+- [x] Migrations: `client_companies` table + `jobs.client_company_id` FK; employer-scoped RLS across jobs / applications / profiles / resumes / linkedin_profiles / candidate_scores / assessment_responses / placements
+- [x] `src/app/employer/layout.tsx` guard + employer sidebar; `requireEmployer()` helper; `/employer-not-linked` fallback
+- [x] `/employer` overview tiles; `/employer/jobs` list + create + edit; `/employer/applications` list
+- [x] `src/app/actions/employer.ts`: `createJob`, `updateJob`, `archiveJob`, `advanceApplicationStatus` (placed excluded)
+- [ ] `/employer/applications/[id]` detail with full-PII candidate card + status-mover
+- [ ] `/employer/clients` + `/employer/clients/[id]` (agency-only client_companies CRUD) + `createClientCompany` / `updateClientCompany` actions
+- [ ] `/employer/placements` (read-only commission visibility)
+- [ ] `useEmployerApplicationNotifications` realtime hook + mount in employer layout
+- [ ] Wire `inviteEmployerContact` magic-link flow (today returns an explanatory error)
+- [ ] Migrate Lauren's Google Sheets agency data into `employers` + `commissions`
 
 ### Sprint P2-2 — Full Matching Algorithm
 
@@ -347,4 +374,4 @@ The candidate side of the pipeline landed in S2 via `docs/done/ec-candidate-pipe
 - **RLS:** every new table gets RLS policies in the same migration that creates the table. No "we'll add policies later."
 - **Lauren's admin UI:** grows incrementally — S4 (jobs + candidates), S6 (pipeline), S7 (enrollments + sessions). Don't try to design it all upfront.
 - **Tier 1 job sourcing:** Lauren commits ~3 hrs/week to manual curation OR we add a lightweight RSS/Greenhouse importer in S2.5. Decide at start of S2.
-- **Testing:** no automated test infrastructure today. Worth adding Playwright smoke tests against the activation flow (signup → upload → ATS score visible) by S3 — regressions there cost more than the test investment.
+- **Testing:** no automated test infrastructure today. Worth adding Playwright smoke tests against the activation flow (signup → upload → Resume score visible) by S3 — regressions there cost more than the test investment.

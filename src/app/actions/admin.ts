@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/types/database.types";
 import type { ApplicationStatus } from "@/types/db";
+
+import { env } from "../../../env";
 
 type CoachingProductInsert =
   Database["public"]["Tables"]["coaching_products"]["Insert"];
@@ -306,20 +309,74 @@ export async function updateEmployer(
 }
 
 /**
- * Magic-link invite for an employer contact. Wired once the agency portal
- * ships in docs/ec-admin-agency-plan.md — until /employer routes exist there
- * is nowhere for the invitee to land, so this returns an explanatory error.
+ * Magic-link invite for an employer contact. Sends an invite to the
+ * employer's `contact_email`, then ensures the resulting profile row is
+ * stamped with `role='employer'` and `employer_id=<employerId>` so the
+ * `/employer` layout guard picks them up on first sign-in.
+ *
+ * Uses the service-role client because `auth.admin.inviteUserByEmail`
+ * requires elevated privileges. The redirect lands them on `/employer`.
  */
 export async function inviteEmployerContact(
   employerId: string
 ): Promise<ActionResult> {
   await requireAdmin();
-  void employerId;
-  return {
-    ok: false,
-    error:
-      "Employer invites unlock when the agency portal ships (see docs/ec-admin-agency-plan.md).",
-  };
+  const supabase = await createClient();
+
+  const { data: employer, error: readError } = await supabase
+    .from("employers")
+    .select("contact_email, contact_name, company_name")
+    .eq("id", employerId)
+    .single();
+
+  if (readError || !employer)
+    return { ok: false, error: readError?.message ?? "Employer not found." };
+
+  let service;
+  try {
+    service = createServiceClient();
+  } catch {
+    return {
+      ok: false,
+      error:
+        "SUPABASE_SECRET_KEY is not configured — set it in the environment to send invites.",
+    };
+  }
+
+  const redirectTo = env.NEXT_PUBLIC_APP_URL
+    ? `${env.NEXT_PUBLIC_APP_URL}/employer`
+    : undefined;
+
+  const { data: invite, error: inviteError } =
+    await service.auth.admin.inviteUserByEmail(employer.contact_email, {
+      redirectTo,
+      data: {
+        full_name: employer.contact_name,
+        company_name: employer.company_name,
+        employer_id: employerId,
+      },
+    });
+
+  if (inviteError || !invite?.user)
+    return { ok: false, error: inviteError?.message ?? "Invite failed." };
+
+  // The profile row may be created by an auth trigger before this runs.
+  // Upsert role + employer_id so the new user lands inside the portal.
+  const { error: profileError } = await service.from("profiles").upsert(
+    {
+      id: invite.user.id,
+      email: employer.contact_email,
+      full_name: employer.contact_name,
+      role: "employer",
+      employer_id: employerId,
+    },
+    { onConflict: "id" }
+  );
+
+  if (profileError) return { ok: false, error: profileError.message };
+
+  revalidatePath(`/admin/employers/${employerId}`);
+  return { ok: true };
 }
 
 export interface CoachingProductInput {

@@ -53,9 +53,9 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
 
 If the document is not a resume, return all empty arrays / null fields with raw_text set to whatever text is present.`;
 
-export const SCORER_SYSTEM_PROMPT = `# ATS Scorer — v1.0.0
+export const SCORER_SYSTEM_PROMPT = `# Resume Scorer — v1.1.0
 
-You evaluate parsed resume data and produce an ATS-style score (0-100) with a per-dimension breakdown. The score reflects how well the resume is likely to perform with modern applicant tracking systems and human screeners reviewing mid-to-senior tech candidates.
+You evaluate parsed resume data and produce a Resume Score (0-100) with a per-dimension breakdown. The score measures intrinsic resume quality — how well the resume is likely to perform with modern applicant tracking systems and human screeners reviewing mid-to-senior tech candidates — without reference to any specific job. (Resume-vs-job match scoring is a separate downstream concern.)
 
 Return ONLY a single JSON object matching this exact schema. No prose before or after. No markdown fences.
 

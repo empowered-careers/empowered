@@ -14,7 +14,7 @@ export const CandidateResumeParsedEvent = eventType("candidate/resume_parsed", {
   schema: z.object({
     resumeId: z.string().uuid(),
     profileId: z.string().uuid(),
-    atsScore: z.number().int().min(0).max(100),
+    resumeScore: z.number().int().min(0).max(100),
   }),
 });
 

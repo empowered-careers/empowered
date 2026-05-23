@@ -36,7 +36,7 @@ export default async function DashboardPage() {
 
     supabase
       .from("resumes")
-      .select("id, uploaded_at, ats_score, file_name")
+      .select("id, uploaded_at, resume_score, file_name")
       .eq("profile_id", user.id)
       .order("uploaded_at", { ascending: false }),
 

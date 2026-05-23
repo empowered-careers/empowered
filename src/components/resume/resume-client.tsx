@@ -24,7 +24,7 @@ export interface ResumeFullRow {
   id: string;
   file_name: string | null;
   raw_file_url: string;
-  ats_score: number | null;
+  resume_score: number | null;
   parsed_json: (ParsedResume & { scoring?: Scoring }) | null;
   status: ResumeStatus;
   uploaded_at: string;
@@ -129,7 +129,7 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
             Resume
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Upload your resume to get an ATS score and unlock job matching.
+            Upload your resume to get a Resume score and unlock job matching.
           </p>
         </header>
         <div className="border border-border bg-card p-6">
@@ -150,7 +150,7 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
             Resume
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            ATS score + breakdown for your current resume.
+            Resume score + breakdown for your current resume.
           </p>
         </div>
         <Button
@@ -214,16 +214,16 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
           </div>
           <div className="text-right">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
-              ATS Score
+              Resume Score
             </div>
             <div
               className={`font-display text-5xl font-semibold ${
-                cur.ats_score === null
+                cur.resume_score === null
                   ? "text-muted-foreground"
-                  : scoreColorClass(cur.ats_score)
+                  : scoreColorClass(cur.resume_score)
               }`}
             >
-              {cur.ats_score ?? "—"}
+              {cur.resume_score ?? "—"}
             </div>
           </div>
         </div>
@@ -382,12 +382,12 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
                   <StatusBadge status={r.status} />
                   <span
                     className={`font-mono text-sm font-semibold ${
-                      r.ats_score === null
+                      r.resume_score === null
                         ? "text-muted-foreground"
-                        : scoreColorClass(r.ats_score)
+                        : scoreColorClass(r.resume_score)
                     }`}
                   >
-                    {r.ats_score ?? "—"}
+                    {r.resume_score ?? "—"}
                   </span>
                 </div>
               </div>

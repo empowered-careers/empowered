@@ -6,6 +6,14 @@ Supabase (PostgreSQL). Types live in `src/types/database.types.ts`.
 > **billing cadence** (one_time / monthly / annual). **Job Tier** = exclusivity bucket
 > a job belongs to (tier_1 = public, tier_2 = curated, tier_3 = closed network).
 > Never say just "Tier 1/2/3" — always qualify as Plan or Job Tier.
+>
+> **Two distinct scores — do not conflate.**
+> • **Resume Score** (`resumes.resume_score`, 0–100) — intrinsic resume quality
+> computed by the LLM at upload time. Job-agnostic. Measures tenure, role
+> progression, skill density, impact signals, formatting.
+> • **ATS Score** (will live in `matches.match_score`, 0–100) — resume-vs-job
+> fit for a _specific_ posting. Computed at match time (Sprint 4 / E4).
+> Today's `matches` table is the placeholder; no code writes it yet.
 
 ---
 
@@ -54,7 +62,7 @@ One or more resumes per profile.
 | superseded_at                  | timestamptz — stamped when a newer resume supersedes this    |
 | parsed_text                    | text                                                         |
 | parsed_json                    | jsonb                                                        |
-| ats_score                      | int                                                          |
+| resume_score                   | int — job-agnostic LLM Resume Score (0–100)                  |
 | seniority_level                | text — derived by LLM parser                                 |
 | total_years_exp                | numeric                                                      |
 | parser_model / scorer_model    | text — Anthropic model id used                               |
@@ -214,7 +222,36 @@ Job postings submitted by employers.
 | requirements            | jsonb                                                        |
 | job_tier                | enum (`tier_1` \| `tier_2` \| `tier_3`) — exclusivity bucket |
 | status                  | enum (`active` \| `filled` \| `expired`)                     |
+| client_company_id       | → client_companies (nullable; agency-posted roles only)      |
 | posted_at / expires_at  | timestamptz                                                  |
+
+Employer-side RLS (in `20260523000001_employer_rls.sql`): an employer can
+read all rows (already permitted to authenticated) and write only their own
+(`submitted_by = current_employer_id()`). Employer-posted roles always
+default to `tier_2`; Lauren promotes to higher tiers from `/admin/jobs`.
+
+---
+
+### `client_companies`
+
+Agency-private label table. Each agency keeps its own list of end-client
+companies it posts roles for. Same company name across two different
+agencies = two unrelated rows. **Not** a copy of `employers` —
+direct-client employers post for themselves and ignore this table.
+
+| column             | type                           |
+| ------------------ | ------------------------------ |
+| id                 | uuid (PK)                      |
+| agency_employer_id | → employers (the agency owner) |
+| name               | text                           |
+| contact_name       | text                           |
+| contact_email      | text                           |
+| created_at         | timestamptz                    |
+| updated_at         | timestamptz                    |
+
+`UNIQUE (agency_employer_id, name)`. RLS (in
+`20260523000000_client_companies.sql`): an agency only sees its own rows;
+admins see all.
 
 ---
 
@@ -241,18 +278,20 @@ holdovers.
 
 ### `matches`
 
-Candidate ↔ job match results.
+Candidate ↔ job match results. `match_score` is the **ATS Score** going
+forward — resume-vs-job fit for a specific posting. Sprint 4 (E4) ships the
+first writer; today the table exists but no code reads or writes it.
 
-| column               | type        |
-| -------------------- | ----------- |
-| id                   | uuid (PK)   |
-| profile_id           | → profiles  |
-| job_id               | → jobs      |
-| match_score          | int         |
-| match_reasons        | jsonb       |
-| candidate_interested | boolean     |
-| employer_interested  | boolean     |
-| created_at           | timestamptz |
+| column               | type                                   |
+| -------------------- | -------------------------------------- |
+| id                   | uuid (PK)                              |
+| profile_id           | → profiles                             |
+| job_id               | → jobs                                 |
+| match_score          | int — ATS Score (resume-vs-job, 0–100) |
+| match_reasons        | jsonb                                  |
+| candidate_interested | boolean                                |
+| employer_interested  | boolean                                |
+| created_at           | timestamptz                            |
 
 ---
 
@@ -276,10 +315,14 @@ Express-interest → placed pipeline. Created when a candidate clicks
 Candidate-facing RLS (added in `20260520030000_applications_candidate_rls.sql`):
 read own rows, insert own rows only at `status='interested'`, self-update
 only to `status='withdrawn'`. Admin blanket policy `applications_admin_all`
-(in `20260520040000_admin_rls.sql`) stacks on top; employer policies will
-layer additively from `docs/ec-admin-agency-plan.md`.
-Table is in the `supabase_realtime` publication with `REPLICA IDENTITY FULL`
-so the candidate notification hook sees prev/next row diffs.
+(in `20260520040000_admin_rls.sql`) stacks on top. Employer policies
+(`20260523000001_employer_rls.sql`) layer additively: an employer can read
+
+- update applications on their own jobs, with status restricted to
+  `screening | interviewing | offer | rejected` (placed stays admin-only —
+  drives commissions + fees).
+  Table is in the `supabase_realtime` publication with `REPLICA IDENTITY FULL`
+  so the candidate notification hook sees prev/next row diffs.
 
 ---
 

@@ -32,8 +32,8 @@
 
 - Upload + storage ✅
 - PDF/DOCX parsing ✅ (in progress)
-- ATS score (0–100) with breakdown
-- ATS score display card on dashboard
+- Resume score (0–100) with breakdown — job-agnostic LLM scoring at upload
+- Resume score display card on dashboard
 - Staleness tracking (last updated date, nudge after X days)
 - Resume rewrite service CTA (à la carte upsell)
 
@@ -95,7 +95,7 @@ In-app nudge cards + email triggers:
 
 | Trigger                 | Nudge                 |
 | ----------------------- | --------------------- |
-| ATS score low           | Resume review upsell  |
+| Resume score low        | Resume review upsell  |
 | LinkedIn grade low      | LinkedIn audit upsell |
 | Assessment incomplete   | Match quality nudge   |
 | Tier 3 viewed           | Subscription prompt   |
@@ -150,7 +150,7 @@ Triggered by candidate events piped from Supabase:
 | Resume nudge            | Signed up, no resume after 24hrs            |
 | Profile completion      | Resume uploaded, no assessments after 48hrs |
 | New match alert         | Lauren adds new Tier 2/3 role               |
-| Upsell — resume         | ATS score below 70                          |
+| Upsell — resume         | Resume score below 70                       |
 | Upsell — LinkedIn       | LinkedIn grade low                          |
 | Upsell — interview prep | Applied to Tier 2 role                      |
 | Weekly digest           | Every Monday — new exclusive roles          |

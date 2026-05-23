@@ -22,7 +22,7 @@ export type DashboardProfile = {
 export type DashboardResume = {
   id: string;
   uploaded_at: string;
-  ats_score: number | null;
+  resume_score: number | null;
   file_name: string | null;
 };
 
@@ -46,7 +46,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 
     supabase
       .from("resumes")
-      .select("id, uploaded_at, ats_score, file_name")
+      .select("id, uploaded_at, resume_score, file_name")
       .eq("profile_id", userId)
       .order("uploaded_at", { ascending: false }),
 
@@ -101,7 +101,7 @@ export function getProfileStrength(
   if (profile?.full_name) completed++; // 1. name filled
   if (profile?.linkedin_url) completed++; // 2. LinkedIn URL
   if (resumes.length > 0) completed++; // 3. resume uploaded
-  if (resumes.some((r) => r.ats_score !== null)) completed++; // 4. ATS scored
+  if (resumes.some((r) => r.resume_score !== null)) completed++; // 4. Resume scored
   if (profile?.onboarding_completed_at) completed++; // 5. job preferences
   // 6. subscription active (any tier counts as step)
   if (profile?.subscription_status === "active") completed++;

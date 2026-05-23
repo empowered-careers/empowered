@@ -51,7 +51,7 @@ function buildSteps(
   resumes: DashboardResume[]
 ): Step[] {
   const hasResume = resumes.length > 0;
-  const hasAtsScore = resumes.some((r) => r.ats_score !== null);
+  const hasResumeScore = resumes.some((r) => r.resume_score !== null);
 
   return [
     {
@@ -75,14 +75,14 @@ function buildSteps(
     {
       id: "step-resume",
       label: "Upload resume",
-      description: "Required for ATS scoring and job matching",
+      description: "Required for resume scoring and job matching",
       status: hasResume ? "complete" : "incomplete",
     },
     {
-      id: "step-ats",
-      label: "Get ATS score",
+      id: "step-resume-score",
+      label: "Get Resume score",
       description: "Understand how recruiters see your resume",
-      status: hasAtsScore ? "complete" : "incomplete",
+      status: hasResumeScore ? "complete" : "incomplete",
     },
     {
       id: "step-preferences",

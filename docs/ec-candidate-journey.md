@@ -8,7 +8,7 @@
 ## Core Principle
 
 The product is one thing: **access to exclusive roles.**
-Everything else — ATS score, LinkedIn grade, assessments, resume tools — are conversion levers pushing candidates toward paying for that access.
+Everything else — Resume score, LinkedIn grade, assessments, resume tools — are conversion levers pushing candidates toward paying for that access.
 
 ---
 
@@ -56,7 +56,7 @@ Three things visible immediately:
 
 Shown immediately based on what's been completed:
 
-- Resume uploaded → ATS score runs → _"Your resume scores 54/100 — candidates with 80+ get 3x more callbacks"_
+- Resume uploaded → Resume score runs → _"Your resume scores 54/100 — candidates with 80+ get 3x more callbacks"_
 - LinkedIn connected → grade runs → _"Your LinkedIn visibility is low — recruiters may not be finding you"_
 - No assessments → _"Candidates with complete profiles get matched to 2x more roles"_
 
@@ -66,7 +66,7 @@ Shown immediately based on what's been completed:
 
 Each action is self-motivated — improves match quality and shows real signal to the candidate.
 
-### Resume Upload + ATS Score (Immediate)
+### Resume Upload + Resume Score (Immediate)
 
 - Score displayed with full breakdown
 - Nudge: _"Want Lauren to rewrite this? Book a resume review →"_
@@ -113,7 +113,7 @@ Not a single hard gate — multiple natural conversion moments:
 | Trigger                   | Nudge                                                |
 | ------------------------- | ---------------------------------------------------- |
 | Views Tier 3 locked roles | _"Subscribe to unlock — from $X/month"_              |
-| ATS score below 70        | _"Book a resume review with Lauren"_                 |
+| Resume score below 70     | _"Book a resume review with Lauren"_                 |
 | LinkedIn grade low        | _"Get a full LinkedIn audit"_                        |
 | Completes all assessments | _"Your profile is complete — see your full matches"_ |
 | 7 days inactive           | Email: _"3 new exclusive roles match your profile"_  |
@@ -130,7 +130,7 @@ Every nudge is specific, not generic — based on actual score or behavior.
 - Full Tier 3 job access
 - Match reasoning per role — _"Why this matches you"_
 - New match alerts (email + in-app)
-- Express interest / apply per role
+- Express interest / apply per role — confirming this shares the candidate's full profile (name, email, phone, LinkedIn, resume, assessment results) with the hiring company
 
 ### À La Carte Purchases
 
