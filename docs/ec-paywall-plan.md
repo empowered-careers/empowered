@@ -7,7 +7,7 @@
 > - `docs/done/ec-job-board-plan.md` — already wires `can_see_job_tier(plan, job_tier)` SQL function + `src/lib/plan.ts` mirror. This plan flips `profiles.plan` so those gates start mattering.
 > - `docs/done/ec-candidate-pipeline-plan.md` — Express Interest CTA currently doesn't paywall; this plan lets us add an upgrade nudge inside the consent modal.
 > - `docs/done/ec-events-growth-plan.md` — `lead.converted` Loops event already fires at OAuth; this plan adds `candidate.payment` and `candidate.plan_upgraded` to the same event sink.
-> - `docs/ec-admin-recruiters-plan.md` — independent; no employer-side payments in Phase 1.
+> - `docs/done/ec-admin-recruiters-plan.md` — independent; no employer-side payments in Phase 1.
 
 ## Context
 

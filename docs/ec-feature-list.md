@@ -164,7 +164,7 @@ Triggered by candidate events piped from Supabase:
 | Feature                       | Reason Deferred                        |
 | ----------------------------- | -------------------------------------- |
 | Full matching algorithm       | Need candidate + job volume first      |
-| Agency portal                 | Lauren manages manually in Phase 1     |
+| ~~Agency portal~~             | Shipped 2026-05-23 (Sprint P2-1)       |
 | AI resume rewriting           | Conversion lever, not core             |
 | Conversational AI assessments | Complexity without proven demand       |
 | Public job scraping           | Manual curation sufficient for Phase 1 |

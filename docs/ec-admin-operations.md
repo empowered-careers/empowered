@@ -1,8 +1,8 @@
 # Empowered Careers — Admin & Operations
 
 > Last updated: 2026-05-23
-> Status: Phase 1 admin console shipped. Phase 2 recruiters portal is spec only.
-> Authoritative build plans: `docs/done/ec-admin-super-plan.md` (Phase 1 — shipped 2026-05-20), `docs/ec-admin-recruiters-plan.md` (Phase 2 — spec)
+> Status: Phase 1 admin console shipped. Phase 2 recruiters portal shipped.
+> Authoritative build plans: `docs/done/ec-admin-super-plan.md` (Phase 1 — shipped 2026-05-20), `docs/done/ec-admin-recruiters-plan.md` (Phase 2 — shipped 2026-05-23)
 
 This doc is the operations-side overview: what Lauren does day-to-day and how the build plans map onto it. For schema, routes, and RLS, defer to the two plans above.
 
@@ -38,7 +38,7 @@ Phase 1 replaced Lauren's Supabase Studio + Google Sheets workflow with the supe
 ### Commissions + Employers + Coaching — `/admin/commissions`, `/admin/employers`, `/admin/coaching`
 
 - Per-agency commission ledger: mark invoiced / paid / written-off
-- Employer + agency CRUD (company, contact, `relationship_type`, `commission_rate`); invite-contact magic link is dormant until the recruiters portal ships
+- Employer + agency CRUD (company, contact, `relationship_type`, `commission_rate`); invite-contact magic link sends a real Supabase invite that lands the employer at `/employer` and stamps `profiles.role='employer'` + `employer_id`
 - `coaching_products` catalog CRUD + enrollment list
 
 ### Overview — `/admin`
@@ -49,7 +49,7 @@ Tiles: active candidates (free vs paid), open roles by tier, applications by sta
 
 ## Recruiters Portal (Phase 2)
 
-Lauren manages employer and agency relationships manually until the gate is hit (see CRM tools below). Phase 2 builds a single `/employer/*` portal that serves both **direct clients** and **agency partners**, distinguished by `employers.relationship_type`. Full plan: `docs/ec-admin-recruiters-plan.md`.
+Phase 2 ships a single `/employer/*` portal that serves both **direct clients** and **agency partners**, distinguished by `employers.relationship_type`. Full plan: `docs/done/ec-admin-recruiters-plan.md`.
 
 ### Phase 1 (manual — Google Sheets)
 

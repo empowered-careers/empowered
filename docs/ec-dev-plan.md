@@ -57,23 +57,19 @@ S4/S6 partial credit landed via the pipeline plan: `applications` writes, expres
 
 **Resume Score rename shipped (2026-05-23)** — `resumes.ats_score` → `resumes.resume_score` migration (`20260523000000_resume_score_rename.sql`). Disambiguates the upload-time job-agnostic LLM score from the future candidate-vs-job match score (`matches.match_score`, S4). Column rename only — no UI / hook / prompt changes were needed beyond a grep-and-replace across `src/` and `docs/`.
 
-**Recruiters portal — in flight (2026-05-23)** — Sprint P2-1 from `docs/ec-admin-recruiters-plan.md` is being built ahead of phase-gate. Shipped so far:
+**Recruiters portal — shipped (2026-05-23)** — Sprint P2-1 from `docs/done/ec-admin-recruiters-plan.md` landed end-to-end ahead of phase-gate. Highlights:
 
 - Migrations: `20260523000000_client_companies.sql` (table + `jobs.client_company_id` FK + RLS) and `20260523000001_employer_rls.sql` (employer-scoped policies on jobs / applications / profiles / resumes / linkedin_profiles / candidate_scores / assessment_responses / placements — keyed on `jobs.submitted_by = current_employer_id()`, with `placed` excluded from the employer with-check so commissions stay admin-only).
-- Auth shell: `src/app/employer/layout.tsx` (allows `role in ('admin','employer')` so Lauren can impersonation-view; bounces unlinked employers to `/employer-not-linked`).
-- Routes: `/employer` overview tiles (active roles, interested candidates, placements), `/employer/jobs` list + create, `/employer/jobs/[id]/edit`, `/employer/applications` list. Jobs are force-tagged `tier_2`; agency users see a `client_company_id` picker, direct clients don't.
-- Server actions (`src/app/actions/employer.ts`): `createJob`, `updateJob`, `archiveJob`, `advanceApplicationStatus` (employer-allowed statuses only: `screening`/`interviewing`/`offer`/`rejected`; appends to `applications.status_log`).
-- Components: `employer-sidebar.tsx`, `job-form.tsx` (client-aware), `candidate-card.tsx`, `application-status-mover.tsx`.
-- Helper: `requireEmployer()` in `src/lib/auth/require-role.ts`.
+- Auth shell: `src/app/employer/layout.tsx` (allows `role in ('admin','employer')` so Lauren can impersonation-view; bounces unlinked employers to `/employer-not-linked`). `requireEmployer()` / `requireEmployerScope()` in `src/lib/auth/require-role.ts`.
+- Routes: `/employer` overview tiles, `/employer/jobs` (list + create) + `[id]/edit`, `/employer/applications` (list) + `[id]` (full-PII detail + status mover + status log), `/employer/clients` + `[id]` (agency-only CRUD with rollups), `/employer/placements` (read-only; agency view grouped by client).
+- Server actions (`src/app/actions/employer.ts`): `createJob` / `updateJob` / `archiveJob` (force `tier_2`, `submitted_by=employerId`), `advanceApplicationStatus` (screening/interviewing/offer/rejected only — appends to `applications.status_log`), `createClientCompany` / `updateClientCompany` / `deleteClientCompany` (gated on `relationship_type='agency_partner'`).
+- Realtime: `useEmployerApplicationNotifications` mounted via `EmployerRealtime` in the employer layout; pre-loads the employer's job-id set and skips events on rows that aren't ours.
+- Candidate-side PII consent string was already in place at `src/components/job-board/express-interest-button.tsx`.
+- Admin `inviteEmployerContact` is now real — uses `createServiceClient()` + `auth.admin.inviteUserByEmail`, then upserts the new profile with `role='employer'` + `employer_id` so the invitee lands inside the portal.
 
-Still to build before Sprint P2-1 closes:
+Still to wire (out of this sprint's scope):
 
-- `/employer/applications/[id]` detail (candidate-card + status-mover hookup; routes from the list page link here)
-- `/employer/clients` + `/employer/clients/[id]` (agency-only client_companies CRUD); `createClientCompany` / `updateClientCompany` server actions
-- `/employer/placements` (read-only)
-- `useEmployerApplicationNotifications` realtime hook + mount in the employer layout
-- Loops "first-application alert" event for new expressions of interest on an employer's jobs
-- Admin `inviteEmployerContact` is wired but currently errors with an "until /employer ships" explanatory string — flip it on once the routes above land
+- Loops "first-application alert" event for new expressions of interest on an employer's jobs.
 
 **Open S2 work** — see `docs/todo.md` for live checklist. Still TODO:
 
@@ -314,7 +310,7 @@ The candidate side of the pipeline landed in S2 via `docs/done/ec-candidate-pipe
 
 ### Sprint P2-1 — E9: Recruiters Portal (in flight, pulled forward — 2026-05-23)
 
-Authoritative plan: `docs/ec-admin-recruiters-plan.md`. Single `/employer/*` portal serves both direct clients and agency partners (distinguished by `employers.relationship_type`). **PII policy overridden** from the original spec: employer users see full candidate PII on expression of interest, surfaced via consent at the candidate-side CTA.
+Authoritative plan: `docs/done/ec-admin-recruiters-plan.md`. Single `/employer/*` portal serves both direct clients and agency partners (distinguished by `employers.relationship_type`). **PII policy overridden** from the original spec: employer users see full candidate PII on expression of interest, surfaced via consent at the candidate-side CTA.
 
 - [x] Migrations: `client_companies` table + `jobs.client_company_id` FK; employer-scoped RLS across jobs / applications / profiles / resumes / linkedin_profiles / candidate_scores / assessment_responses / placements
 - [x] `src/app/employer/layout.tsx` guard + employer sidebar; `requireEmployer()` helper; `/employer-not-linked` fallback

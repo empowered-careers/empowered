@@ -2,8 +2,8 @@
 
 > Covers both **agency partners** and **corporate / direct clients** — a single portal serves both, distinguished by `employers.relationship_type`.
 
-> Last updated: 2026-05-20
-> Status: Spec — Phase 2 build (Sprint P2-1 in `docs/ec-dev-plan.md`)
+> Last updated: 2026-05-23
+> Status: Shipped 2026-05-23 (Sprint P2-1)
 > Prerequisite: `docs/done/ec-admin-super-plan.md` (role enum + `is_employer()` / `current_employer_id()` helpers must ship first)
 > Related: `docs/ec-admin-operations.md` (Phase 2 framing — this plan **overrides** the PII gate decision)
 

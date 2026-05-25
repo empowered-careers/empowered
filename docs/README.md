@@ -30,7 +30,6 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 **Plans (move to `done/` when shipped):**
 
 - `ec-dev-plan.md`
-- `ec-admin-recruiters-plan.md`
 - `ec-events-growth-plan.md`
 - `todo.md`
 
@@ -39,3 +38,4 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 - `done/ec-job-board-plan.md`
 - `done/ec-candidate-pipeline-plan.md`
 - `done/ec-admin-super-plan.md`
+- `done/ec-admin-recruiters-plan.md`
