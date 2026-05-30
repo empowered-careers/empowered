@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Identity Blueprint™ — Empowered Careers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-gold: #C9A84C;
+    --brand-gold-light: #F5E6C0;
+    --brand-gold-dark: #8B6914;
+    --brand-navy: #0E1B2E;
+    --brand-navy-mid: #1A2D45;
+    --brand-navy-light: #2A4060;
+    --brand-cream: #FAF7F2;
+    --brand-cream-dark: #EDE8DF;
+    --text-primary: #0E1B2E;
+    --text-secondary: #4A5568;
+    --text-muted: #8B9BB4;
+    --white: #FFFFFF;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(14,27,46,0.10);
+    --shadow-card: 0 2px 12px rgba(14,27,46,0.07);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--brand-cream);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--brand-navy);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--brand-gold), #E8C96A);
+    border-radius: 8px;
+    display: flex;align-items:center;justify-content:center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--brand-navy);
+    font-weight: bold;
+  }
+  .logo-text { font-size: 14px; color: var(--white); letter-spacing: 0.04em; font-weight: 500; }
+  .logo-sub { font-size: 11px; color: var(--brand-gold); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .progress-header { display: flex; align-items: center; gap: 12px; }
+  .progress-label { font-size: 13px; color: var(--brand-gold); font-weight: 500; }
+  .progress-track {
+    width: 140px; height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-gold), #E8C96A);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* SCREENS */
+  .screen { display: none; animation: fadeIn 0.4s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* WELCOME SCREEN */
+  .welcome-hero {
+    background: var(--brand-navy);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .welcome-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brand-gold);
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+  }
+  .welcome-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+  }
+  .welcome-title em { font-style: italic; color: var(--brand-gold); }
+  .welcome-subtitle {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+  .welcome-meta {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.6); }
+  .meta-dot { width: 5px; height: 5px; background: var(--brand-gold); border-radius: 50%; }
+  .btn-start {
+    background: linear-gradient(135deg, var(--brand-gold), #E8C96A);
+    color: var(--brand-navy);
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,168,76,0.4); }
+  .btn-start:active { transform: translateY(0); }
+
+  .welcome-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 3rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .feature-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--brand-cream-dark);
+  }
+  .feature-icon {
+    width: 42px; height: 42px;
+    background: var(--brand-gold-light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 20px;
+  }
+  .feature-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .feature-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ASSESSMENT SCREEN */
+  .assessment-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+  .section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand-gold-light);
+    color: var(--brand-gold-dark);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+  }
+  .q-number { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 0.4rem; }
+  .q-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.55rem;
+    color: var(--text-primary);
+    line-height: 1.35;
+    margin-bottom: 2rem;
+  }
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--white);
+    border: 1.5px solid var(--brand-cream-dark);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-card);
+  }
+  .option-btn:hover {
+    border-color: var(--brand-gold);
+    background: #FFFDF7;
+    transform: translateX(3px);
+    box-shadow: 0 4px 18px rgba(201,168,76,0.18);
+  }
+  .option-btn.selected {
+    border-color: var(--brand-gold);
+    background: var(--brand-gold-light);
+    color: var(--brand-gold-dark);
+    transform: translateX(3px);
+  }
+  .option-letter {
+    width: 28px; height: 28px;
+    background: var(--brand-cream-dark);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option-btn.selected .option-letter,
+  .option-btn:hover .option-letter {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+  }
+  .btn-nav {
+    padding: 0.7rem 1.5rem;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: 1.5px solid var(--brand-cream-dark);
+    background: var(--white);
+    color: var(--text-secondary);
+  }
+  .btn-nav:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+  .btn-nav.primary {
+    background: var(--brand-navy);
+    color: var(--white);
+    border-color: var(--brand-navy);
+  }
+  .btn-nav.primary:hover { background: var(--brand-navy-mid); box-shadow: 0 4px 16px rgba(14,27,46,0.2); }
+  .btn-nav:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+  /* LOADING SCREEN */
+  .loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 70px);
+    padding: 2rem;
+    text-align: center;
+  }
+  .loading-ring {
+    width: 70px; height: 70px;
+    border: 3px solid var(--brand-cream-dark);
+    border-top-color: var(--brand-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1.5rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--text-primary); margin-bottom: 0.5rem; }
+  .loading-sub { font-size: 0.9rem; color: var(--text-secondary); }
+  .loading-steps { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .loading-step {
+    font-size: 13px;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: stepReveal 0.4s ease forwards;
+  }
+  .loading-step.done { color: var(--brand-gold-dark); }
+  @keyframes stepReveal { to { opacity: 1; } }
+
+  /* RESULTS SCREEN */
+  .results-hero {
+    background: var(--brand-navy);
+    padding: 3.5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .results-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 65%);
+  }
+  .results-eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-gold); margin-bottom: 1rem; font-weight: 600; }
+  .archetype-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+  }
+  .archetype-tagline { font-size: 1rem; color: rgba(255,255,255,0.6); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+  .results-grid {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .result-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--brand-cream-dark);
+  }
+  .result-card.full-width { grid-column: 1 / -1; }
+  .card-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand-gold-dark);
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+  .card-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
+  .card-body { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.75rem; }
+  .tag {
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .tag-green { background: #EAF5ED; color: #2A7A3B; border-color: #B8DFC0; }
+  .tag-red { background: #FEF0EF; color: #B83232; border-color: #F5C0C0; }
+  .tag-gold { background: var(--brand-gold-light); color: var(--brand-gold-dark); border-color: #E8D39A; }
+  .tag-navy { background: #EEF3FA; color: #1A3C6B; border-color: #C5D5EC; }
+
+  .score-row { display: flex; flex-direction: column; gap: 10px; margin-top: 0.75rem; }
+  .score-item { display: flex; align-items: center; gap: 10px; }
+  .score-label { font-size: 12px; color: var(--text-secondary); min-width: 120px; }
+  .score-bar-track { flex: 1; height: 6px; background: var(--brand-cream-dark); border-radius: 3px; overflow: hidden; }
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-gold), #E8C96A);
+    border-radius: 3px;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .score-val { font-size: 12px; font-weight: 600; color: var(--brand-gold-dark); min-width: 30px; text-align: right; }
+
+  .spectrum-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+  .spectrum-label { font-size: 12px; color: var(--text-secondary); min-width: 120px; }
+  .spectrum-track { flex: 1; height: 8px; background: var(--brand-cream-dark); border-radius: 4px; position: relative; }
+  .spectrum-thumb {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px;
+    background: var(--brand-gold);
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .spectrum-right-label { font-size: 12px; color: var(--text-secondary); min-width: 120px; text-align: right; }
+
+  .insight-list { list-style: none; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 8px; }
+  .insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.87rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .insight-bullet {
+    width: 5px; height: 5px;
+    background: var(--brand-gold);
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .burnout-meter {
+    position: relative;
+    height: 60px;
+    margin-top: 1rem;
+    background: linear-gradient(90deg, #EAF5ED, #FEF9E8, #FEF0EF);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .burnout-indicator {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: var(--brand-navy);
+    border-radius: 2px;
+    transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .burnout-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .retake-section {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background: var(--brand-navy);
+  }
+  .retake-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 0.5rem; }
+  .retake-sub { font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
+  .btn-retake {
+    background: transparent;
+    border: 1.5px solid var(--brand-gold);
+    color: var(--brand-gold);
+    padding: 0.7rem 1.8rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    margin: 0 6px;
+  }
+  .btn-retake:hover { background: var(--brand-gold); color: var(--brand-navy); }
+  .btn-premium {
+    background: linear-gradient(135deg, var(--brand-gold), #E8C96A);
+    border: none;
+    color: var(--brand-navy);
+    padding: 0.75rem 1.8rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    margin: 0 6px;
+  }
+  .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(201,168,76,0.4); }
+
+  @media (max-width: 600px) {
+    .welcome-hero { padding: 3.5rem 1.25rem 3rem; }
+    .assessment-container { padding: 1.5rem 1rem; }
+    .q-text { font-size: 1.25rem; }
+    .results-grid { grid-template-columns: 1fr; padding: 1.5rem 1rem; }
+    .header { padding: 1rem; }
+    .progress-track { width: 90px; }
+    .spectrum-label, .spectrum-right-label { min-width: 80px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">E</div>
+    <div>
+      <div class="logo-text">Empowered Careers</div>
+      <div class="logo-sub">Career Identity Blueprint™</div>
+    </div>
+  </div>
+  <div class="progress-header" id="progressHeader" style="display:none;">
+    <span class="progress-label" id="progressLabel">1 / 30</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:3%"></div></div>
+  </div>
+</header>
+
+<!-- WELCOME SCREEN -->
+<div class="screen active" id="screenWelcome">
+  <div class="welcome-hero">
+    <p class="welcome-eyebrow">QuickStart Career Identity Scan™</p>
+    <h1 class="welcome-title">Discover how you're<br><em>uniquely designed</em> to lead</h1>
+    <p class="welcome-subtitle">A 30-question assessment that reveals your Career Archetype, Leadership Style, Ideal Work Environment, and strategic positioning in 5–7 minutes.</p>
+    <div class="welcome-meta">
+      <span class="meta-item"><span class="meta-dot"></span> 30 questions</span>
+      <span class="meta-item"><span class="meta-dot"></span> 5–7 minutes</span>
+      <span class="meta-item"><span class="meta-dot"></span> Instant results</span>
+      <span class="meta-item"><span class="meta-dot"></span> No sign-up required</span>
+    </div>
+    <button class="btn-start" onclick="startAssessment()">Begin Your Blueprint →</button>
+  </div>
+  <div class="welcome-features">
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Career Archetype™</div>
+      <div class="feature-desc">Discover your unique career identity and how to position yourself in the market.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Energy Audit™</div>
+      <div class="feature-desc">Identify what energizes you, what drains you, and your burnout risk factors.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏢</div>
+      <div class="feature-title">Company Fit™</div>
+      <div class="feature-desc">Find the environments where you'll thrive — startup, enterprise, mission-driven.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎤</div>
+      <div class="feature-title">Interview Strategy™</div>
+      <div class="feature-desc">Get customized interview coaching based on your communication style and strengths.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT SCREEN -->
+<div class="screen" id="screenAssessment">
+  <div class="assessment-container">
+    <div id="sectionBadge" class="section-badge">⚡ Energy &amp; Work Style</div>
+    <div class="q-number" id="qNumber">Question 1 of 30</div>
+    <div class="q-text" id="qText">Loading question...</div>
+    <div class="options-grid" id="optionsGrid"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btnBack" onclick="prevQuestion()" disabled>← Back</button>
+      <button class="btn-nav primary" id="btnNext" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div class="screen" id="screenLoading">
+  <div class="loading-screen">
+    <div class="loading-ring"></div>
+    <div class="loading-title">Analyzing your blueprint...</div>
+    <div class="loading-sub">Building your personalized career intelligence profile</div>
+    <div class="loading-steps" id="loadingSteps"></div>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div class="screen" id="screenResults">
+  <div class="results-hero">
+    <p class="results-eyebrow">Your Career Identity Blueprint™</p>
+    <h1 class="archetype-name" id="archetypeName">The Visionary Builder™</h1>
+    <p class="archetype-tagline" id="archetypeTagline">Big-picture strategist who thrives building transformative ideas and scaling innovation.</p>
+  </div>
+
+  <div class="results-grid">
+
+    <!-- Leadership Style -->
+    <div class="result-card">
+      <div class="card-eyebrow">Leadership Style</div>
+      <div class="card-title" id="leadershipTitle">Vision-Led Leader™</div>
+      <div class="card-body" id="leadershipBody">You lead through inspiration and momentum. Teams follow your clarity of direction and ability to paint a compelling future.</div>
+      <div class="tag-row" id="leadershipTags"></div>
+    </div>
+
+    <!-- Company Fit -->
+    <div class="result-card">
+      <div class="card-eyebrow">Best Company Fit</div>
+      <div class="card-title" id="companyFitTitle">Scaling-Stage Organizations</div>
+      <div class="card-body" id="companyFitBody">You thrive in environments with momentum, growth ambition, and room to build from the ground up.</div>
+      <div class="tag-row" id="companyFitTags"></div>
+    </div>
+
+    <!-- Personality Dimensions -->
+    <div class="result-card full-width">
+      <div class="card-eyebrow">Executive Personality Dimensions™</div>
+      <div class="card-title">Your natural wiring</div>
+      <div id="spectrumRows"></div>
+    </div>
+
+    <!-- Career Symmetry Score -->
+    <div class="result-card full-width">
+      <div class="card-eyebrow">Career Symmetry Score™</div>
+      <div class="card-title">Alignment across key dimensions</div>
+      <div class="score-row" id="symmetryScores"></div>
+    </div>
+
+    <!-- Green Lights -->
+    <div class="result-card">
+      <div class="card-eyebrow">Green Light Work™</div>
+      <div class="card-title">What fuels you</div>
+      <div class="card-body">Responsibilities and environments that energize your best performance.</div>
+      <div class="tag-row" id="greenLightTags"></div>
+    </div>
+
+    <!-- Red Lights -->
+    <div class="result-card">
+      <div class="card-eyebrow">Red Light Work™</div>
+      <div class="card-title">What drains you</div>
+      <div class="card-body">Environments and tasks that reduce your performance and increase burnout risk.</div>
+      <div class="tag-row" id="redLightTags"></div>
+    </div>
+
+    <!-- Communication Style -->
+    <div class="result-card">
+      <div class="card-eyebrow">Communication Style</div>
+      <div class="card-title" id="commStyleTitle">Executive Strategist™</div>
+      <div class="card-body" id="commStyleBody">Your communication is concise, authoritative, and business-oriented — ideal for executive environments.</div>
+    </div>
+
+    <!-- Burnout Risk -->
+    <div class="result-card">
+      <div class="card-eyebrow">Burnout &amp; Energy Sustainability</div>
+      <div class="card-title" id="burnoutTitle">Moderate Risk</div>
+      <div class="card-body" id="burnoutBody">Watch for overcommitment cycles and ensure meaningful recovery time is built into your workflow.</div>
+      <div class="burnout-meter">
+        <div class="burnout-indicator" id="burnoutIndicator" style="left:30%"></div>
+      </div>
+      <div class="burnout-labels"><span>Low</span><span>Moderate</span><span>High</span></div>
+    </div>
+
+    <!-- Interview Guidance -->
+    <div class="result-card full-width">
+      <div class="card-eyebrow">Personalized Interview Strategy™</div>
+      <div class="card-title" id="interviewTitle">Your interview communication approach</div>
+      <ul class="insight-list" id="interviewInsights"></ul>
+    </div>
+
+    <!-- Career Search Strategy -->
+    <div class="result-card full-width">
+      <div class="card-eyebrow">Career Search Strategy™</div>
+      <div class="card-title" id="strategyTitle">Where you'll thrive</div>
+      <ul class="insight-list" id="strategyInsights"></ul>
+    </div>
+
+    <!-- LinkedIn & Branding -->
+    <div class="result-card full-width">
+      <div class="card-eyebrow">LinkedIn &amp; Personal Brand Guidance™</div>
+      <div class="card-title" id="linkedinTitle">How to position yourself online</div>
+      <ul class="insight-list" id="linkedinInsights"></ul>
+    </div>
+
+  </div>
+
+  <div class="retake-section">
+    <div class="retake-title">Ready to go deeper?</div>
+    <div class="retake-sub">Unlock your full Career Intelligence Report with executive coaching, resume scoring, and advanced insights.</div>
+    <div style="margin-top:1rem; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+      <button class="btn-retake" onclick="retakeAssessment()">← Retake Assessment</button>
+      <button class="btn-premium">Unlock Deep Dive Intelligence™ →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { section: "⚡ Energy & Work Style", text: "At the end of a productive workday, what most likely energized you?", options: ["Collaborating and brainstorming with others","Solving a difficult strategic or technical problem","Completing meaningful work efficiently","Influencing decisions or driving momentum"], scores: [{energy:2},{strategic:2},{execution:2},{leadership:2}] },
+  { section: "⚡ Energy & Work Style", text: "When starting a major initiative, you naturally prefer:", options: ["Flexibility and room to experiment","A clear structure and defined process","Strong collaboration and alignment","Full ownership and autonomy"], scores: [{adaptive:2},{structured:2},{relational:2},{vision:2}] },
+  { section: "⚡ Energy & Work Style", text: "Which environment sounds MOST energizing?", options: ["Fast-moving startup with constant innovation","Collaborative growth company building new systems","Large enterprise with scale and complexity","Mission-driven organization focused on impact"], scores: [{startup:2},{growth:2},{enterprise:2},{mission:2}] },
+  { section: "⚡ Energy & Work Style", text: "How do you typically recharge after intense work periods?", options: ["Social connection","Quiet reflection","Creative activities","Physical activity or movement"], scores: [{external:2},{internal:2},{creative:2},{active:2}] },
+  { section: "⚡ Energy & Work Style", text: "Which type of work drains you the fastest?", options: ["Repetitive administrative tasks","Excessive meetings with little progress","Constant ambiguity and chaos","Highly political environments"], scores: [{admin_drain:2},{meeting_drain:2},{chaos_drain:2},{political_drain:2}] },
+  { section: "👑 Leadership & Influence", text: "During high-pressure situations, you naturally become the person who:", options: ["Brings calm and emotional stability","Creates structure and clear priorities","Motivates the team toward action","Solves the most complex problems"], scores: [{people:2},{structured:2},{performance:2},{analytical:2}] },
+  { section: "👑 Leadership & Influence", text: "What leadership style do you most admire?", options: ["Inspirational and visionary","Strategic and analytical","Coaching and empowering","Operational and execution-focused"], scores: [{vision:2},{analytical:2},{people:2},{execution:2}] },
+  { section: "👑 Leadership & Influence", text: "When making decisions, what matters most?", options: ["Logic and long-term impact","Team impact and relationships","Speed and momentum","Risk reduction and stability"], scores: [{analytical:2},{people:2},{performance:2},{structured:2}] },
+  { section: "👑 Leadership & Influence", text: "When leading others, you naturally focus most on:", options: ["Developing people","Delivering results","Creating innovation","Building sustainable systems"], scores: [{people:2},{performance:2},{creative:2},{structured:2}] },
+  { section: "👑 Leadership & Influence", text: "How do you usually influence people?", options: ["Through expertise and intelligence","Through relationships and trust","Through confidence and momentum","Through organization and consistency"], scores: [{analytical:2},{relational:2},{performance:2},{execution:2}] },
+  { section: "🏢 Company Culture Fit", text: "Which environment sounds MOST appealing?", options: ["High-growth and entrepreneurial","Stable with strong systems and structure","Collaborative and people-focused","Highly innovative and disruptive"], scores: [{startup:2},{enterprise:2},{relational:2},{creative:2}] },
+  { section: "🏢 Company Culture Fit", text: "What frustrates you most at work?", options: ["Slow decision making","Lack of direction or structure","Poor communication","Lack of growth opportunities"], scores: [{performance:2},{structured:2},{relational:2},{vision:2}] },
+  { section: "🏢 Company Culture Fit", text: "How much structure do you prefer?", options: ["Very little — I like freedom and flexibility","Moderate structure with room to adapt","Clear systems and expectations","Highly organized processes"], scores: [{adaptive:3},{adaptive:1},{structured:2},{structured:3}] },
+  { section: "🏢 Company Culture Fit", text: "What type of leadership environment helps you thrive?", options: ["High autonomy","Strong mentorship","Collaborative teamwork","Performance-driven accountability"], scores: [{vision:2},{people:2},{relational:2},{performance:2}] },
+  { section: "🏢 Company Culture Fit", text: "Which statement sounds MOST like you?", options: ["I enjoy building things from the ground up.","I enjoy optimizing and scaling systems.","I enjoy helping teams align and grow.","I enjoy solving complex strategic problems."], scores: [{vision:2},{execution:2},{people:2},{analytical:2}] },
+  { section: "🔋 Energy Audit™", text: "Which responsibility naturally energizes you?", options: ["Strategy and planning","Mentoring and developing people","Solving operational problems","Presenting ideas or influencing others"], scores: [{analytical:2},{people:2},{execution:2},{communication:2}] },
+  { section: "🔋 Energy Audit™", text: "Which responsibility drains you the fastest?", options: ["Excessive reporting / admin work","Constant conflict management","Repetitive execution work","Lack of clarity or shifting priorities"], scores: [{admin_drain:2},{conflict_drain:2},{execution_drain:2},{chaos_drain:2}] },
+  { section: "🔋 Energy Audit™", text: "Which meetings do you usually enjoy MOST?", options: ["Strategic planning discussions","Collaborative brainstorming","Problem-solving sessions","Leadership or decision-making meetings"], scores: [{analytical:2},{relational:2},{execution:2},{leadership:2}] },
+  { section: "🔋 Energy Audit™", text: "Which stakeholder type brings out your BEST work?", options: ["Visionary leaders","Collaborative peers","High-accountability teams","Mentorship-oriented leaders"], scores: [{vision:2},{relational:2},{performance:2},{people:2}] },
+  { section: "🔋 Energy Audit™", text: "Which environment creates the most burnout risk for you?", options: ["Micromanagement","Constant urgency and chaos","Highly political cultures","Isolation and lack of collaboration"], scores: [{micro_burnout:2},{urgency_burnout:2},{political_burnout:2},{isolation_burnout:2}] },
+  { section: "💬 Communication & Brand", text: "How do you naturally communicate ideas?", options: ["Concisely and strategically","Through stories and examples","Through logic and data","Through collaboration and discussion"], scores: [{communication:2},{storytelling:2},{analytical:2},{relational:2}] },
+  { section: "💬 Communication & Brand", text: "How comfortable are you being professionally visible online?", options: ["Very comfortable","Somewhat comfortable","Neutral","Prefer to stay behind the scenes"], scores: [{visibility:3},{visibility:2},{visibility:1},{visibility:0}] },
+  { section: "💬 Communication & Brand", text: "When networking, you naturally prefer:", options: ["Deep one-on-one conversations","Large energetic environments","Small curated groups","Online relationship building"], scores: [{internal:2},{external:2},{relational:2},{digital:2}] },
+  { section: "💬 Communication & Brand", text: "What best describes your communication style in interviews?", options: ["Executive and concise","Warm and relational","Analytical and detailed","Energetic and persuasive"], scores: [{communication:2},{relational:2},{analytical:2},{performance:2}] },
+  { section: "💬 Communication & Brand", text: "What type of professional content are you most likely to share?", options: ["Leadership insights","Industry trends and strategy","Inspirational or motivational ideas","Operational or educational insights"], scores: [{leadership:2},{analytical:2},{storytelling:2},{execution:2}] },
+  { section: "🚀 Career Direction", text: "What motivates you MOST professionally?", options: ["Impact and purpose","Growth and achievement","Financial freedom","Stability and sustainability"], scores: [{mission:2},{performance:2},{adaptive:2},{structured:2}] },
+  { section: "🚀 Career Direction", text: "What type of career growth excites you most?", options: ["Executive leadership","Entrepreneurship or ownership","Deep expertise / mastery","Building and mentoring teams"], scores: [{leadership:2},{startup:2},{analytical:2},{people:2}] },
+  { section: "🚀 Career Direction", text: "How do you feel about career reinvention?", options: ["Excited by change and evolution","Open but cautious","Prefer stability and predictability","Interested if aligned with purpose"], scores: [{adaptive:3},{adaptive:1},{structured:2},{mission:2}] },
+  { section: "🚀 Career Direction", text: "Which statement sounds MOST true?", options: ["I want to build something meaningful.","I want to lead at a high level.","I want flexibility and freedom.","I want deep mastery and expertise."], scores: [{mission:2},{leadership:2},{adaptive:2},{analytical:2}] },
+  { section: "🚀 Career Direction", text: "What do you want your career to ultimately provide?", options: ["Meaningful impact","Financial success","Freedom and flexibility","Long-term stability and fulfillment"], scores: [{mission:2},{performance:2},{adaptive:2},{structured:2}] }
+];
+
+let answers = {};
+let currentQ = 0;
+let scores = {};
+
+function startAssessment() {
+  showScreen('screenAssessment');
+  document.getElementById('progressHeader').style.display = 'flex';
+  renderQuestion(0);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  document.getElementById('sectionBadge').innerHTML = q.section;
+  document.getElementById('qNumber').textContent = `Question ${idx + 1} of ${QUESTIONS.length}`;
+  document.getElementById('qText').textContent = q.text;
+
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (answers[idx] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectOption(idx, i);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('btnBack').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = answers[idx] === undefined;
+  document.getElementById('btnNext').textContent = idx === QUESTIONS.length - 1 ? 'See My Results →' : 'Next →';
+
+  const pct = Math.round(((idx + 1) / QUESTIONS.length) * 100);
+  document.getElementById('progressFill').style.width = Math.max(3, pct) + '%';
+  document.getElementById('progressLabel').textContent = `${idx + 1} / ${QUESTIONS.length}`;
+}
+
+function selectOption(qIdx, optIdx) {
+  answers[qIdx] = optIdx;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === optIdx);
+  });
+  document.getElementById('btnNext').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === undefined) return;
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion(currentQ);
+  } else {
+    computeResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(currentQ); }
+}
+
+function computeResults() {
+  scores = {};
+  QUESTIONS.forEach((q, qi) => {
+    const ans = answers[qi];
+    if (ans === undefined) return;
+    const s = q.scores[ans];
+    Object.entries(s).forEach(([k,v]) => { scores[k] = (scores[k]||0) + v; });
+  });
+  showLoadingThenResults();
+}
+
+function showLoadingThenResults() {
+  showScreen('screenLoading');
+  document.getElementById('progressHeader').style.display = 'none';
+  const steps = [
+    "Mapping your personality dimensions...",
+    "Identifying leadership archetype...",
+    "Calculating career symmetry scores...",
+    "Generating energy audit analysis...",
+    "Personalizing your career blueprint..."
+  ];
+  const container = document.getElementById('loadingSteps');
+  container.innerHTML = '';
+  steps.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'loading-step';
+    el.textContent = s;
+    el.style.animationDelay = (i * 0.5) + 's';
+    container.appendChild(el);
+  });
+  setTimeout(() => buildResults(), 2800);
+}
+
+function getArchetype() {
+  const v = scores.vision||0, a = scores.analytical||0, p = scores.people||0,
+        e = scores.execution||0, perf = scores.performance||0, m = scores.mission||0;
+  const top = {vision:v, analytical:a, people:p, execution:e, performance:perf, mission:m};
+  const key = Object.entries(top).sort((x,y)=>y[1]-x[1])[0][0];
+  const archetypes = {
+    vision: { name: "The Visionary Builder™", tagline: "Big-picture strategist who thrives building transformative ideas and scaling innovation.", leadership: "Vision-Led Leader™", leaderBody: "You lead through inspiration and forward momentum. Teams follow your clarity of direction and ability to paint a compelling future. You're most powerful when setting bold direction and empowering others to execute." },
+    analytical: { name: "The Analytical Architect™", tagline: "Systems-oriented thinker who solves complex problems with precision and strategic depth.", leadership: "Strategic Systems Leader™", leaderBody: "You lead through data, structured thinking, and systems design. Your teams trust your analytical rigor and ability to identify patterns others miss. You create frameworks that scale." },
+    people: { name: "The Purpose-Driven Catalyst™", tagline: "Mission-oriented leader who inspires teams, builds authentic trust, and creates meaningful impact.", leadership: "Empowerment Leader™", leaderBody: "You lead by developing people and building deep trust. Your coaching instinct and emotional intelligence make you a powerful people leader. Teams perform best under your guidance." },
+    execution: { name: "The Trusted Operator™", tagline: "Highly dependable leader who creates structure, execution excellence, and operational reliability.", leadership: "Precision Leader™", leaderBody: "You lead through operational excellence and consistent delivery. You build systems that scale and hold teams accountable with clarity. Organizations trust you to execute on what matters most." },
+    performance: { name: "The Strategic Influencer™", tagline: "Results-driven leader who accelerates growth, drives competitive performance, and creates marketplace momentum.", leadership: "Performance Leader™", leaderBody: "You lead by raising the bar. Your competitive energy, urgency, and results-orientation push teams to their best. You thrive in growth environments and turnaround situations." },
+    mission: { name: "The Purpose-Driven Catalyst™", tagline: "Mission-led leader who creates meaningful impact, inspires authentic alignment, and builds lasting legacies.", leadership: "Empowerment Leader™", leaderBody: "You lead from values and purpose. You attract people who believe in the mission and create cultures of belonging and impact. Your leadership leaves a meaningful mark." }
+  };
+  return archetypes[key] || archetypes.vision;
+}
+
+function getCompanyFit() {
+  const su = scores.startup||0, gr = scores.growth||0, en = scores.enterprise||0, mi = scores.mission||0;
+  if (su >= en && su >= mi) return { title: "Startup & Entrepreneurial Environments", body: "You're wired for speed, ownership, and building from scratch. Startup and early-stage environments energize your best work.", tags: ["Startup","Scale-Up","Founder Roles","VC-backed Companies"] };
+  if (en > su && en > mi) return { title: "Large Enterprise & Complex Organizations", body: "You thrive in environments with organizational complexity, strategic scale, and multi-stakeholder leadership.", tags: ["Fortune 500","Global Corporations","Enterprise Strategy","Complex Orgs"] };
+  if (mi > su) return { title: "Mission-Driven Organizations", body: "Purpose-driven environments where your work creates meaningful impact beyond a paycheck energize you deeply.", tags: ["Nonprofits","Social Impact","B-Corps","Healthcare","Education"] };
+  return { title: "Growth-Stage Organizations", body: "You thrive where momentum is building — established enough for systems but dynamic enough for innovation.", tags: ["Series B–D","Growth Companies","Mid-Market","Scaling Teams"] };
+}
+
+function getCommStyle() {
+  const comm = scores.communication||0, story = scores.storytelling||0, analy = scores.analytical||0, rel = scores.relational||0;
+  const top = {communication:comm, storytelling:story, analytical:analy, relational:rel};
+  const key = Object.entries(top).sort((x,y)=>y[1]-x[1])[0][0];
+  const styles = {
+    communication: { title: "Executive Strategist™", body: "Concise, authoritative, and business-oriented. You communicate with strategic precision that resonates in board rooms and executive settings." },
+    storytelling: { title: "Storytelling Influencer™", body: "Emotionally engaging and persuasive. You connect through narrative and make complex ideas feel inspiring and accessible." },
+    analytical: { title: "Analytical Communicator™", body: "Precise, logical, and data-driven. You build credibility through structured thinking and evidence-backed communication." },
+    relational: { title: "Trusted Advisor™", body: "Warm, thoughtful, and relationship-centered. You build trust through genuine connection and create safety for honest dialogue." }
+  };
+  return styles[key] || styles.communication;
+}
+
+function getBurnout() {
+  const drains = (scores.admin_drain||0)+(scores.meeting_drain||0)+(scores.chaos_drain||0)+(scores.political_drain||0)+(scores.conflict_drain||0)+(scores.execution_drain||0);
+  const burnoutTypes = scores.urgency_burnout||0, micro = scores.micro_burnout||0;
+  const risk = drains + burnoutTypes + micro;
+  if (risk >= 6) return { title: "Elevated Risk", body: "Your responses indicate significant drain from current or potential work patterns. Prioritize boundary-setting, meaningful work alignment, and recovery rituals.", pct: 78 };
+  if (risk >= 3) return { title: "Moderate Risk", body: "Watch for overcommitment cycles. Build intentional recovery time and ensure your responsibilities align with your natural energy profile.", pct: 48 };
+  return { title: "Low Risk", body: "Your current energy patterns suggest strong sustainability. Maintain alignment between your responsibilities and natural strengths.", pct: 22 };
+}
+
+function buildResults() {
+  const arch = getArchetype();
+  const fit = getCompanyFit();
+  const comm = getCommStyle();
+  const burn = getBurnout();
+  const isAdaptive = (scores.adaptive||0) > (scores.structured||0);
+  const isExternal = (scores.external||0) > (scores.internal||0);
+  const isVision = (scores.vision||0) > (scores.execution||0);
+  const isHuman = (scores.people||0) > (scores.analytical||0);
+
+  document.getElementById('archetypeName').textContent = arch.name;
+  document.getElementById('archetypeTagline').textContent = arch.tagline;
+  document.getElementById('leadershipTitle').textContent = arch.leadership;
+  document.getElementById('leadershipBody').textContent = arch.leaderBody;
+
+  const lTags = document.getElementById('leadershipTags');
+  lTags.innerHTML = '';
+  ['Inspirational','Strategic','People-Centered','Results-Driven'].slice(0,3).forEach(t => {
+    lTags.innerHTML += `<span class="tag tag-navy">${t}</span>`;
+  });
+
+  document.getElementById('companyFitTitle').textContent = fit.title;
+  document.getElementById('companyFitBody').textContent = fit.body;
+  const fitTags = document.getElementById('companyFitTags');
+  fitTags.innerHTML = fit.tags.map(t => `<span class="tag tag-gold">${t}</span>`).join('');
+
+  document.getElementById('commStyleTitle').textContent = comm.title;
+  document.getElementById('commStyleBody').textContent = comm.body;
+
+  document.getElementById('burnoutTitle').textContent = burn.title;
+  document.getElementById('burnoutBody').textContent = burn.body;
+  setTimeout(() => {
+    document.getElementById('burnoutIndicator').style.left = burn.pct + '%';
+  }, 400);
+
+  const spectrums = [
+    { left: "External Processor", right: "Internal Processor", value: isExternal ? 25 : 75 },
+    { left: "Logic-Led", right: "Human-Led", value: isHuman ? 75 : 25 },
+    { left: "Adaptive Builder", right: "Structured Executor", value: isAdaptive ? 20 : 80 },
+    { left: "Vision Expander", right: "Stability Optimizer", value: isVision ? 20 : 80 }
+  ];
+  const specDiv = document.getElementById('spectrumRows');
+  specDiv.innerHTML = spectrums.map(s => `
+    <div class="spectrum-row">
+      <span class="spectrum-label">${s.left}</span>
+      <div class="spectrum-track"><div class="spectrum-thumb" id="thumb_${s.left.replace(/\s/g,'')}" style="left:${s.value}%"></div></div>
+      <span class="spectrum-right-label">${s.right}</span>
+    </div>
+  `).join('');
+
+  const symScores = [
+    { label: "Purpose Alignment", val: 72 + Math.round((scores.mission||0)*2.5) },
+    { label: "Energy Alignment", val: 65 + Math.round((scores.vision||0)*2) },
+    { label: "Leadership Alignment", val: 70 + Math.round((scores.leadership||0)*3) },
+    { label: "Cultural Alignment", val: 68 + Math.round((scores.relational||0)*2) },
+    { label: "Growth Alignment", val: 60 + Math.round((scores.analytical||0)*3) },
+    { label: "Lifestyle Alignment", val: 55 + Math.round((scores.adaptive||0)*4) }
+  ].map(s => ({ ...s, val: Math.min(98, s.val) }));
+
+  const symDiv = document.getElementById('symmetryScores');
+  symDiv.innerHTML = symScores.map(s => `
+    <div class="score-item">
+      <span class="score-label">${s.label}</span>
+      <div class="score-bar-track"><div class="score-bar-fill" data-val="${s.val/100}" style="transform:scaleX(0)"></div></div>
+      <span class="score-val">${s.val}%</span>
+    </div>
+  `).join('');
+
+  const greenBase = isVision ? ["Strategic planning","Innovation","Stakeholder influence","Visioning & roadmapping"] : (isHuman ? ["Mentoring & coaching","Team alignment","Collaborative problem-solving","Relationship building"] : ["Systems design","Process optimization","Data analysis","Execution planning"]);
+  document.getElementById('greenLightTags').innerHTML = greenBase.map(t => `<span class="tag tag-green">${t}</span>`).join('');
+
+  const redKeys = Object.entries(scores).filter(([k]) => k.includes('drain')||k.includes('burnout')).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const redLabels = { admin_drain:"Repetitive admin work", meeting_drain:"Low-value meetings", chaos_drain:"Constant ambiguity", political_drain:"Political environments", conflict_drain:"Conflict management", execution_drain:"Repetitive execution", urgency_burnout:"Constant urgency", micro_burnout:"Micromanagement", political_burnout:"Political cultures", isolation_burnout:"Isolation & lack of collaboration" };
+  const redTags = document.getElementById('redLightTags');
+  if (redKeys.length) {
+    redTags.innerHTML = redKeys.map(([k]) => `<span class="tag tag-red">${redLabels[k]||k}</span>`).join('');
+  } else {
+    redTags.innerHTML = `<span class="tag tag-red">Excessive bureaucracy</span><span class="tag tag-red">Lack of autonomy</span>`;
+  }
+
+  const interviewLines = isVision ? [
+    "Lead with your strategic vision — explain the 'why' before the 'how' in every answer.",
+    "Use concise executive storytelling: situation → decision → impact. Keep stories under 90 seconds.",
+    "Quantify transformation: headcount growth, revenue impact, market expansion, or cost reduction.",
+    "Avoid getting lost in operational detail. Connect every story back to business outcomes."
+  ] : isHuman ? [
+    "Lean into leadership examples that showcase team development, culture-building, and coaching.",
+    "Share specific stories of stakeholder alignment and navigating competing priorities.",
+    "Demonstrate emotional intelligence by describing how you've handled conflict or difficult personalities.",
+    "Quantify your people impact: retention improvements, team growth, engagement scores, or promotions driven."
+  ] : [
+    "Lead with data and metrics — quantify every accomplishment you share.",
+    "Demonstrate systems thinking by showing how your work connected to larger organizational outcomes.",
+    "Slow down before diving into technical detail — always frame with business impact first.",
+    "Use STAR format consistently and practice keeping responses under 2 minutes."
+  ];
+  document.getElementById('interviewInsights').innerHTML = interviewLines.map(l => `<li class="insight-item"><span class="insight-bullet"></span><span>${l}</span></li>`).join('');
+
+  const stratLines = fit.title.includes('Startup') ? [
+    "Target Series A–C companies where you can own a function and build from early stage.",
+    "Position yourself as a builder — emphasize founding, creating, or scaling experiences on your resume.",
+    "Investor-backed companies and founder-led organizations will resonate strongly with your profile.",
+    "Network through startup ecosystems, VC communities, and accelerator events."
+  ] : fit.title.includes('Enterprise') ? [
+    "Focus on enterprise organizations with complex stakeholder environments and strategic scope.",
+    "Emphasize your ability to lead through ambiguity, influence cross-functional teams, and navigate scale.",
+    "Target large-cap companies, Fortune 500s, and global organizations where your profile commands a premium.",
+    "LinkedIn and executive search are your strongest job search channels — optimize accordingly."
+  ] : [
+    "Growth-stage companies (Series B through pre-IPO) are your highest-alignment targets.",
+    "Look for environments where you can influence strategy while building the systems that scale it.",
+    "Highlight experiences that bridge innovation and execution — organizations at this stage need both.",
+    "Identify companies growing 30–100% YoY where your energy and adaptability are competitive advantages."
+  ];
+  document.getElementById('strategyInsights').innerHTML = stratLines.map(l => `<li class="insight-item"><span class="insight-bullet"></span><span>${l}</span></li>`).join('');
+
+  const liLines = comm.title.includes('Executive') ? [
+    "Your LinkedIn headline should establish authority — lead with your title tier and strategic specialty.",
+    "Write your About section in first person with a confident, concise executive voice. 3–4 short paragraphs.",
+    "Share thought leadership content: strategic perspectives on your industry, not just reposted articles.",
+    "Position yourself as an authority — your audience responds to intelligence and credibility, not promotion."
+  ] : comm.title.includes('Storytelling') ? [
+    "Your About section should open with a narrative hook — a brief story that reveals your 'why'.",
+    "Share content that tells stories of transformation, impact, and lessons learned.",
+    "Video content and speaking engagements will accelerate your visibility faster than posts alone.",
+    "Let your personality show — your authentic voice is your brand differentiator."
+  ] : comm.title.includes('Analytical') ? [
+    "Lead with credentials, certifications, and data-backed achievements in your headline and About section.",
+    "Share analytical insights, industry research, and data-driven perspectives — your audience values precision.",
+    "Your About section should emphasize expertise depth and problem-solving capability.",
+    "Case study-style posts perform strongly for your profile: here's the problem, here's the data, here's what I did."
+  ] : [
+    "Your LinkedIn presence should feel warm, human, and relationship-centered — let your authentic self show.",
+    "Engage generously — comments and replies build your network faster than posts alone for your profile type.",
+    "Share behind-the-scenes leadership lessons and team-building stories that showcase your people instincts.",
+    "Your headline should combine your expertise with your human impact: 'People Leader | Building teams that thrive'."
+  ];
+  document.getElementById('linkedinInsights').innerHTML = liLines.map(l => `<li class="insight-item"><span class="insight-bullet"></span><span>${l}</span></li>`).join('');
+
+  document.getElementById('strategyTitle').textContent = "Where you'll create the most impact";
+  document.getElementById('interviewTitle').textContent = "Interview strategy for " + comm.title;
+  document.getElementById('linkedinTitle').textContent = "LinkedIn positioning for " + comm.title;
+
+  showScreen('screenResults');
+
+  setTimeout(() => {
+    document.querySelectorAll('.score-bar-fill').forEach(el => {
+      const val = parseFloat(el.getAttribute('data-val'));
+      el.style.transform = `scaleX(${val})`;
+    });
+  }, 400);
+}
+
+function retakeAssessment() {
+  answers = {};
+  scores = {};
+  currentQ = 0;
+  document.getElementById('progressHeader').style.display = 'flex';
+  showScreen('screenAssessment');
+  renderQuestion(0);
+}
+</script>
+</body>
+</html>

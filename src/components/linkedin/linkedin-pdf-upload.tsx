@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import { sha256Hex } from "@/lib/file-hash";
+import { queryKeys } from "@/lib/query-keys";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = ["application/pdf"] as const;
@@ -74,7 +75,7 @@ export function LinkedInPdfUpload({
           }
         );
         await queryClient.invalidateQueries({
-          queryKey: ["dashboard", userId],
+          queryKey: queryKeys.dashboard.byUser(userId),
         });
         router.refresh();
         setFiles([]);
@@ -96,7 +97,7 @@ export function LinkedInPdfUpload({
           },
         });
         await queryClient.invalidateQueries({
-          queryKey: ["dashboard", userId],
+          queryKey: queryKeys.dashboard.byUser(userId),
         });
         router.refresh();
         setFiles([]);

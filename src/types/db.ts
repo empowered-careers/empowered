@@ -20,6 +20,11 @@ export type ResumeStatus = Database["public"]["Enums"]["resume_status"];
 export type LinkedinSyncStatus =
   Database["public"]["Enums"]["linkedin_sync_status"];
 export type BillingCadence = Database["public"]["Enums"]["billing_cadence"];
+export type SubscriptionStatus =
+  Database["public"]["Enums"]["subscription_status"];
+export type CoachingProductType =
+  Database["public"]["Enums"]["coaching_product_type"];
+export type CommissionStatus = Database["public"]["Enums"]["commission_status"];
 export type EventType = Database["public"]["Enums"]["event_type"];
 export type SwitchUrgency = Database["public"]["Enums"]["switch_urgency"];
 export type WorkAuth = Database["public"]["Enums"]["work_auth"];

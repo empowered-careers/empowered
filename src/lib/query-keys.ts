@@ -35,21 +35,6 @@ export const queryKeys = {
     detail: (id: string) => ["resumes", "detail", id] as const,
   },
 
-  // Posts (example)
-  posts: {
-    all: ["posts"] as const,
-    list: (filters?: Record<string, unknown>) =>
-      ["posts", "list", filters] as const,
-    detail: (id: string) => ["posts", "detail", id] as const,
-    byUser: (userId: string) => ["posts", "byUser", userId] as const,
-  },
-
-  // Comments (example)
-  comments: {
-    all: ["comments"] as const,
-    byPost: (postId: string) => ["comments", "byPost", postId] as const,
-  },
-
   // Jobs / job board
   jobs: {
     all: ["jobs"] as const,

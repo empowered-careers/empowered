@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle, File, Loader2, Upload, X } from "lucide-react";
+import Image from "next/image";
 import {
   createContext,
   type PropsWithChildren,
@@ -127,10 +128,13 @@ const DropzoneContent = ({ className }: { className?: string }) => {
           >
             {file.type.startsWith("image/") ? (
               <div className="h-10 w-10 rounded-sm border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                <img
-                  src={file.preview}
+                <Image
                   alt={file.name}
                   className="object-cover"
+                  height={40}
+                  src={file.preview ?? ""}
+                  unoptimized
+                  width={40}
                 />
               </div>
             ) : (

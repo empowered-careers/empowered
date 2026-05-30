@@ -6,7 +6,11 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/types/database.types";
-import type { ApplicationStatus } from "@/types/db";
+import type {
+  ApplicationStatus,
+  CoachingProductType,
+  CommissionStatus,
+} from "@/types/db";
 
 import { env } from "../../../env";
 
@@ -16,7 +20,6 @@ type CoachingProductUpdate =
   Database["public"]["Tables"]["coaching_products"]["Update"];
 type EmployerInsert = Database["public"]["Tables"]["employers"]["Insert"];
 type EmployerUpdate = Database["public"]["Tables"]["employers"]["Update"];
-type CommissionStatus = Database["public"]["Enums"]["commission_status"];
 
 export type ActionResult<T = undefined> =
   | { ok: true; data?: T }
@@ -381,7 +384,7 @@ export async function inviteEmployerContact(
 
 export interface CoachingProductInput {
   name: string;
-  type: Database["public"]["Enums"]["coaching_product_type"];
+  type: CoachingProductType;
   description: string | null;
   price_cents: number | null;
   external_url: string | null;

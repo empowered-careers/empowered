@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { completeOnboarding } from "@/app/actions/preferences";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 import type { SwitchUrgency, WorkAuth } from "@/types/db";
 
 const URGENCY_OPTIONS: { value: SwitchUrgency; label: string; hint: string }[] =
@@ -168,35 +170,37 @@ export function PreferencesForm({ initial }: { initial: InitialState }) {
       </Field>
 
       <Field label="Search status" htmlFor="switch_urgency" required>
-        <div className="grid gap-2" role="radiogroup">
-          {URGENCY_OPTIONS.map((opt) => (
-            <label
-              key={opt.value}
-              className={`flex cursor-pointer items-start gap-3 border px-3 py-2 text-sm ${
-                urgency === opt.value
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:bg-muted/40"
-              }`}
-            >
-              <input
-                type="radio"
-                name="switch_urgency"
-                value={opt.value}
-                checked={urgency === opt.value}
-                onChange={() => setUrgency(opt.value)}
-                className="mt-1"
-              />
-              <span>
-                <span className="block font-medium text-foreground">
-                  {opt.label}
+        <RadioGroup
+          className="gap-2"
+          onValueChange={(v) => setUrgency(v as SwitchUrgency)}
+          value={urgency}
+        >
+          {URGENCY_OPTIONS.map((opt) => {
+            const id = `switch_urgency-${opt.value}`;
+            return (
+              <label
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 border px-3 py-2 text-sm",
+                  urgency === opt.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted/40"
+                )}
+                htmlFor={id}
+                key={opt.value}
+              >
+                <RadioGroupItem className="mt-1" id={id} value={opt.value} />
+                <span>
+                  <span className="block font-medium text-foreground">
+                    {opt.label}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {opt.hint}
+                  </span>
                 </span>
-                <span className="block text-xs text-muted-foreground">
-                  {opt.hint}
-                </span>
-              </span>
-            </label>
-          ))}
-        </div>
+              </label>
+            );
+          })}
+        </RadioGroup>
       </Field>
 
       <Field label="Notice period" htmlFor="notice_period_days" required>

@@ -51,6 +51,13 @@
 
 ## 6. Assessments
 
+> **Status note:** The first assessment being built is the **Career Identity Blueprint™** —
+> a single 30-question scan that, for Phase 1, alone populates all five `candidate_scores`
+> dimensions below. It is **one of** a planned assessment suite, not a replacement; the
+> granular per-dimension assessments remain on the roadmap. See
+> [`docs/career-blueprint-integration.md`](./career-blueprint-integration.md) (and
+> [`docs/assessment.md`](./assessment.md)) for the current approved approach.
+
 Five core assessments for Phase 1:
 
 - Role Clarity — target role, level, location

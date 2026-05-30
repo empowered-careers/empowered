@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { queryKeys } from "@/lib/query-keys";
 import { createClient } from "@/lib/supabase/client";
-import type {
-  BillingCadence,
-  Plan,
-  SubscriptionStatus,
-} from "@/types/supabase";
+import type { BillingCadence, Plan, SubscriptionStatus } from "@/types/db";
 
 export type DashboardProfile = {
   id: string;
@@ -76,7 +73,7 @@ export function useDashboardData() {
   const { user, isLoading: authLoading } = useAuth();
 
   return useQuery({
-    queryKey: ["dashboard", user?.id],
+    queryKey: queryKeys.dashboard.byUser(user?.id ?? ""),
     queryFn: () => fetchDashboardData(user!.id),
     enabled: !authLoading && !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes

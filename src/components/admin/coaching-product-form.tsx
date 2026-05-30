@@ -10,10 +10,9 @@ import {
 } from "@/app/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import type { Database } from "@/types/database.types";
-
-type ProductType = Database["public"]["Enums"]["coaching_product_type"];
+import type { CoachingProductType as ProductType } from "@/types/db";
 
 const TYPES: { value: ProductType; label: string }[] = [
   { value: "module", label: "Module" },
@@ -151,14 +150,16 @@ export function CoachingProductForm() {
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input
+      <div className="flex items-center gap-2">
+        <Switch
           checked={form.is_active}
-          onChange={(e) => update("is_active", e.target.checked)}
-          type="checkbox"
+          id="is-active"
+          onCheckedChange={(checked) => update("is_active", checked)}
         />
-        Active
-      </label>
+        <label className="text-sm" htmlFor="is-active">
+          Active
+        </label>
+      </div>
 
       <Button disabled={pending} type="submit">
         {pending ? "Creating…" : "Create product"}

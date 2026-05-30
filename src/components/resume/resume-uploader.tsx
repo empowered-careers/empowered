@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import { sha256Hex } from "@/lib/file-hash";
+import { queryKeys } from "@/lib/query-keys";
 
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
 const RESUME_ALLOWED_MIME = ["application/pdf"] as const;
@@ -72,10 +73,10 @@ export function ResumeUploader({ userId, onInserted }: ResumeUploaderProps) {
           }
         );
         await queryClient.invalidateQueries({
-          queryKey: ["dashboard", userId],
+          queryKey: queryKeys.dashboard.byUser(userId),
         });
         await queryClient.invalidateQueries({
-          queryKey: ["resumes", "byUser", userId],
+          queryKey: queryKeys.resumes.byUser(userId),
         });
         router.refresh();
         setFiles([]);
@@ -97,7 +98,7 @@ export function ResumeUploader({ userId, onInserted }: ResumeUploaderProps) {
           },
         });
         await queryClient.invalidateQueries({
-          queryKey: ["dashboard", userId],
+          queryKey: queryKeys.dashboard.byUser(userId),
         });
         router.refresh();
         setFiles([]);

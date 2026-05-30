@@ -16,9 +16,7 @@ import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ParsedResume, Scoring, SeniorityLevel } from "@/lib/llm/schemas";
-import type { Database } from "@/types/database.types";
-
-type ResumeStatus = Database["public"]["Enums"]["resume_status"];
+import type { ResumeStatus } from "@/types/db";
 
 export interface ResumeFullRow {
   id: string;

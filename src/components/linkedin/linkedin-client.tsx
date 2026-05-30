@@ -11,9 +11,7 @@ import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LinkedInScoring, ParsedLinkedIn } from "@/lib/llm/schemas";
-import type { Database } from "@/types/database.types";
-
-type LinkedinStatus = Database["public"]["Enums"]["linkedin_sync_status"];
+import type { LinkedinSyncStatus as LinkedinStatus } from "@/types/db";
 
 export interface LinkedinFullRow {
   id: string;

@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 import { normalizeLinkedInProfileUrl } from "@/lib/linkedin-url";
-import type { Database, Json } from "@/types/supabase";
+import type { Database, Json } from "@/types/database.types";
 
 /** LinkedIn REST API version header (see LinkedIn developer docs). */
 const LINKEDIN_REST_VERSION = "202510.03";

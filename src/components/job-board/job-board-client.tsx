@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 
 import { JobCard } from "@/components/job-board/job-card";
 import { TierLockedBanner } from "@/components/job-board/tier-locked-banner";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { canSeeJobTier } from "@/lib/plan";
-import { cn } from "@/lib/utils";
 import type {
   ApplicationStatus,
   JobCardFields,
@@ -110,22 +110,21 @@ export function JobBoardClient({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border border-border bg-card p-3">
-        {FILTERS.map((f) => (
-          <button
-            className={cn(
-              "border px-3 py-1.5 text-[12px] transition-colors",
-              active === f.key
-                ? "border-accent bg-accent text-accent-foreground"
-                : "border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-            )}
-            key={f.key}
-            onClick={() => setActive(f.key)}
-            type="button"
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="border border-border bg-card p-3">
+        <ToggleGroup
+          className="w-full flex-wrap"
+          onValueChange={(v) => v && setActive(v as FilterKey)}
+          spacing={1}
+          type="single"
+          value={active}
+          variant="outline"
+        >
+          {FILTERS.map((f) => (
+            <ToggleGroupItem className="text-[12px]" key={f.key} value={f.key}>
+              {f.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
       </div>
 
       {totalVisible === 0 && (

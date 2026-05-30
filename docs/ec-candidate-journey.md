@@ -79,6 +79,14 @@ Each action is self-motivated — improves match quality and shows real signal t
 
 ### Assessments — Progressive, Not Mandatory
 
+> **Status note:** The first assessment shipping is the **Career Identity Blueprint™** — a
+> single 30-question scan that delivers the archetype / leadership-style / company-fit /
+> energy cards in one run and, for Phase 1, populates all five dimensions below. It is one of
+> a planned suite, not a replacement for the dimension-specific assessments. See
+> [`docs/career-blueprint-integration.md`](./career-blueprint-integration.md). Note: Tier 2
+> stays **plan-gated** (see `src/lib/plan.ts`); the Blueprint improves match quality and
+> drives nudges rather than acting as an access gate.
+
 | Assessment           | What Candidate Gets                   | Nudge Toward         |
 | -------------------- | ------------------------------------- | -------------------- |
 | Role Clarity         | Target role defined, shown on profile | Tier 2 unlock        |
