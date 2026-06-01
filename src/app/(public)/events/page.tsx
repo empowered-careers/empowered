@@ -7,6 +7,7 @@ export const metadata = {
   title: "Live sessions with Lauren",
   description:
     "Free, expert-led sessions on resume strategy, interview prep, and the hiring market — hosted by Lauren Laughlin.",
+  alternates: { canonical: "/events" },
 };
 
 interface PageProps {

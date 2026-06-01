@@ -22,4 +22,5 @@ export const siteConfig = {
   author: {
     name: "Empowered Careers",
   },
+  logo: "/favicon.ico",
 } as const;

@@ -31,6 +31,22 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [ ] Register Inngest endpoint in the Inngest dashboard: `https://<your-domain>/api/inngest` — confirm green sync status
 - [ ] Verify env vars (`ANTHROPIC_API_KEY`, `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`, `SUPABASE_SECRET_KEY`) set on the host
 
+## SEO + AI visibility (post `ec-seo-visibility-plan.md`)
+
+- [ ] Set `NEXT_PUBLIC_SITE_URL=https://<prod-domain>` on the deploy host (sitemap, llms.txt, JSON-LD, canonicals all derive URLs from this)
+- [ ] Get the Google Search Console verification token and set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` on the deploy host; verify the site in Search Console and submit `/sitemap.xml`
+- [ ] Drop proper PWA icons into `public/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` — then extend `src/app/manifest.ts` to reference them (currently only points at `/favicon.ico`)
+- [ ] Add a real `Organization.logo` PNG (e.g. `public/logo.png`) and update `siteConfig.logo` — JSON-LD currently points at `favicon.ico` as a placeholder
+- [ ] When the blog content engine ships (MDX vs Sanity/Contentful), extend `src/app/sitemap.ts` and `src/app/llms.txt/route.ts` with a `blogPosts()` reader, and add `Article` JSON-LD per post
+- [ ] Manual verification once `NEXT_PUBLIC_SITE_URL` is set in prod:
+  - [ ] Load `/sitemap.xml` and `/llms.txt` — confirm public pages + published events appear, `/dashboard`/`/admin`/`/employer` are absent
+  - [ ] Load `/robots.txt` — confirm all private prefixes in `disallow`
+  - [ ] Load `/manifest.webmanifest` — confirm name/short_name/icons
+  - [ ] View source on a published `/events/[slug]` — confirm `Event` + `Organization` JSON-LD present; `<link rel="canonical">` clean (no `?src=`); OG image is event-specific
+  - [ ] Paste rendered HTML into Google Rich Results Test / schema.org validator — `Event` validates with no errors
+  - [ ] Hit `/events/<slug>?src=linkedin` — canonical resolves to un-tagged URL
+  - [ ] Confirm an unpublished event 404s and does not appear in sitemap or `llms.txt`
+
 ## Optional / later
 
 - [ ] Place ≥5 PDF fixtures in `evals/parser/fixtures/` with ground-truth JSON in `evals/parser/ground-truth/`, then `npm run eval:parser`

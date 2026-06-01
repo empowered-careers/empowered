@@ -14,6 +14,10 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().default("Next.js Starter"),
   NEXT_PUBLIC_APP_URL: z.string().min(1).url().optional(),
 
+  // SEO
+  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: z.string().optional(),
+
   // Anthropic (server-side only; required for resume parsing/scoring)
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_PARSER_MODEL: z.string().default("claude-haiku-4-5-20251001"),
