@@ -1313,7 +1313,7 @@ Core Assessment Suite
     · Big Wins Extraction Engine™
     · Reinvention Readiness™
     RECOMMENDED LEGAL & BUSINESS NEXT STEPS
-1.         Trademark Review Have an attorney review:
+1.           Trademark Review Have an attorney review:
     · Career Identity Blueprint™
     · Career Symmetry™
     · PQ Intelligence™

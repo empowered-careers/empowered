@@ -89,27 +89,33 @@ export type Database = {
       }
       assessment_responses: {
         Row: {
+          archetype: string | null
           assessment_id: string
           completed_at: string
           id: string
           profile_id: string
           responses: Json
+          result: Json | null
           score: number | null
         }
         Insert: {
+          archetype?: string | null
           assessment_id: string
           completed_at?: string
           id?: string
           profile_id: string
           responses?: Json
+          result?: Json | null
           score?: number | null
         }
         Update: {
+          archetype?: string | null
           assessment_id?: string
           completed_at?: string
           id?: string
           profile_id?: string
           responses?: Json
+          result?: Json | null
           score?: number | null
         }
         Relationships: [
@@ -242,6 +248,7 @@ export type Database = {
       candidate_scores: {
         Row: {
           communication_score: number | null
+          culture_axes: Json | null
           id: string
           impact_score: number | null
           leadership_score: number | null
@@ -255,6 +262,7 @@ export type Database = {
         }
         Insert: {
           communication_score?: number | null
+          culture_axes?: Json | null
           id?: string
           impact_score?: number | null
           leadership_score?: number | null
@@ -268,6 +276,7 @@ export type Database = {
         }
         Update: {
           communication_score?: number | null
+          culture_axes?: Json | null
           id?: string
           impact_score?: number | null
           leadership_score?: number | null

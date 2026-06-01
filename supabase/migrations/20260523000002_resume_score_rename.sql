@@ -10,4 +10,12 @@
 -- existing constraint name `resumes_ats_score_check` across the rename;
 -- the name never appears in application code).
 
-alter table resumes rename column ats_score to resume_score;
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'resumes' and column_name = 'ats_score'
+  ) then
+    alter table resumes rename column ats_score to resume_score;
+  end if;
+end $$;

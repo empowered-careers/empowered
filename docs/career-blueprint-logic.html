@@ -1,484 +1,1444 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Career Identity Blueprint™ — Logic, Scoring & Data Consumers</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --gold: #C9A84C; --gold-light: #F5E6C0; --gold-dark: #8B6914;
-    --navy: #0E1B2E; --navy-mid: #1A2D45; --navy-light: #2A4060;
-    --cream: #FAF7F2; --cream-dark: #EDE8DF;
-    --text: #0E1B2E; --text-2: #4A5568; --muted: #8B9BB4; --white: #fff;
-    --pref: #1A3C6B; --pref-bg: #EEF3FA; --pref-bd: #C5D5EC;
-    --trait: #6B3FA0; --trait-bg: #F3EEFA; --trait-bd: #DAC9EC;
-    --green: #2A7A3B; --green-bg: #EAF5ED; --red: #B83232; --red-bg: #FEF0EF;
-    --radius: 14px; --shadow: 0 2px 14px rgba(14,27,46,0.08);
-  }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); line-height: 1.6; }
-  code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Career Identity Blueprint™ — Logic, Scoring & Data Consumers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --gold: #c9a84c;
+        --gold-light: #f5e6c0;
+        --gold-dark: #8b6914;
+        --navy: #0e1b2e;
+        --navy-mid: #1a2d45;
+        --navy-light: #2a4060;
+        --cream: #faf7f2;
+        --cream-dark: #ede8df;
+        --text: #0e1b2e;
+        --text-2: #4a5568;
+        --muted: #8b9bb4;
+        --white: #fff;
+        --pref: #1a3c6b;
+        --pref-bg: #eef3fa;
+        --pref-bd: #c5d5ec;
+        --trait: #6b3fa0;
+        --trait-bg: #f3eefa;
+        --trait-bd: #dac9ec;
+        --green: #2a7a3b;
+        --green-bg: #eaf5ed;
+        --red: #b83232;
+        --red-bg: #fef0ef;
+        --radius: 14px;
+        --shadow: 0 2px 14px rgba(14, 27, 46, 0.08);
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--cream);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      code,
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85em;
+      }
 
-  /* HEADER */
-  .hero { background: var(--navy); color: var(--white); padding: 4rem 2rem 3.5rem; text-align: center; position: relative; overflow: hidden; }
-  .hero::before { content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:600px; height:600px; background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 65%); }
-  .hero-eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 1rem; position: relative; }
-  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.12; margin-bottom: 1rem; position: relative; }
-  .hero h1 em { color: var(--gold); font-style: italic; }
-  .hero p { color: rgba(255,255,255,0.68); max-width: 640px; margin: 0 auto; font-size: 1.05rem; position: relative; }
-  .hero .ref { margin-top: 1.5rem; font-size: 12px; color: rgba(255,255,255,0.4); position: relative; }
-  .hero .ref code { color: var(--gold-light); }
+      /* HEADER */
+      .hero {
+        background: var(--navy);
+        color: var(--white);
+        padding: 4rem 2rem 3.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(
+          circle,
+          rgba(201, 168, 76, 0.12) 0%,
+          transparent 65%
+        );
+      }
+      .hero-eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      .hero h1 {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(2rem, 5vw, 3.2rem);
+        line-height: 1.12;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      .hero h1 em {
+        color: var(--gold);
+        font-style: italic;
+      }
+      .hero p {
+        color: rgba(255, 255, 255, 0.68);
+        max-width: 640px;
+        margin: 0 auto;
+        font-size: 1.05rem;
+        position: relative;
+      }
+      .hero .ref {
+        margin-top: 1.5rem;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        position: relative;
+      }
+      .hero .ref code {
+        color: var(--gold-light);
+      }
 
-  /* LAYOUT */
-  .wrap { max-width: 980px; margin: 0 auto; padding: 0 1.5rem; }
-  section { padding: 3.5rem 0 1rem; }
-  .sec-num { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: var(--gold-dark); text-transform: uppercase; }
-  h2 { font-family: 'DM Serif Display', serif; font-size: 1.9rem; margin: 0.3rem 0 0.6rem; line-height: 1.2; }
-  h3 { font-size: 1.05rem; font-weight: 600; margin: 1.6rem 0 0.6rem; }
-  .lead { color: var(--text-2); font-size: 1.02rem; max-width: 720px; }
-  p.body { color: var(--text-2); margin: 0.6rem 0; max-width: 760px; }
-  .divider { height: 1px; background: var(--cream-dark); margin: 1rem 0; }
+      /* LAYOUT */
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+      section {
+        padding: 3.5rem 0 1rem;
+      }
+      .sec-num {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--gold-dark);
+        text-transform: uppercase;
+      }
+      h2 {
+        font-family: "DM Serif Display", serif;
+        font-size: 1.9rem;
+        margin: 0.3rem 0 0.6rem;
+        line-height: 1.2;
+      }
+      h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 1.6rem 0 0.6rem;
+      }
+      .lead {
+        color: var(--text-2);
+        font-size: 1.02rem;
+        max-width: 720px;
+      }
+      p.body {
+        color: var(--text-2);
+        margin: 0.6rem 0;
+        max-width: 760px;
+      }
+      .divider {
+        height: 1px;
+        background: var(--cream-dark);
+        margin: 1rem 0;
+      }
 
-  /* PIPELINE */
-  .pipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 0.5rem; margin: 1.5rem 0; align-items: stretch; }
-  .pipe-step { background: var(--white); border: 1px solid var(--cream-dark); border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow); position: relative; }
-  .pipe-step .k { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-dark); font-weight: 700; }
-  .pipe-step .t { font-weight: 600; font-size: 0.95rem; margin: 0.25rem 0; }
-  .pipe-step .d { font-size: 0.8rem; color: var(--text-2); }
-  .pipe-arrow { text-align:center; color: var(--gold); font-size: 1.3rem; align-self: center; }
-  .src-of-truth { border-color: var(--gold); box-shadow: 0 4px 18px rgba(201,168,76,0.25); }
-  .src-of-truth .badge { position:absolute; top:-9px; right:10px; background: var(--gold); color: var(--navy); font-size: 9px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; }
+      /* PIPELINE */
+      .pipe {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+        align-items: stretch;
+      }
+      .pipe-step {
+        background: var(--white);
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+      .pipe-step .k {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold-dark);
+        font-weight: 700;
+      }
+      .pipe-step .t {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0.25rem 0;
+      }
+      .pipe-step .d {
+        font-size: 0.8rem;
+        color: var(--text-2);
+      }
+      .pipe-arrow {
+        text-align: center;
+        color: var(--gold);
+        font-size: 1.3rem;
+        align-self: center;
+      }
+      .src-of-truth {
+        border-color: var(--gold);
+        box-shadow: 0 4px 18px rgba(201, 168, 76, 0.25);
+      }
+      .src-of-truth .badge {
+        position: absolute;
+        top: -9px;
+        right: 10px;
+        background: var(--gold);
+        color: var(--navy);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 2px 8px;
+        border-radius: 20px;
+        text-transform: uppercase;
+      }
 
-  /* CONSUMER CARDS */
-  .consumers { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 1rem; margin: 1.5rem 0; }
-  .ccard { background: var(--white); border: 1px solid var(--cream-dark); border-radius: var(--radius); padding: 1.4rem; box-shadow: var(--shadow); border-top: 3px solid var(--gold); }
-  .ccard .ico { font-size: 1.6rem; }
-  .ccard h4 { font-size: 1.05rem; margin: 0.5rem 0 0.3rem; }
-  .ccard .tag { display:inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-bottom: 0.4rem; }
-  .tag-now { background: var(--green-bg); color: var(--green); }
-  .tag-soon { background: var(--gold-light); color: var(--gold-dark); }
-  .ccard p { font-size: 0.86rem; color: var(--text-2); }
-  .ccard .reads { margin-top: 0.7rem; font-size: 0.78rem; }
-  .ccard .reads b { color: var(--text); }
+      /* CONSUMER CARDS */
+      .consumers {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+      }
+      .ccard {
+        background: var(--white);
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius);
+        padding: 1.4rem;
+        box-shadow: var(--shadow);
+        border-top: 3px solid var(--gold);
+      }
+      .ccard .ico {
+        font-size: 1.6rem;
+      }
+      .ccard h4 {
+        font-size: 1.05rem;
+        margin: 0.5rem 0 0.3rem;
+      }
+      .ccard .tag {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-bottom: 0.4rem;
+      }
+      .tag-now {
+        background: var(--green-bg);
+        color: var(--green);
+      }
+      .tag-soon {
+        background: var(--gold-light);
+        color: var(--gold-dark);
+      }
+      .ccard p {
+        font-size: 0.86rem;
+        color: var(--text-2);
+      }
+      .ccard .reads {
+        margin-top: 0.7rem;
+        font-size: 0.78rem;
+      }
+      .ccard .reads b {
+        color: var(--text);
+      }
 
-  /* TABLES */
-  .axis-block { background: var(--white); border: 1px solid var(--cream-dark); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin: 1rem 0; }
-  .axis-head { padding: 0.9rem 1.2rem; font-weight: 600; display:flex; align-items:center; gap: 8px; }
-  .axis-head.pref { background: var(--pref-bg); color: var(--pref); border-bottom: 1px solid var(--pref-bd); }
-  .axis-head.trait { background: var(--trait-bg); color: var(--trait); border-bottom: 1px solid var(--trait-bd); }
-  .axis-head .fam { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
-  .axis-head.pref .fam { background: var(--pref); color: #fff; }
-  .axis-head.trait .fam { background: var(--trait); color: #fff; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  th, td { text-align: left; padding: 0.6rem 1.2rem; border-bottom: 1px solid var(--cream-dark); vertical-align: top; }
-  th { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  tr:last-child td { border-bottom: none; }
-  td .axkey { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--gold-dark); font-weight: 500; }
-  td .qs { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); }
-  .poles { display:flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-2); }
-  .cats { display:flex; flex-wrap: wrap; gap: 4px; }
-  .cat { font-size: 0.72rem; background: var(--cream); border: 1px solid var(--cream-dark); border-radius: 20px; padding: 1px 8px; }
+      /* TABLES */
+      .axis-block {
+        background: var(--white);
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin: 1rem 0;
+      }
+      .axis-head {
+        padding: 0.9rem 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .axis-head.pref {
+        background: var(--pref-bg);
+        color: var(--pref);
+        border-bottom: 1px solid var(--pref-bd);
+      }
+      .axis-head.trait {
+        background: var(--trait-bg);
+        color: var(--trait);
+        border-bottom: 1px solid var(--trait-bd);
+      }
+      .axis-head .fam {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 700;
+      }
+      .axis-head.pref .fam {
+        background: var(--pref);
+        color: #fff;
+      }
+      .axis-head.trait .fam {
+        background: var(--trait);
+        color: #fff;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.6rem 1.2rem;
+        border-bottom: 1px solid var(--cream-dark);
+        vertical-align: top;
+      }
+      th {
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      td .axkey {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        color: var(--gold-dark);
+        font-weight: 500;
+      }
+      td .qs {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .poles {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: var(--text-2);
+      }
+      .cats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .cat {
+        font-size: 0.72rem;
+        background: var(--cream);
+        border: 1px solid var(--cream-dark);
+        border-radius: 20px;
+        padding: 1px 8px;
+      }
 
-  /* CALLOUT */
-  .callout { background: var(--gold-light); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 1rem 1.2rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--navy); }
-  .callout b { color: var(--gold-dark); }
-  .note { background: #fff; border: 1px dashed var(--cream-dark); border-radius: 10px; padding: 0.9rem 1.1rem; font-size: 0.85rem; color: var(--text-2); margin: 1rem 0; }
+      /* CALLOUT */
+      .callout {
+        background: var(--gold-light);
+        border-left: 3px solid var(--gold);
+        border-radius: 0 8px 8px 0;
+        padding: 1rem 1.2rem;
+        margin: 1.2rem 0;
+        font-size: 0.9rem;
+        color: var(--navy);
+      }
+      .callout b {
+        color: var(--gold-dark);
+      }
+      .note {
+        background: #fff;
+        border: 1px dashed var(--cream-dark);
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.85rem;
+        color: var(--text-2);
+        margin: 1rem 0;
+      }
 
-  /* FORMULA */
-  .formula { background: var(--navy); color: var(--gold-light); border-radius: var(--radius); padding: 1.3rem 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.9; margin: 1.2rem 0; overflow-x: auto; }
-  .formula .c { color: var(--muted); }
-  .formula .hl { color: #fff; }
+      /* FORMULA */
+      .formula {
+        background: var(--navy);
+        color: var(--gold-light);
+        border-radius: var(--radius);
+        padding: 1.3rem 1.5rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        line-height: 1.9;
+        margin: 1.2rem 0;
+        overflow-x: auto;
+      }
+      .formula .c {
+        color: var(--muted);
+      }
+      .formula .hl {
+        color: #fff;
+      }
 
-  /* STORAGE */
-  .store { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
-  .store-card { background: var(--white); border: 1px solid var(--cream-dark); border-radius: var(--radius); padding: 1.1rem 1.3rem; box-shadow: var(--shadow); }
-  .store-card .tbl { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--gold-dark); font-weight: 600; }
-  .store-card ul { list-style: none; margin-top: 0.6rem; }
-  .store-card li { font-size: 0.82rem; color: var(--text-2); padding: 0.25rem 0; border-bottom: 1px dotted var(--cream-dark); }
-  .store-card li:last-child { border: none; }
-  .store-card li .col { font-family: 'JetBrains Mono', monospace; color: var(--text); font-size: 0.78rem; }
+      /* STORAGE */
+      .store {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.2rem 0;
+      }
+      .store-card {
+        background: var(--white);
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius);
+        padding: 1.1rem 1.3rem;
+        box-shadow: var(--shadow);
+      }
+      .store-card .tbl {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        color: var(--gold-dark);
+        font-weight: 600;
+      }
+      .store-card ul {
+        list-style: none;
+        margin-top: 0.6rem;
+      }
+      .store-card li {
+        font-size: 0.82rem;
+        color: var(--text-2);
+        padding: 0.25rem 0;
+        border-bottom: 1px dotted var(--cream-dark);
+      }
+      .store-card li:last-child {
+        border: none;
+      }
+      .store-card li .col {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text);
+        font-size: 0.78rem;
+      }
 
-  /* WORKED EXAMPLE */
-  .demo { background: var(--white); border: 1px solid var(--cream-dark); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; margin: 1.3rem 0; }
-  .persona-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.3rem; }
-  .ptab { border: 1.5px solid var(--cream-dark); background: var(--cream); border-radius: 30px; padding: 0.5rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.18s; color: var(--text-2); }
-  .ptab:hover { border-color: var(--gold); }
-  .ptab.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
-  .demo-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.5rem; }
-  .axes-vis .axrow { margin-bottom: 0.85rem; }
-  .axrow .albl { display:flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-2); margin-bottom: 3px; }
-  .axrow .albl .v { font-weight: 700; color: var(--gold-dark); font-family:'JetBrains Mono',monospace; }
-  .bar { height: 8px; background: var(--cream-dark); border-radius: 4px; position: relative; overflow: hidden; }
-  .bar .fill { position:absolute; top:0; left:0; height:100%; background: linear-gradient(90deg, var(--gold), #E8C96A); border-radius: 4px; width: 0; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
-  .bar.spectrum { background: linear-gradient(90deg, var(--pref-bg), var(--cream-dark), var(--trait-bg)); }
-  .bar.spectrum .thumb { position:absolute; top:50%; transform:translate(-50%,-50%); width:14px; height:14px; border-radius:50%; background: var(--gold); border:2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.7s cubic-bezier(0.4,0,0.2,1); }
-  .dist { display:flex; height: 22px; border-radius: 6px; overflow:hidden; border: 1px solid var(--cream-dark); }
-  .dist span { display:flex; align-items:center; justify-content:center; font-size: 0.62rem; color:#fff; font-weight:600; transition: flex-basis 0.6s ease; overflow:hidden; white-space:nowrap; }
-  .demo-out h4 { font-size: 0.95rem; margin-bottom: 0.5rem; }
-  .out-line { font-size: 0.85rem; padding: 0.4rem 0; border-bottom: 1px solid var(--cream-dark); display:flex; gap:8px; }
-  .out-line .lab { color: var(--muted); min-width: 110px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; padding-top: 2px; }
-  .out-line .val { font-weight: 600; }
-  .impact { margin-top: 1.2rem; }
-  .impact .ic { background: var(--cream); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 0.6rem; font-size: 0.82rem; }
-  .impact .ic b { color: var(--gold-dark); }
+      /* WORKED EXAMPLE */
+      .demo {
+        background: var(--white);
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        margin: 1.3rem 0;
+      }
+      .persona-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 1.3rem;
+      }
+      .ptab {
+        border: 1.5px solid var(--cream-dark);
+        background: var(--cream);
+        border-radius: 30px;
+        padding: 0.5rem 1.1rem;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s;
+        color: var(--text-2);
+      }
+      .ptab:hover {
+        border-color: var(--gold);
+      }
+      .ptab.active {
+        background: var(--navy);
+        color: var(--white);
+        border-color: var(--navy);
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 1.5rem;
+      }
+      .axes-vis .axrow {
+        margin-bottom: 0.85rem;
+      }
+      .axrow .albl {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--text-2);
+        margin-bottom: 3px;
+      }
+      .axrow .albl .v {
+        font-weight: 700;
+        color: var(--gold-dark);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .bar {
+        height: 8px;
+        background: var(--cream-dark);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+      }
+      .bar .fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), #e8c96a);
+        border-radius: 4px;
+        width: 0;
+        transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .bar.spectrum {
+        background: linear-gradient(
+          90deg,
+          var(--pref-bg),
+          var(--cream-dark),
+          var(--trait-bg)
+        );
+      }
+      .bar.spectrum .thumb {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--gold);
+        border: 2px solid #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .dist {
+        display: flex;
+        height: 22px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--cream-dark);
+      }
+      .dist span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.62rem;
+        color: #fff;
+        font-weight: 600;
+        transition: flex-basis 0.6s ease;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .demo-out h4 {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+      }
+      .out-line {
+        font-size: 0.85rem;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid var(--cream-dark);
+        display: flex;
+        gap: 8px;
+      }
+      .out-line .lab {
+        color: var(--muted);
+        min-width: 110px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding-top: 2px;
+      }
+      .out-line .val {
+        font-weight: 600;
+      }
+      .impact {
+        margin-top: 1.2rem;
+      }
+      .impact .ic {
+        background: var(--cream);
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.82rem;
+      }
+      .impact .ic b {
+        color: var(--gold-dark);
+      }
 
-  footer { background: var(--navy); color: rgba(255,255,255,0.5); text-align:center; padding: 2.5rem 1.5rem; margin-top: 3rem; font-size: 0.82rem; }
-  footer code { color: var(--gold-light); }
-  @media (max-width: 720px) {
-    .demo-grid, .store { grid-template-columns: 1fr; }
-    .pipe-arrow { transform: rotate(90deg); }
-  }
-</style>
-</head>
-<body>
+      footer {
+        background: var(--navy);
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+        margin-top: 3rem;
+        font-size: 0.82rem;
+      }
+      footer code {
+        color: var(--gold-light);
+      }
+      @media (max-width: 720px) {
+        .demo-grid,
+        .store {
+          grid-template-columns: 1fr;
+        }
+        .pipe-arrow {
+          transform: rotate(90deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <p class="hero-eyebrow">Empowered Careers · Internal Engineering Doc</p>
+      <h1>
+        How the Blueprint <em>thinks</em>:<br />logic, scoring & who reads it
+      </h1>
+      <p>
+        The Career Identity Blueprint™ isn't just a results screen — it's a
+        reusable candidate-intelligence layer. This explains how 30 answers
+        become normalized axes, and how three different systems consume them.
+      </p>
+      <p class="ref">
+        Companion to <code>docs/career-blueprint-integration.md</code> ·
+        prototype UI in
+        <code>docs/prototypes/career-identity-blueprint.html</code>
+      </p>
+    </header>
 
-<header class="hero">
-  <p class="hero-eyebrow">Empowered Careers · Internal Engineering Doc</p>
-  <h1>How the Blueprint <em>thinks</em>:<br>logic, scoring & who reads it</h1>
-  <p>The Career Identity Blueprint™ isn't just a results screen — it's a reusable candidate-intelligence layer. This explains how 30 answers become normalized axes, and how three different systems consume them.</p>
-  <p class="ref">Companion to <code>docs/career-blueprint-integration.md</code> · prototype UI in <code>docs/prototypes/career-identity-blueprint.html</code></p>
-</header>
+    <div class="wrap">
+      <!-- 1. BIG PICTURE -->
+      <section>
+        <span class="sec-num">01 · The big picture</span>
+        <h2>One assessment, three consumers</h2>
+        <p class="lead">
+          A candidate answers 30 multiple-choice questions. We don't store
+          "answers" as the product — we store a set of
+          <b>normalized 0–100 dimensions</b>. Those dimensions are the source of
+          truth that everything downstream reads.
+        </p>
 
-<div class="wrap">
-
-  <!-- 1. BIG PICTURE -->
-  <section>
-    <span class="sec-num">01 · The big picture</span>
-    <h2>One assessment, three consumers</h2>
-    <p class="lead">A candidate answers 30 multiple-choice questions. We don't store "answers" as the product — we store a set of <b>normalized 0–100 dimensions</b>. Those dimensions are the source of truth that everything downstream reads.</p>
-
-    <div class="consumers">
-      <div class="ccard">
-        <div class="ico">🪞</div>
-        <span class="tag tag-now">Live now</span>
-        <h4>1. Candidate Display</h4>
-        <p>The result page the candidate sees and shares — archetype, leadership style, company fit, energy audit, guidance.</p>
-        <p class="reads"><b>Reads:</b> the derived display blob (<span class="mono">result</span>).</p>
-      </div>
-      <div class="ccard">
-        <div class="ico">✍️</div>
-        <span class="tag tag-soon">Fast-follow</span>
-        <h4>2. Resume + LinkedIn LLMs</h4>
-        <p>The intrinsic voice + motivation signal tunes the resume rewrite and LinkedIn audit so the output sounds like the actual person.</p>
-        <p class="reads"><b>Reads:</b> <span class="mono">voiceProfile</span> (comm style, drivers, strengths).</p>
-      </div>
-      <div class="ccard">
-        <div class="ico">🧭</div>
-        <span class="tag tag-soon">Future</span>
-        <h4>3. Company-Culture Match</h4>
-        <p>A future company profile is scored on the <b>same axes</b>. Matching becomes a similarity calc — preference vs reality, trait vs culture.</p>
-        <p class="reads"><b>Reads:</b> <span class="mono">culture_axes</span> (the shared vocabulary).</p>
-      </div>
-    </div>
-    <div class="callout">
-      <b>Why this matters:</b> if we stored ad-hoc, screen-specific scores (like the throwaway prototype did), each new consumer would need its own re-derivation. By committing to <b>one canonical axis vocabulary</b>, the candidate side and the company side speak the same language, and the LLMs get clean structured context for free.
-    </div>
-  </section>
-
-  <!-- 2. PIPELINE -->
-  <section>
-    <span class="sec-num">02 · The pipeline</span>
-    <h2>From a tapped option to a stored dimension</h2>
-    <p class="lead">Scoring is fully deterministic and instant — pure functions, no LLM, no background job. Here's the flow:</p>
-
-    <div class="pipe">
-      <div class="pipe-step">
-        <div class="k">Input</div>
-        <div class="t">30 answers</div>
-        <div class="d">One choice (A–D) per question.</div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="k">Map</div>
-        <div class="t">Option weights</div>
-        <div class="d">Each option carries weights to one or more axes (<span class="mono">questions.ts</span>).</div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step src-of-truth">
-        <span class="badge">Source of truth</span>
-        <div class="k">Normalize</div>
-        <div class="t">Canonical axes</div>
-        <div class="d">Tally + scale to 0–100 → <span class="mono">computeAxes()</span>.</div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="k">Derive</div>
-        <div class="t">Display + voice</div>
-        <div class="d">Archetype, cards, <span class="mono">voiceProfile</span> from the axes.</div>
-      </div>
-    </div>
-
-    <div class="note">
-      <b>Key inversion vs the prototype:</b> the demo computed display copy directly and the "scores" were a byproduct. Here it's reversed — the <b>axes are computed first and are the truth</b>; the archetype, symmetry bars, green/red-light tags and burnout meter are <b>presentation derived from the axes</b>. The legacy <code>getArchetype()</code> / <code>getCompanyFit()</code> / <code>getCommStyle()</code> logic survives as that derivation layer, so results still feel identical.
-    </div>
-  </section>
-
-  <!-- 3. TAXONOMY -->
-  <section>
-    <span class="sec-num">03 · The canonical axes</span>
-    <h2>The shared vocabulary, in two families</h2>
-    <p class="lead">The prototype tallied ~25 loose keys, several of which it never even read (<span class="mono">energy</span>, <span class="mono">strategic</span>, <span class="mono">growth</span>, <span class="mono">creative</span>, <span class="mono">digital</span>, <span class="mono">visibility</span>…). We drop those and route every question into this set instead. Axes split by <b>what they mean for matching</b>:</p>
-
-    <div class="axis-block">
-      <div class="axis-head pref"><span class="fam">Family A</span> Preference axes — <span style="font-weight:400">what the candidate <em>wants</em> · matched against the company's <em>reality</em></span></div>
-      <table>
-        <thead><tr><th>Axis</th><th>Scale / shape</th><th>From Qs</th></tr></thead>
-        <tbody>
-          <tr><td><span class="axkey">company_stage_fit</span></td><td><span class="cats"><span class="cat">startup</span><span class="cat">growth</span><span class="cat">enterprise</span><span class="cat">mission</span></span><div style="font-size:0.72rem;color:var(--muted);margin-top:3px">distribution — store all four, not one winner</div></td><td class="qs">3, 11, 26–27</td></tr>
-          <tr><td><span class="axkey">culture_values</span></td><td><span class="cats"><span class="cat">collaborative</span><span class="cat">innovative</span><span class="cat">results</span><span class="cat">purpose</span></span><div style="font-size:0.72rem;color:var(--muted);margin-top:3px">distribution</div></td><td class="qs">7, 9, 11, 14, 25</td></tr>
-          <tr><td><span class="axkey">structure_vs_autonomy</span></td><td><div class="poles"><span>0 · high structure</span><span>autonomy · 100</span></div></td><td class="qs">2, 12, 13, 28</td></tr>
-          <tr><td><span class="axkey">pace_sustainability</span></td><td><div class="poles"><span>0 · intensity/urgency</span><span>balance · 100</span></div></td><td class="qs">5, 16, 17, 20</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="axis-block">
-      <div class="axis-head trait"><span class="fam">Family B</span> Trait axes — <span style="font-weight:400">innate <em>wiring</em> · compatibility signal + resume/LinkedIn voice</span></div>
-      <table>
-        <thead><tr><th>Axis</th><th>Scale / shape</th><th>From Qs</th></tr></thead>
-        <tbody>
-          <tr><td><span class="axkey">people_vs_analytical</span></td><td><div class="poles"><span>0 · logic-led</span><span>human-led · 100</span></div></td><td class="qs">6, 8, 10, 15</td></tr>
-          <tr><td><span class="axkey">vision_vs_execution</span></td><td><div class="poles"><span>0 · execution/operator</span><span>vision/builder · 100</span></div></td><td class="qs">1, 9, 15, 29</td></tr>
-          <tr><td><span class="axkey">external_vs_internal</span></td><td><div class="poles"><span>0 · internal</span><span>external · 100</span></div></td><td class="qs">4, 23</td></tr>
-          <tr><td><span class="axkey">leadership_style</span></td><td><span class="cats"><span class="cat">Vision-Led</span><span class="cat">Precision</span><span class="cat">Empowerment</span><span class="cat">Performance</span><span class="cat">Strategic-Systems</span></span><div style="font-size:0.72rem;color:var(--muted);margin-top:3px">categorical → 1 of 5</div></td><td class="qs">6–10</td></tr>
-          <tr><td><span class="axkey">communication_style</span></td><td><span class="cats"><span class="cat">Executive</span><span class="cat">Storytelling</span><span class="cat">Analytical</span><span class="cat">Trusted-Advisor</span></span><div style="font-size:0.72rem;color:var(--muted);margin-top:3px">categorical → 1 of 4</div></td><td class="qs">21–25</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- 4. SCORING MECHANICS -->
-  <section>
-    <span class="sec-num">04 · Scoring mechanics</span>
-    <h2>How weights become 0–100</h2>
-    <p class="body">There are three axis shapes, each scored a little differently:</p>
-
-    <h3>Spectrum axes (e.g. <span class="mono">structure_vs_autonomy</span>)</h3>
-    <p class="body">Options push toward one pole (negative) or the other (positive). We sum the signed weights, then min-max normalize against the maximum possible swing so the result lands on 0–100, with 50 = neutral.</p>
-    <div class="formula">
-<span class="c"># each contributing option adds a signed weight</span>
-raw   = Σ optionWeight          <span class="c"># e.g. -2 (structure) … +3 (autonomy)</span>
-<span class="hl">score = round( (raw - minRaw) / (maxRaw - minRaw) × 100 )</span>
-<span class="c"># minRaw/maxRaw = the most extreme totals the axis's questions allow</span>
-    </div>
-
-    <h3>Distribution axes (e.g. <span class="mono">company_stage_fit</span>)</h3>
-    <p class="body">Each option adds points to one category. We keep the <b>whole normalized distribution</b> (percentages summing to 100), not just the winner — because a company match needs the full shape. "60% startup / 30% growth" matches very differently from "100% startup".</p>
-    <div class="formula">
-<span class="c"># tally points per category, then normalize to a share of total</span>
-startup:24  growth:12  enterprise:4  mission:0   <span class="c"># raw tallies</span>
-<span class="hl">→ { startup: 60, growth: 30, enterprise: 10, mission: 0 }</span>
-    </div>
-
-    <h3>Categorical axes (e.g. <span class="mono">leadership_style</span>)</h3>
-    <p class="body">Tally points per category; the top category is the result (with the runner-up retained for tie-breaks / nuance). This is how the 5 leadership styles and 4 communication styles are picked.</p>
-
-    <div class="callout">
-      <b>Determinism guarantee:</b> the same 30 answers always produce the same axes and the same archetype. There is no randomness and no model call. (The prototype's cosmetic "Analyzing…" spinner is just a transition — the math is sub-millisecond.)
-    </div>
-  </section>
-
-  <!-- 5. DERIVED OUTPUTS -->
-  <section>
-    <span class="sec-num">05 · Derived display</span>
-    <h2>Everything the candidate sees comes from the axes</h2>
-    <p class="lead">No display element is independently scored — each is a function of the axes above:</p>
-    <div class="axis-block">
-      <table>
-        <thead><tr><th>Display element</th><th>Derived from</th></tr></thead>
-        <tbody>
-          <tr><td><b>Career Archetype™</b> (Visionary Builder, Trusted Operator…)</td><td><span class="mono">vision_vs_execution</span> + <span class="mono">people_vs_analytical</span> + dominant <span class="mono">culture_values</span></td></tr>
-          <tr><td><b>Leadership Style™</b></td><td><span class="mono">leadership_style</span> (categorical)</td></tr>
-          <tr><td><b>Best Company Fit</b></td><td><span class="mono">company_stage_fit</span> distribution</td></tr>
-          <tr><td><b>Executive Personality spectrums</b></td><td>the four trait spectra, shown directly</td></tr>
-          <tr><td><b>Communication Style™</b></td><td><span class="mono">communication_style</span> (categorical)</td></tr>
-          <tr><td><b>Green / Red-Light Work™</b></td><td>energy/drain weights behind <span class="mono">pace_sustainability</span> + dominant traits</td></tr>
-          <tr><td><b>Burnout & Sustainability meter</b></td><td><span class="mono">pace_sustainability</span> (inverted)</td></tr>
-          <tr><td><b>Interview / Strategy / LinkedIn guidance</b></td><td><span class="mono">communication_style</span> + <span class="mono">company_stage_fit</span> + archetype</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- 6. STORAGE -->
-  <section>
-    <span class="sec-num">06 · Where it lives</span>
-    <h2>Two homes: queryable axes + display blob</h2>
-    <p class="lead">Structured axes go where matching can query them efficiently; the rich display blob lives with the response record.</p>
-    <div class="store">
-      <div class="store-card">
-        <div class="tbl">candidate_scores</div>
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:2px">one row per profile · the matching home</div>
-        <ul>
-          <li><span class="col">culture_axes</span> jsonb — all §03 axes (0–100 + distributions). <b>GIN-indexed.</b> Read by the matcher & LLMs.</li>
-          <li><span class="col">role_clarity / values / strengths / leadership / impact</span> — the 5 P1 dims, <b>derived from the axes</b></li>
-          <li><span class="col">overall_score</span></li>
-          <li><span class="col">mindset / communication</span> — left null (Phase 2)</li>
-        </ul>
-      </div>
-      <div class="store-card">
-        <div class="tbl">assessment_responses</div>
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:2px">one row per (profile, assessment) · upsert on retake</div>
-        <ul>
-          <li><span class="col">responses</span> jsonb — the raw 30 answers</li>
-          <li><span class="col">result</span> jsonb — the display blob, incl. embedded <span class="col">voiceProfile</span></li>
-          <li><span class="col">archetype</span> text — denormalized for fast lists/sharing</li>
-          <li><span class="col">score</span> · <span class="col">completed_at</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- 7. CONSUMER IMPACT -->
-  <section>
-    <span class="sec-num">07 · Consumer impact</span>
-    <h2>What each system does with the data</h2>
-
-    <h3>✍️ Resume + LinkedIn personalization <span class="tag tag-soon" style="vertical-align:middle">fast-follow</span></h3>
-    <p class="body">The existing <code>scoreResume()</code> / <code>scoreLinkedIn()</code> LLMs are extended with an <b>optional</b> <span class="mono">voiceProfile</span> argument, injected into the per-request user message (the cached rubric system prompts stay untouched). When absent, behavior is unchanged — purely additive.</p>
-    <div class="note">
-      <b>Effect:</b> an <em>Executive Strategist</em> with <em>vision/builder</em> wiring gets resume bullets led by strategic impact and a concise, authoritative LinkedIn About; a <em>Trusted Advisor</em> with <em>human-led</em> wiring gets warmer, relationship-centered phrasing. Same facts, voice tuned to who they are.
-    </div>
-
-    <h3>🧭 Company-culture match <span class="tag tag-soon" style="vertical-align:middle">future</span></h3>
-    <p class="body">The future company profile is scored on the <b>identical</b> axis keys. The matcher reads both sides from structured storage — no re-derivation:</p>
-    <div class="formula">
-<span class="c"># preference axes vs company reality</span>
-fit_pref  = similarity(candidate.company_stage_fit, company.stage_profile)
-          + similarity(candidate.culture_values,     company.culture_profile)
-<span class="c"># trait axes vs company culture archetype</span>
-fit_trait = compatibility(candidate.traits, company.culture_archetype)
-<span class="hl">match = w1·fit_pref + w2·fit_trait</span>   <span class="c"># matcher tunes the weights</span>
-    </div>
-    <p class="body">Keeping preference and trait axes <b>separate</b> is what lets the matcher weight "do they want this environment" independently from "will their wiring fit the culture."</p>
-  </section>
-
-  <!-- 8. WORKED EXAMPLE -->
-  <section>
-    <span class="sec-num">08 · Worked example</span>
-    <h2>Try it: contrasting candidates → different everything</h2>
-    <p class="lead">Pick a profile to see how its answers resolve into axes, then into display and consumer impact.</p>
-
-    <div class="demo">
-      <div class="persona-tabs" id="ptabs"></div>
-      <div class="demo-grid">
-        <div class="axes-vis" id="axesVis"></div>
-        <div class="demo-out">
-          <h4>Derived outputs</h4>
-          <div id="outLines"></div>
-          <div class="impact" id="impact"></div>
+        <div class="consumers">
+          <div class="ccard">
+            <div class="ico">🪞</div>
+            <span class="tag tag-now">Live now</span>
+            <h4>1. Candidate Display</h4>
+            <p>
+              The result page the candidate sees and shares — archetype,
+              leadership style, company fit, energy audit, guidance.
+            </p>
+            <p class="reads">
+              <b>Reads:</b> the derived display blob (<span class="mono"
+                >result</span
+              >).
+            </p>
+          </div>
+          <div class="ccard">
+            <div class="ico">✍️</div>
+            <span class="tag tag-soon">Fast-follow</span>
+            <h4>2. Resume + LinkedIn LLMs</h4>
+            <p>
+              The intrinsic voice + motivation signal tunes the resume rewrite
+              and LinkedIn audit so the output sounds like the actual person.
+            </p>
+            <p class="reads">
+              <b>Reads:</b> <span class="mono">voiceProfile</span> (comm style,
+              drivers, strengths).
+            </p>
+          </div>
+          <div class="ccard">
+            <div class="ico">🧭</div>
+            <span class="tag tag-soon">Future</span>
+            <h4>3. Company-Culture Match</h4>
+            <p>
+              A future company profile is scored on the <b>same axes</b>.
+              Matching becomes a similarity calc — preference vs reality, trait
+              vs culture.
+            </p>
+            <p class="reads">
+              <b>Reads:</b> <span class="mono">culture_axes</span> (the shared
+              vocabulary).
+            </p>
+          </div>
         </div>
-      </div>
+        <div class="callout">
+          <b>Why this matters:</b> if we stored ad-hoc, screen-specific scores
+          (like the throwaway prototype did), each new consumer would need its
+          own re-derivation. By committing to
+          <b>one canonical axis vocabulary</b>, the candidate side and the
+          company side speak the same language, and the LLMs get clean
+          structured context for free.
+        </div>
+      </section>
+
+      <!-- 2. PIPELINE -->
+      <section>
+        <span class="sec-num">02 · The pipeline</span>
+        <h2>From a tapped option to a stored dimension</h2>
+        <p class="lead">
+          Scoring is fully deterministic and instant — pure functions, no LLM,
+          no background job. Here's the flow:
+        </p>
+
+        <div class="pipe">
+          <div class="pipe-step">
+            <div class="k">Input</div>
+            <div class="t">30 answers</div>
+            <div class="d">One choice (A–D) per question.</div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step">
+            <div class="k">Map</div>
+            <div class="t">Option weights</div>
+            <div class="d">
+              Each option carries weights to one or more axes (<span
+                class="mono"
+                >questions.ts</span
+              >).
+            </div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step src-of-truth">
+            <span class="badge">Source of truth</span>
+            <div class="k">Normalize</div>
+            <div class="t">Canonical axes</div>
+            <div class="d">
+              Tally + scale to 0–100 → <span class="mono">computeAxes()</span>.
+            </div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step">
+            <div class="k">Derive</div>
+            <div class="t">Display + voice</div>
+            <div class="d">
+              Archetype, cards, <span class="mono">voiceProfile</span> from the
+              axes.
+            </div>
+          </div>
+        </div>
+
+        <div class="note">
+          <b>Key inversion vs the prototype:</b> the demo computed display copy
+          directly and the "scores" were a byproduct. Here it's reversed — the
+          <b>axes are computed first and are the truth</b>; the archetype,
+          symmetry bars, green/red-light tags and burnout meter are
+          <b>presentation derived from the axes</b>. The legacy
+          <code>getArchetype()</code> / <code>getCompanyFit()</code> /
+          <code>getCommStyle()</code> logic survives as that derivation layer,
+          so results still feel identical.
+        </div>
+      </section>
+
+      <!-- 3. TAXONOMY -->
+      <section>
+        <span class="sec-num">03 · The canonical axes</span>
+        <h2>The shared vocabulary, in two families</h2>
+        <p class="lead">
+          The prototype tallied ~25 loose keys, several of which it never even
+          read (<span class="mono">energy</span>,
+          <span class="mono">strategic</span>, <span class="mono">growth</span>,
+          <span class="mono">creative</span>, <span class="mono">digital</span>,
+          <span class="mono">visibility</span>…). We drop those and route every
+          question into this set instead. Axes split by
+          <b>what they mean for matching</b>:
+        </p>
+
+        <div class="axis-block">
+          <div class="axis-head pref">
+            <span class="fam">Family A</span> Preference axes —
+            <span style="font-weight: 400"
+              >what the candidate <em>wants</em> · matched against the company's
+              <em>reality</em></span
+            >
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Axis</th>
+                <th>Scale / shape</th>
+                <th>From Qs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="axkey">company_stage_fit</span></td>
+                <td>
+                  <span class="cats"
+                    ><span class="cat">startup</span
+                    ><span class="cat">growth</span
+                    ><span class="cat">enterprise</span
+                    ><span class="cat">mission</span></span
+                  >
+                  <div
+                    style="
+                      font-size: 0.72rem;
+                      color: var(--muted);
+                      margin-top: 3px;
+                    "
+                  >
+                    distribution — store all four, not one winner
+                  </div>
+                </td>
+                <td class="qs">3, 11, 26–27</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">culture_values</span></td>
+                <td>
+                  <span class="cats"
+                    ><span class="cat">collaborative</span
+                    ><span class="cat">innovative</span
+                    ><span class="cat">results</span
+                    ><span class="cat">purpose</span></span
+                  >
+                  <div
+                    style="
+                      font-size: 0.72rem;
+                      color: var(--muted);
+                      margin-top: 3px;
+                    "
+                  >
+                    distribution
+                  </div>
+                </td>
+                <td class="qs">7, 9, 11, 14, 25</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">structure_vs_autonomy</span></td>
+                <td>
+                  <div class="poles">
+                    <span>0 · high structure</span><span>autonomy · 100</span>
+                  </div>
+                </td>
+                <td class="qs">2, 12, 13, 28</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">pace_sustainability</span></td>
+                <td>
+                  <div class="poles">
+                    <span>0 · intensity/urgency</span><span>balance · 100</span>
+                  </div>
+                </td>
+                <td class="qs">5, 16, 17, 20</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="axis-block">
+          <div class="axis-head trait">
+            <span class="fam">Family B</span> Trait axes —
+            <span style="font-weight: 400"
+              >innate <em>wiring</em> · compatibility signal + resume/LinkedIn
+              voice</span
+            >
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Axis</th>
+                <th>Scale / shape</th>
+                <th>From Qs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="axkey">people_vs_analytical</span></td>
+                <td>
+                  <div class="poles">
+                    <span>0 · logic-led</span><span>human-led · 100</span>
+                  </div>
+                </td>
+                <td class="qs">6, 8, 10, 15</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">vision_vs_execution</span></td>
+                <td>
+                  <div class="poles">
+                    <span>0 · execution/operator</span
+                    ><span>vision/builder · 100</span>
+                  </div>
+                </td>
+                <td class="qs">1, 9, 15, 29</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">external_vs_internal</span></td>
+                <td>
+                  <div class="poles">
+                    <span>0 · internal</span><span>external · 100</span>
+                  </div>
+                </td>
+                <td class="qs">4, 23</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">leadership_style</span></td>
+                <td>
+                  <span class="cats"
+                    ><span class="cat">Vision-Led</span
+                    ><span class="cat">Precision</span
+                    ><span class="cat">Empowerment</span
+                    ><span class="cat">Performance</span
+                    ><span class="cat">Strategic-Systems</span></span
+                  >
+                  <div
+                    style="
+                      font-size: 0.72rem;
+                      color: var(--muted);
+                      margin-top: 3px;
+                    "
+                  >
+                    categorical → 1 of 5
+                  </div>
+                </td>
+                <td class="qs">6–10</td>
+              </tr>
+              <tr>
+                <td><span class="axkey">communication_style</span></td>
+                <td>
+                  <span class="cats"
+                    ><span class="cat">Executive</span
+                    ><span class="cat">Storytelling</span
+                    ><span class="cat">Analytical</span
+                    ><span class="cat">Trusted-Advisor</span></span
+                  >
+                  <div
+                    style="
+                      font-size: 0.72rem;
+                      color: var(--muted);
+                      margin-top: 3px;
+                    "
+                  >
+                    categorical → 1 of 4
+                  </div>
+                </td>
+                <td class="qs">21–25</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. SCORING MECHANICS -->
+      <section>
+        <span class="sec-num">04 · Scoring mechanics</span>
+        <h2>How weights become 0–100</h2>
+        <p class="body">
+          There are three axis shapes, each scored a little differently:
+        </p>
+
+        <h3>
+          Spectrum axes (e.g. <span class="mono">structure_vs_autonomy</span>)
+        </h3>
+        <p class="body">
+          Each option contributes non-negative votes to one pole or the other
+          (two separate counters per axis — e.g.
+          <span class="mono">autonomy</span> and
+          <span class="mono">structure</span>). The axis is centered at 50 and
+          shifted by a fixed coefficient times the difference, then clamped to
+          0–100. 50 = neutral / no signal.
+        </p>
+        <div class="formula">
+          <span class="c"
+            ># two non-negative counters per axis, summed across options</span
+          >
+          autonomy = Σ optionWeight(autonomy) structure = Σ
+          optionWeight(structure)
+          <span class="hl"
+            >score = clamp( 50 + 10 × (autonomy − structure), 0, 100 )</span
+          >
+          <span class="c">
+            # same shape for people↔analytical, vision↔execution,
+            external↔internal</span
+          >
+          <span class="c"># pace_sustainability adds a burnout_risk term:</span>
+          <span class="hl"
+            >pace = clamp( 50 + 10·sustainability − 10·intensity + 8·burnout_risk,
+            0, 100 )</span
+          >
+        </div>
+        <p class="body" style="font-size: 0.82rem">
+          The coefficient (10) was picked so a strongly expressed preference
+          (4-vote net) lands at ~90 and a balanced answer set stays near 50.
+          Pre-flight sanity-checked against synthetic profiles.
+        </p>
+
+        <h3>
+          Distribution axes (e.g. <span class="mono">company_stage_fit</span>)
+        </h3>
+        <p class="body">
+          Each option adds points to one category. We keep the
+          <b>whole normalized distribution</b> (percentages summing to 100), not
+          just the winner — because a company match needs the full shape. "60%
+          startup / 30% growth" matches very differently from "100% startup".
+        </p>
+        <div class="formula">
+          <span class="c"
+            ># tally points per category, then normalize to a share of
+            total</span
+          >
+          startup:24 growth:12 enterprise:4 mission:0
+          <span class="c"># raw tallies</span>
+          <span class="hl"
+            >→ { startup: 60, growth: 30, enterprise: 10, mission: 0 }</span
+          >
+        </div>
+
+        <h3>
+          Categorical axes (e.g. <span class="mono">leadership_style</span>)
+        </h3>
+        <p class="body">
+          Tally points per category; the top category is the result (with the
+          runner-up retained for tie-breaks / nuance). This is how the 5
+          leadership styles and 4 communication styles are picked.
+        </p>
+
+        <div class="callout">
+          <b>Determinism guarantee:</b> the same 30 answers always produce the
+          same axes and the same archetype. There is no randomness and no model
+          call. (The prototype's cosmetic "Analyzing…" spinner is just a
+          transition — the math is sub-millisecond.)
+        </div>
+      </section>
+
+      <!-- 5. DERIVED OUTPUTS -->
+      <section>
+        <span class="sec-num">05 · Derived display</span>
+        <h2>Everything the candidate sees comes from the axes</h2>
+        <p class="lead">
+          No display element is independently scored — each is a function of the
+          axes above:
+        </p>
+        <div class="axis-block">
+          <table>
+            <thead>
+              <tr>
+                <th>Display element</th>
+                <th>Derived from</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <b>Career Archetype™</b> (Visionary Builder, Trusted
+                  Operator…)
+                </td>
+                <td>
+                  <span class="mono">leadership_style</span> (categorical) —
+                  one archetype per leadership style, 5 total. The trait
+                  spectra
+                  (<span class="mono">vision_vs_execution</span>,
+                  <span class="mono">people_vs_analytical</span>) influence
+                  green-light copy + spectrums but not the archetype name.
+                </td>
+              </tr>
+              <tr>
+                <td><b>Leadership Style™</b></td>
+                <td>
+                  <span class="mono">leadership_style</span> (categorical)
+                </td>
+              </tr>
+              <tr>
+                <td><b>Best Company Fit</b></td>
+                <td>
+                  <span class="mono">company_stage_fit</span> distribution
+                </td>
+              </tr>
+              <tr>
+                <td><b>Executive Personality spectrums</b></td>
+                <td>the four trait spectra, shown directly</td>
+              </tr>
+              <tr>
+                <td><b>Communication Style™</b></td>
+                <td>
+                  <span class="mono">communication_style</span> (categorical)
+                </td>
+              </tr>
+              <tr>
+                <td><b>Green / Red-Light Work™</b></td>
+                <td>
+                  energy/drain weights behind
+                  <span class="mono">pace_sustainability</span> + dominant
+                  traits
+                </td>
+              </tr>
+              <tr>
+                <td><b>Burnout & Sustainability meter</b></td>
+                <td>
+                  Banded from the raw
+                  <span class="mono">burnout_risk</span> vote count
+                  (&lt;2 low · 2–4 moderate · ≥5 elevated → 22% / 48% / 78%).
+                  <span class="mono">pace_sustainability</span> is persisted
+                  for the matcher but isn't the meter's display source.
+                </td>
+              </tr>
+              <tr>
+                <td><b>Interview / Strategy / LinkedIn guidance</b></td>
+                <td>
+                  <span class="mono">communication_style</span> +
+                  <span class="mono">company_stage_fit</span> + archetype
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. STORAGE -->
+      <section>
+        <span class="sec-num">06 · Where it lives</span>
+        <h2>Two homes: queryable axes + display blob</h2>
+        <p class="lead">
+          Structured axes go where matching can query them efficiently; the rich
+          display blob lives with the response record.
+        </p>
+        <div class="store">
+          <div class="store-card">
+            <div class="tbl">candidate_scores</div>
+            <div
+              style="font-size: 0.75rem; color: var(--muted); margin-top: 2px"
+            >
+              one row per profile · the matching home
+            </div>
+            <ul>
+              <li>
+                <span class="col">culture_axes</span> jsonb — all §03 axes
+                (0–100 + distributions). <b>GIN-indexed.</b> Read by the matcher
+                & LLMs.
+              </li>
+              <li>
+                <span class="col"
+                  >role_clarity / values / strengths / leadership / impact</span
+                >
+                — the 5 P1 dims, <b>derived from the axes</b>
+              </li>
+              <li><span class="col">overall_score</span></li>
+              <li>
+                <span class="col">mindset / communication</span> — left null
+                (Phase 2)
+              </li>
+            </ul>
+          </div>
+          <div class="store-card">
+            <div class="tbl">assessment_responses</div>
+            <div
+              style="font-size: 0.75rem; color: var(--muted); margin-top: 2px"
+            >
+              one row per (profile, assessment) · upsert on retake
+            </div>
+            <ul>
+              <li>
+                <span class="col">responses</span> jsonb — the raw 30 answers
+              </li>
+              <li>
+                <span class="col">result</span> jsonb — the display blob, incl.
+                embedded <span class="col">voiceProfile</span>
+              </li>
+              <li>
+                <span class="col">archetype</span> text — denormalized for fast
+                lists/sharing
+              </li>
+              <li>
+                <span class="col">score</span> ·
+                <span class="col">completed_at</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. CONSUMER IMPACT -->
+      <section>
+        <span class="sec-num">07 · Consumer impact</span>
+        <h2>What each system does with the data</h2>
+
+        <h3>
+          ✍️ Resume + LinkedIn personalization
+          <span class="tag tag-soon" style="vertical-align: middle"
+            >fast-follow</span
+          >
+        </h3>
+        <p class="body">
+          The existing <code>scoreResume()</code> /
+          <code>scoreLinkedIn()</code> LLMs are extended with an <b>optional</b>
+          <span class="mono">voiceProfile</span> argument, injected into the
+          per-request user message (the cached rubric system prompts stay
+          untouched). When absent, behavior is unchanged — purely additive.
+        </p>
+        <div class="note">
+          <b>Effect:</b> an <em>Executive Strategist</em> with
+          <em>vision/builder</em> wiring gets resume bullets led by strategic
+          impact and a concise, authoritative LinkedIn About; a
+          <em>Trusted Advisor</em> with <em>human-led</em> wiring gets warmer,
+          relationship-centered phrasing. Same facts, voice tuned to who they
+          are.
+        </div>
+
+        <h3>
+          🧭 Company-culture match
+          <span class="tag tag-soon" style="vertical-align: middle"
+            >future</span
+          >
+        </h3>
+        <p class="body">
+          The future company profile is scored on the <b>identical</b> axis
+          keys. The matcher reads both sides from structured storage — no
+          re-derivation:
+        </p>
+        <div class="formula">
+          <span class="c"># preference axes vs company reality</span>
+          fit_pref = similarity(candidate.company_stage_fit,
+          company.stage_profile) + similarity(candidate.culture_values,
+          company.culture_profile)
+          <span class="c"># trait axes vs company culture archetype</span>
+          fit_trait = compatibility(candidate.traits, company.culture_archetype)
+          <span class="hl">match = w1·fit_pref + w2·fit_trait</span>
+          <span class="c"># matcher tunes the weights</span>
+        </div>
+        <p class="body">
+          Keeping preference and trait axes <b>separate</b> is what lets the
+          matcher weight "do they want this environment" independently from
+          "will their wiring fit the culture."
+        </p>
+      </section>
+
+      <!-- 8. WORKED EXAMPLE -->
+      <section>
+        <span class="sec-num">08 · Worked example</span>
+        <h2>Try it: contrasting candidates → different everything</h2>
+        <p class="lead">
+          Pick a profile to see how its answers resolve into axes, then into
+          display and consumer impact.
+        </p>
+
+        <div class="demo">
+          <div class="persona-tabs" id="ptabs"></div>
+          <div class="demo-grid">
+            <div class="axes-vis" id="axesVis"></div>
+            <div class="demo-out">
+              <h4>Derived outputs</h4>
+              <div id="outLines"></div>
+              <div class="impact" id="impact"></div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-  </section>
 
-</div>
+    <footer>
+      Career Identity Blueprint™ — logic & scoring explainer.<br />
+      Authoritative spec: <code>docs/career-blueprint-integration.md</code> ·
+      Brand/IP: <code>docs/assessment.md</code>
+    </footer>
 
-<footer>
-  Career Identity Blueprint™ — logic & scoring explainer.<br>
-  Authoritative spec: <code>docs/career-blueprint-integration.md</code> · Brand/IP: <code>docs/assessment.md</code>
-</footer>
+    <script>
+      const PERSONAS = {
+        "Visionary Builder": {
+          spectrums: {
+            structure_vs_autonomy: 82,
+            pace_sustainability: 30,
+            people_vs_analytical: 38,
+            vision_vs_execution: 88,
+            external_vs_internal: 70,
+          },
+          stage: { startup: 58, growth: 27, enterprise: 10, mission: 5 },
+          values: {
+            collaborative: 20,
+            innovative: 50,
+            results: 22,
+            purpose: 8,
+          },
+          out: {
+            archetype: "The Visionary Builder™",
+            leadership: "Vision-Led Leader™",
+            fit: "Startup & Entrepreneurial",
+            comm: "Executive Strategist™",
+            burnout: "Elevated (low recovery)",
+          },
+          impact: {
+            resume:
+              "Bullets lead with transformation & scale; concise executive voice.",
+            linkedin:
+              "Authority headline + thought-leadership content strategy.",
+            match:
+              "High pull toward startup/scale-up; flag low pace_sustainability vs high-intensity cultures.",
+          },
+        },
+        "Trusted Operator": {
+          spectrums: {
+            structure_vs_autonomy: 22,
+            pace_sustainability: 64,
+            people_vs_analytical: 34,
+            vision_vs_execution: 18,
+            external_vs_internal: 40,
+          },
+          stage: { startup: 8, growth: 24, enterprise: 60, mission: 8 },
+          values: {
+            collaborative: 24,
+            innovative: 10,
+            results: 54,
+            purpose: 12,
+          },
+          out: {
+            archetype: "The Trusted Operator™",
+            leadership: "Precision Leader™",
+            fit: "Large Enterprise & Complex Orgs",
+            comm: "Analytical Communicator™",
+            burnout: "Low (sustainable)",
+          },
+          impact: {
+            resume:
+              "Bullets quantify reliability, process & operational scale.",
+            linkedin: "Credential-forward headline; case-study posts.",
+            match:
+              "Strong enterprise fit; structured-culture compatibility high.",
+          },
+        },
+        "Purpose-Driven Catalyst": {
+          spectrums: {
+            structure_vs_autonomy: 55,
+            pace_sustainability: 58,
+            people_vs_analytical: 84,
+            vision_vs_execution: 52,
+            external_vs_internal: 78,
+          },
+          stage: { startup: 14, growth: 26, enterprise: 12, mission: 48 },
+          values: {
+            collaborative: 40,
+            innovative: 14,
+            results: 8,
+            purpose: 38,
+          },
+          out: {
+            archetype: "The Purpose-Driven Catalyst™",
+            leadership: "Empowerment Leader™",
+            fit: "Mission-Driven Organizations",
+            comm: "Trusted Advisor™",
+            burnout: "Moderate (watch overextension)",
+          },
+          impact: {
+            resume:
+              "Bullets foreground people impact, retention & culture-building.",
+            linkedin:
+              "Warm, relationship-centered voice; engagement over broadcast.",
+            match:
+              "Mission + collaborative culture fit; pair with values-driven companies.",
+          },
+        },
+      };
 
-<script>
-const PERSONAS = {
-  "Visionary Builder": {
-    spectrums: { structure_vs_autonomy: 82, pace_sustainability: 30, people_vs_analytical: 38, vision_vs_execution: 88, external_vs_internal: 70 },
-    stage: { startup: 58, growth: 27, enterprise: 10, mission: 5 },
-    values: { collaborative: 20, innovative: 50, results: 22, purpose: 8 },
-    out: { archetype: "The Visionary Builder™", leadership: "Vision-Led Leader™", fit: "Startup & Entrepreneurial", comm: "Executive Strategist™", burnout: "Elevated (low recovery)" },
-    impact: {
-      resume: "Bullets lead with transformation & scale; concise executive voice.",
-      linkedin: "Authority headline + thought-leadership content strategy.",
-      match: "High pull toward startup/scale-up; flag low pace_sustainability vs high-intensity cultures."
-    }
-  },
-  "Trusted Operator": {
-    spectrums: { structure_vs_autonomy: 22, pace_sustainability: 64, people_vs_analytical: 34, vision_vs_execution: 18, external_vs_internal: 40 },
-    stage: { startup: 8, growth: 24, enterprise: 60, mission: 8 },
-    values: { collaborative: 24, innovative: 10, results: 54, purpose: 12 },
-    out: { archetype: "The Trusted Operator™", leadership: "Precision Leader™", fit: "Large Enterprise & Complex Orgs", comm: "Analytical Communicator™", burnout: "Low (sustainable)" },
-    impact: {
-      resume: "Bullets quantify reliability, process & operational scale.",
-      linkedin: "Credential-forward headline; case-study posts.",
-      match: "Strong enterprise fit; structured-culture compatibility high."
-    }
-  },
-  "Purpose-Driven Catalyst": {
-    spectrums: { structure_vs_autonomy: 55, pace_sustainability: 58, people_vs_analytical: 84, vision_vs_execution: 52, external_vs_internal: 78 },
-    stage: { startup: 14, growth: 26, enterprise: 12, mission: 48 },
-    values: { collaborative: 40, innovative: 14, results: 8, purpose: 38 },
-    out: { archetype: "The Purpose-Driven Catalyst™", leadership: "Empowerment Leader™", fit: "Mission-Driven Organizations", comm: "Trusted Advisor™", burnout: "Moderate (watch overextension)" },
-    impact: {
-      resume: "Bullets foreground people impact, retention & culture-building.",
-      linkedin: "Warm, relationship-centered voice; engagement over broadcast.",
-      match: "Mission + collaborative culture fit; pair with values-driven companies."
-    }
-  }
-};
+      const SPEC_LABELS = {
+        structure_vs_autonomy: ["High structure", "High autonomy"],
+        pace_sustainability: ["Intensity", "Balance"],
+        people_vs_analytical: ["Logic-led", "Human-led"],
+        vision_vs_execution: ["Execution", "Vision"],
+        external_vs_internal: ["Internal", "External"],
+      };
+      const STAGE_COLORS = {
+        startup: "#C9A84C",
+        growth: "#1A3C6B",
+        enterprise: "#6B3FA0",
+        mission: "#2A7A3B",
+      };
+      const VALUE_COLORS = {
+        collaborative: "#1A3C6B",
+        innovative: "#C9A84C",
+        results: "#B83232",
+        purpose: "#2A7A3B",
+      };
 
-const SPEC_LABELS = {
-  structure_vs_autonomy: ["High structure", "High autonomy"],
-  pace_sustainability:   ["Intensity", "Balance"],
-  people_vs_analytical:  ["Logic-led", "Human-led"],
-  vision_vs_execution:   ["Execution", "Vision"],
-  external_vs_internal:  ["Internal", "External"]
-};
-const STAGE_COLORS = { startup:"#C9A84C", growth:"#1A3C6B", enterprise:"#6B3FA0", mission:"#2A7A3B" };
-const VALUE_COLORS = { collaborative:"#1A3C6B", innovative:"#C9A84C", results:"#B83232", purpose:"#2A7A3B" };
+      let active = Object.keys(PERSONAS)[0];
 
-let active = Object.keys(PERSONAS)[0];
+      function renderTabs() {
+        const el = document.getElementById("ptabs");
+        el.innerHTML = Object.keys(PERSONAS)
+          .map(
+            (k) =>
+              `<button class="ptab ${k === active ? "active" : ""}" onclick="select('${k}')">${k}</button>`
+          )
+          .join("");
+      }
 
-function renderTabs() {
-  const el = document.getElementById('ptabs');
-  el.innerHTML = Object.keys(PERSONAS).map(k =>
-    `<button class="ptab ${k===active?'active':''}" onclick="select('${k}')">${k}</button>`).join('');
-}
+      function distBar(dist, colors) {
+        const entries = Object.entries(dist);
+        return (
+          `<div class="dist">` +
+          entries
+            .map(
+              ([k, v]) =>
+                `<span style="flex-basis:${v}%;background:${colors[k]}">${v >= 14 ? k + " " + v + "%" : ""}</span>`
+            )
+            .join("") +
+          `</div>`
+        );
+      }
 
-function distBar(dist, colors) {
-  const entries = Object.entries(dist);
-  return `<div class="dist">` + entries.map(([k,v]) =>
-    `<span style="flex-basis:${v}%;background:${colors[k]}">${v>=14?k+' '+v+'%':''}</span>`).join('') + `</div>`;
-}
-
-function render() {
-  const p = PERSONAS[active];
-  // axes
-  let html = '<h4 style="font-size:0.95rem;margin-bottom:0.8rem">Canonical axes</h4>';
-  for (const [key, val] of Object.entries(p.spectrums)) {
-    const [l, r] = SPEC_LABELS[key];
-    html += `<div class="axrow">
+      function render() {
+        const p = PERSONAS[active];
+        // axes
+        let html =
+          '<h4 style="font-size:0.95rem;margin-bottom:0.8rem">Canonical axes</h4>';
+        for (const [key, val] of Object.entries(p.spectrums)) {
+          const [l, r] = SPEC_LABELS[key];
+          html += `<div class="axrow">
       <div class="albl"><span>${l}</span><span class="v">${val}</span><span>${r}</span></div>
       <div class="bar spectrum"><div class="thumb" style="left:${val}%"></div></div></div>`;
-  }
-  html += `<div class="axrow"><div class="albl"><span>company_stage_fit</span></div>${distBar(p.stage, STAGE_COLORS)}</div>`;
-  html += `<div class="axrow"><div class="albl"><span>culture_values</span></div>${distBar(p.values, VALUE_COLORS)}</div>`;
-  document.getElementById('axesVis').innerHTML = html;
+        }
+        html += `<div class="axrow"><div class="albl"><span>company_stage_fit</span></div>${distBar(p.stage, STAGE_COLORS)}</div>`;
+        html += `<div class="axrow"><div class="albl"><span>culture_values</span></div>${distBar(p.values, VALUE_COLORS)}</div>`;
+        document.getElementById("axesVis").innerHTML = html;
 
-  // outputs
-  const o = p.out;
-  document.getElementById('outLines').innerHTML = `
+        // outputs
+        const o = p.out;
+        document.getElementById("outLines").innerHTML = `
     <div class="out-line"><span class="lab">Archetype</span><span class="val">${o.archetype}</span></div>
     <div class="out-line"><span class="lab">Leadership</span><span class="val">${o.leadership}</span></div>
     <div class="out-line"><span class="lab">Company fit</span><span class="val">${o.fit}</span></div>
     <div class="out-line"><span class="lab">Comm style</span><span class="val">${o.comm}</span></div>
     <div class="out-line"><span class="lab">Burnout</span><span class="val">${o.burnout}</span></div>`;
 
-  document.getElementById('impact').innerHTML = `
+        document.getElementById("impact").innerHTML = `
     <div class="ic"><b>✍️ Resume:</b> ${p.impact.resume}</div>
     <div class="ic"><b>in LinkedIn:</b> ${p.impact.linkedin}</div>
     <div class="ic"><b>🧭 Match:</b> ${p.impact.match}</div>`;
 
-  // animate spectrum thumbs/bars from 0
-  requestAnimationFrame(() => {
-    document.querySelectorAll('#axesVis .dist span').forEach(s => { /* flex set inline already */ });
-  });
-}
+        // animate spectrum thumbs/bars from 0
+        requestAnimationFrame(() => {
+          document.querySelectorAll("#axesVis .dist span").forEach((s) => {
+            /* flex set inline already */
+          });
+        });
+      }
 
-function select(k) { active = k; renderTabs(); render(); }
-renderTabs(); render();
-</script>
-</body>
+      function select(k) {
+        active = k;
+        renderTabs();
+        render();
+      }
+      renderTabs();
+      render();
+    </script>
+  </body>
 </html>

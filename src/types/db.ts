@@ -60,6 +60,21 @@ export type ClientCompanyInsert =
 export type ClientCompanyUpdate =
   Database["public"]["Tables"]["client_companies"]["Update"];
 
+// --- Assessment tables (Career Identity Blueprint + future assessments) ---
+export type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
+export type AssessmentResponseRow =
+  Database["public"]["Tables"]["assessment_responses"]["Row"];
+export type AssessmentResponseInsert =
+  Database["public"]["Tables"]["assessment_responses"]["Insert"];
+export type AssessmentResponseUpdate =
+  Database["public"]["Tables"]["assessment_responses"]["Update"];
+export type CandidateScoresRow =
+  Database["public"]["Tables"]["candidate_scores"]["Row"];
+export type CandidateScoresInsert =
+  Database["public"]["Tables"]["candidate_scores"]["Insert"];
+export type CandidateScoresUpdate =
+  Database["public"]["Tables"]["candidate_scores"]["Update"];
+
 // --- Narrow column-subset types for list views ---
 // Keep the SELECT column string in JOB_CARD_COLUMNS and this Pick in sync.
 export const JOB_CARD_COLUMNS =

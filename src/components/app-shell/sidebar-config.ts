@@ -7,6 +7,7 @@ import {
   Check,
   Circle,
   Columns3,
+  Compass,
   FileText,
   Layers,
   Link as LinkIcon,
@@ -27,6 +28,7 @@ export type SidebarItem = {
   label: string;
   href?: string;
   meta?: string;
+  children?: SidebarItem[];
 };
 
 export type SidebarSection = {
@@ -46,7 +48,17 @@ export const sidebarConfig: Record<string, SidebarSection[]> = {
       items: [
         { icon: User, label: "My Profile", href: "/profile" },
         { icon: FileText, label: "Resume", href: "/resume" },
-        { icon: List, label: "Assessments" },
+        {
+          icon: List,
+          label: "Assessments",
+          children: [
+            {
+              icon: Compass,
+              label: "Career Identity Blueprint",
+              href: "/assessment",
+            },
+          ],
+        },
         { icon: LinkIcon, label: "LinkedIn Grade", href: "/linkedin" },
       ],
     },
@@ -124,12 +136,14 @@ export const topNavTabs: { key: string; label: string; href: string }[] = [
 ];
 
 export function resolveTabKey(pathname: string): string {
-  // Resume + LinkedIn + Profile + Onboarding live under the Dashboard tab.
+  // Resume + LinkedIn + Profile + Onboarding + Assessment live under the
+  // Dashboard tab.
   if (
     pathname.startsWith("/resume") ||
     pathname.startsWith("/linkedin") ||
     pathname.startsWith("/profile") ||
-    pathname.startsWith("/onboarding")
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/assessment")
   ) {
     return "/dashboard";
   }

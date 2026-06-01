@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { ResumeCard } from "@/components/dashboard/resume-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import type {
+  DashboardBlueprint,
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
@@ -22,6 +23,7 @@ export interface DashboardClientProps {
   resumes: DashboardResume[];
   activeJobCount: number;
   userEmail: string;
+  blueprint: DashboardBlueprint | null;
 }
 
 function scrollToResumeHub() {
@@ -35,6 +37,7 @@ export function DashboardClient({
   resumes,
   activeJobCount,
   userEmail,
+  blueprint,
 }: DashboardClientProps) {
   const { signOut } = useAuth();
   const router = useRouter();
@@ -70,6 +73,23 @@ export function DashboardClient({
         </div>
       )}
 
+      {blueprint?.archetype && (
+        <div className="flex items-center gap-3 border border-accent/40 bg-accent/10 px-4 py-3">
+          <Sparkles className="h-4 w-4 shrink-0 text-accent" />
+          <div className="flex-1 text-sm">
+            <span className="font-medium text-foreground">
+              You're {blueprint.archetype}
+            </span>
+            <span className="ml-2 text-muted-foreground">
+              — your Blueprint is shaping your matches.
+            </span>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <Link href="/assessment">View results</Link>
+          </Button>
+        </div>
+      )}
+
       {/* ── Top Section ──────────────────────────────────────────── */}
       <DashboardHeader profile={profile} userEmail={userEmail} />
 
@@ -84,7 +104,11 @@ export function DashboardClient({
       {/* ── 3-column cards grid ────────────────────────────────────── */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <ResumeCard resumes={resumes} />
-        <ProfileStrengthCard profile={profile} resumes={resumes} />
+        <ProfileStrengthCard
+          profile={profile}
+          resumes={resumes}
+          blueprint={blueprint}
+        />
         <JobBoardTeaser profile={profile} activeJobCount={activeJobCount} />
       </div>
 

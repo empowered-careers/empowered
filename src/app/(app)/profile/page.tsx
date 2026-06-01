@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { ProfileClient } from "@/components/profile/profile-client";
+import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
+import type { BlueprintResult } from "@/lib/assessment/types";
 import { createClient } from "@/lib/supabase/server";
 import type { CandidatePreferencesRow } from "@/types/db";
 
@@ -17,7 +19,7 @@ export default async function ProfilePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [profileResult, prefsResult] = await Promise.all([
+  const [profileResult, prefsResult, blueprintResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, full_name, email, phone, linkedin_url")
@@ -28,11 +30,24 @@ export default async function ProfilePage() {
       .select("*")
       .eq("profile_id", user.id)
       .maybeSingle(),
+    supabase
+      .from("assessment_responses")
+      .select("archetype, completed_at, result")
+      .eq("profile_id", user.id)
+      .eq("assessment_id", BLUEPRINT_ASSESSMENT_ID)
+      .maybeSingle(),
   ]);
 
   const profile = profileResult.data;
   const preferences = (prefsResult.data ??
     null) as CandidatePreferencesRow | null;
+  const blueprint = blueprintResult.data
+    ? {
+        archetype: blueprintResult.data.archetype,
+        completed_at: blueprintResult.data.completed_at,
+        result: (blueprintResult.data.result as BlueprintResult | null) ?? null,
+      }
+    : null;
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">
@@ -54,6 +69,7 @@ export default async function ProfilePage() {
           linkedin_url: profile?.linkedin_url ?? null,
         }}
         preferences={preferences}
+        blueprint={blueprint}
       />
     </div>
   );

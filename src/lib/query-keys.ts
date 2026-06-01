@@ -48,6 +48,12 @@ export const queryKeys = {
     detail: (userId: string) => ["preferences", "detail", userId] as const,
   },
 
+  // Assessment results (Career Identity Blueprint + future assessments)
+  assessment: {
+    all: ["assessment"] as const,
+    blueprint: (userId: string) => ["assessment", "blueprint", userId] as const,
+  },
+
   // Applications (candidate pipeline)
   applications: {
     forUser: (userId: string) => ["applications", "forUser", userId] as const,

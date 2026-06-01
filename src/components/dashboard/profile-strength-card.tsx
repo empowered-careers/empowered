@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type {
+  DashboardBlueprint,
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
@@ -34,6 +35,7 @@ import { getProfileStrength } from "@/hooks/use-dashboard-data";
 interface ProfileStrengthCardProps {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
+  blueprint?: DashboardBlueprint | null;
 }
 
 type StepStatus = "complete" | "incomplete";
@@ -48,7 +50,8 @@ interface Step {
 
 function buildSteps(
   profile: DashboardProfile | null,
-  resumes: DashboardResume[]
+  resumes: DashboardResume[],
+  hasBlueprint: boolean
 ): Step[] {
   const hasResume = resumes.length > 0;
   const hasResumeScore = resumes.some((r) => r.resume_score !== null);
@@ -92,6 +95,14 @@ function buildSteps(
       action: profile?.onboarding_completed_at ? undefined : { label: "Start" },
     },
     {
+      id: "step-blueprint",
+      label: "Discover your Career Identity Blueprint",
+      description:
+        "30-question scan — archetype, leadership style, and best company fit",
+      status: hasBlueprint ? "complete" : "incomplete",
+      action: hasBlueprint ? undefined : { label: "Start" },
+    },
+    {
       id: "step-subscription",
       label: "Activate membership",
       description: "Access exclusive job matches",
@@ -104,6 +115,7 @@ function buildSteps(
 export function ProfileStrengthCard({
   profile,
   resumes,
+  blueprint,
 }: ProfileStrengthCardProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -115,8 +127,13 @@ export function ProfileStrengthCard({
   );
   const [isSavingLinkedin, startLinkedinTransition] = useTransition();
 
-  const { completed, total, percentage } = getProfileStrength(profile, resumes);
-  const steps = buildSteps(profile, resumes);
+  const hasBlueprint = !!blueprint;
+  const { completed, total, percentage } = getProfileStrength(
+    profile,
+    resumes,
+    hasBlueprint
+  );
+  const steps = buildSteps(profile, resumes, hasBlueprint);
 
   const strengthLabel =
     percentage >= 80
@@ -259,7 +276,9 @@ export function ProfileStrengthCard({
                         ? openLinkedinDialog
                         : step.id === "step-preferences"
                           ? () => router.push("/onboarding/preferences")
-                          : undefined
+                          : step.id === "step-blueprint"
+                            ? () => router.push("/assessment")
+                            : undefined
                     }
                     type="button"
                   >
