@@ -186,7 +186,7 @@
   h5,
   h6 {
     font-family: var(--font-display), Georgia, serif;
-    color: oklch(0.12 0 0); /* #111111 */
+    color: var(--foreground); /* theme-aware; inherit via text-* utilities */
     font-weight: 600;
     letter-spacing: -0.01em;
   }

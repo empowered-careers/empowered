@@ -1,5 +1,6 @@
 "use client";
 
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +48,12 @@ export function Navbar() {
             How It Works
           </Link>
           <Link
+            href="/events"
+            className="text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+          >
+            Events
+          </Link>
+          <Link
             href="#pricing"
             className="text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
           >
@@ -67,29 +75,66 @@ export function Navbar() {
           </Button>
         </div>
 
-        {/* Mobile Menu Button (simplified for now) */}
+        {/* Mobile Menu Button */}
         <button
           type="button"
           className="flex size-10 items-center justify-center text-foreground md:hidden"
-          aria-label="Open menu"
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMenuOpen}
+          onClick={() => setIsMenuOpen((open) => !open)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="square"
-            strokeLinejoin="inherit"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {isMenuOpen && (
+        <div className="border-t border-border bg-background md:hidden">
+          <div className="container mx-auto flex flex-col gap-1 px-4 py-4">
+            <Link
+              href="#how-it-works"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+            >
+              How It Works
+            </Link>
+            <Link
+              href="/events"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+            >
+              Events
+            </Link>
+            <Link
+              href="#pricing"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+            >
+              Log In
+            </Link>
+            <Button
+              variant="lime"
+              size="lg"
+              asChild
+              className="mt-2 h-11 px-6 font-bold"
+            >
+              <Link
+                href="/login?tab=signup"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -34,7 +34,7 @@ export function BlueprintSummarySection({
             </div>
           </div>
           <Button asChild size="sm">
-            <Link href="/assessment">Start</Link>
+            <Link href="/assessments/ci-blueprint">Start</Link>
           </Button>
         </div>
       </section>
@@ -60,7 +60,7 @@ export function BlueprintSummarySection({
           </p>
         </div>
         <Button asChild size="sm" variant="outline">
-          <Link href="/assessment">View / Retake</Link>
+          <Link href="/assessments/ci-blueprint">View / Retake</Link>
         </Button>
       </div>
     </section>

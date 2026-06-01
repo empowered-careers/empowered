@@ -16,14 +16,21 @@ type Step = "welcome" | "runner" | "loading" | "results";
 
 interface AssessmentClientProps {
   initialResult: BlueprintResult | null;
+  initialCompletedAt: string | null;
 }
 
-export function AssessmentClient({ initialResult }: AssessmentClientProps) {
+export function AssessmentClient({
+  initialResult,
+  initialCompletedAt,
+}: AssessmentClientProps) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(initialResult ? "results" : "welcome");
   const [answers, setAnswers] = useState<Answers>({});
   const [currentQ, setCurrentQ] = useState(0);
   const [result, setResult] = useState<BlueprintResult | null>(initialResult);
+  const [completedAt, setCompletedAt] = useState<string | null>(
+    initialCompletedAt
+  );
   const [pending, startTransition] = useTransition();
 
   const start = () => {
@@ -59,6 +66,7 @@ export function AssessmentClient({ initialResult }: AssessmentClientProps) {
         return;
       }
       setResult(res.result);
+      setCompletedAt(new Date().toISOString());
       setStep("results");
       router.refresh();
     });
@@ -78,7 +86,13 @@ export function AssessmentClient({ initialResult }: AssessmentClientProps) {
     );
   if (step === "loading") return <BlueprintLoading />;
   if (step === "results" && result)
-    return <BlueprintResults result={result} onRetake={start} />;
+    return (
+      <BlueprintResults
+        result={result}
+        completedAt={completedAt}
+        onRetake={start}
+      />
+    );
   // Fallback: results step without a result (shouldn't happen)
   return <BlueprintWelcome onStart={start} />;
 }

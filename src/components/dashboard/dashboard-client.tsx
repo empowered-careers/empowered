@@ -85,7 +85,7 @@ export function DashboardClient({
             </span>
           </div>
           <Button asChild size="sm" variant="outline">
-            <Link href="/assessment">View results</Link>
+            <Link href="/assessments/ci-blueprint">View results</Link>
           </Button>
         </div>
       )}

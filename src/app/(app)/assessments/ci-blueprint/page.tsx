@@ -27,10 +27,14 @@ export default async function AssessmentPage() {
 
   const initialResult =
     (data?.result as BlueprintResult | null | undefined) ?? null;
+  const initialCompletedAt = data?.completed_at ?? null;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
-      <AssessmentClient initialResult={initialResult} />
+      <AssessmentClient
+        initialResult={initialResult}
+        initialCompletedAt={initialCompletedAt}
+      />
     </div>
   );
 }

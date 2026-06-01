@@ -1,8 +1,11 @@
 # Career Identity Blueprint™ — In-App Integration Plan
 
-> Status: Planned (approved). Implementation pending.
+> Status: **Shipped 2026-06-02.** Original plan kept verbatim; see
+> **§11 Implementation Notes** for deltas (route path, 5-archetype model lock,
+> burnout meter source, CTA copy, etc.).
 > Scope: Deliverable 1 — the authenticated, in-app assessment for signed-up candidates.
-> Companion: `docs/career-blueprint-lead-magnet.md` (future public funnel — do not build yet).
+> Companion: `docs/deferred/career-blueprint-lead-magnet.md` (future public funnel — do not build yet).
+> Companion (engineering explainer): `docs/career-blueprint-logic.html`.
 
 ---
 
@@ -293,7 +296,7 @@ plan-gated:
 
 ---
 
-## 9. Verification
+## 9. Verification (status: PASSED — see §11)
 
 - `npm run supabase:types` regenerates cleanly; `npm run type-check` + `npm run lint` pass.
 - `npm run dev`: sign in → dashboard shows the Blueprint profile-strength step incomplete →
@@ -310,3 +313,84 @@ plan-gated:
   Dashboard step now complete; archetype nudge appears; profile page shows archetype.
 - Overlap check: confirm `submitBlueprint` never writes `candidate_preferences` and the runner
   never re-asks role/seniority/industries/salary/skills.
+
+---
+
+## 10. Out of Scope (carried unchanged through ship)
+
+- LLM voice injection into `score-resume.ts` / `score-linkedin.ts` — `voiceProfile`
+  is persisted; consumer wiring is a fast-follow.
+- Company-culture matcher — `culture_axes` persisted in the matchable shape; no
+  similarity calc built yet.
+- Premium Deep Dive Intelligence™ suite (`assessment.md` §12–20) — the results
+  CTA is a placeholder ("Book a Coaching Session", disabled) pending the
+  coaching booking flow.
+- Public lead-magnet funnel — see `docs/deferred/career-blueprint-lead-magnet.md`.
+
+---
+
+## 11. Implementation Notes (post-ship deltas)
+
+Captures the small but real differences between this spec and what was shipped,
+so anyone reading from the archive doesn't trip on stale references.
+
+### Routes
+
+- **Spec said** `src/app/(app)/assessment/page.tsx`.
+  **Shipped as** `src/app/(app)/assessments/ci-blueprint/page.tsx` after an
+  index page was added at `/assessments` (six cards — Blueprint live, five
+  "coming soon" placeholders for Role Clarity / Values & Environment / Strengths /
+  Leadership Style / Big Wins). The index was a small additive scope decision
+  made after Blueprint shipped; subroutes leave room for the future five.
+- Sidebar: `Assessments` parent links to `/assessments`; `Career Identity Blueprint`
+  is a nested child at `/assessments/ci-blueprint`. The `SidebarItem` type was
+  extended with `children?: SidebarItem[]` to support this.
+
+### Migration
+
+- Filename: `supabase/migrations/20260602000000_blueprint_assessment_seed.sql`.
+- `BLUEPRINT_ASSESSMENT_ID = 'c1b2e3f4-5a6b-4c8d-9e0f-a1b2c3d4e5f6'` —
+  hardcoded in both the migration and `src/lib/assessment/constants.ts`.
+
+### Locked design decisions (carried from kickoff Q&A)
+
+- **5 archetypes**, one per `LeadershipStyle`. Spec's 6-archetype prototype-parity
+  option dropped; people-led and mission-led "Purpose-Driven Catalyst" collapsed
+  to a single `empowerment` archetype.
+- **Axis-derived symmetry bars** (Purpose=`culture_values.purpose`,
+  Energy=`100 − burnout_risk·10`, Leadership=`ls_<winner>` strength, etc.). No
+  prototype heuristics retained.
+- **Banded burnout meter** from raw `burnout_risk` count (`<2` low → 22%, `2–4`
+  moderate → 48%, `≥5` elevated → 78%) — matches the prototype display.
+  `pace_sustainability` is persisted for the matcher but is **not** the meter's
+  display source. (See `docs/career-blueprint-logic.html` §05 for the correct
+  derivation table — that doc was patched post-build.)
+- **Lucide section icons** (Zap / Crown / Building2 / BatteryCharging /
+  MessageSquare / Rocket); prototype emojis stripped.
+- **Retake** gated by a confirm `Dialog` (no history kept).
+- **Axis coefficients**: `clamp(50 + 10·(positivePole − negativePole), 0, 100)`
+  for continuous trait/preference axes. `pace_sustainability` uses
+  `clamp(50 + 10·sustainability − 10·intensity + 8·burnout_risk, 0, 100)`.
+  Pre-flight sanity-checked against two synthetic profiles (all-startup vision
+  builder; enterprise people-leader); first-pass values to retune after real
+  user data.
+- **Results CTA**: "Book a Coaching Session" (disabled placeholder), not
+  "Unlock Deep Dive Intelligence™" — pending coaching booking flow.
+
+### Incidental finds during QA (worth knowing)
+
+- `src/app/globals.css` had `h1–h6 { color: oklch(0.12 0 0) }` hardcoded — any
+  heading on a dark surface (e.g. results hero `bg-foreground`) became invisible
+  in light mode. Loosened to `color: var(--foreground)` so headings inherit
+  parent `text-*` utilities correctly. Flag for any future component placing a
+  heading on `bg-foreground` / `bg-primary`.
+- The theme's `--accent` is lime (`#CCFF00`). `text-accent` on a light tinted
+  background is unreadable — for chips/tags use solid
+  `bg-accent text-accent-foreground`, not `bg-accent/10 text-accent`.
+
+### Fast-follows still open
+
+- Resume + LinkedIn `voiceProfile` injection (§7.5 A).
+- Company-culture matcher (§7.5 B).
+- Coaching booking flow → activates the results-page CTA.
+- Tune axis coefficients after first ~20 real candidates complete the Blueprint.

@@ -51,11 +51,12 @@ export const sidebarConfig: Record<string, SidebarSection[]> = {
         {
           icon: List,
           label: "Assessments",
+          href: "/assessments",
           children: [
             {
               icon: Compass,
               label: "Career Identity Blueprint",
-              href: "/assessment",
+              href: "/assessments/ci-blueprint",
             },
           ],
         },
@@ -136,8 +137,8 @@ export const topNavTabs: { key: string; label: string; href: string }[] = [
 ];
 
 export function resolveTabKey(pathname: string): string {
-  // Resume + LinkedIn + Profile + Onboarding + Assessment live under the
-  // Dashboard tab.
+  // Resume + LinkedIn + Profile + Onboarding + Assessments live under the
+  // Dashboard tab. /assessments (plural index) is matched by /assessment prefix.
   if (
     pathname.startsWith("/resume") ||
     pathname.startsWith("/linkedin") ||

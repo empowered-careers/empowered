@@ -277,7 +277,7 @@ export function ProfileStrengthCard({
                         : step.id === "step-preferences"
                           ? () => router.push("/onboarding/preferences")
                           : step.id === "step-blueprint"
-                            ? () => router.push("/assessment")
+                            ? () => router.push("/assessments/ci-blueprint")
                             : undefined
                     }
                     type="button"

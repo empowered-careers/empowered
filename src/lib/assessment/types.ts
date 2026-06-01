@@ -2,7 +2,7 @@
  * Career Identity Blueprint — typed shapes for the runner, scoring engine, and
  * persisted display blob.
  *
- * The canonical axis taxonomy (§2.5 of docs/career-blueprint-integration.md) is
+ * The canonical axis taxonomy (§2.5 of docs/done/career-blueprint-integration.md) is
  * the single source of truth: questions vote into AxisWeights, computeAxes
  * normalises to CultureAxes, scoreBlueprint derives BlueprintResult from axes.
  */

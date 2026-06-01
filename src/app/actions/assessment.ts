@@ -100,7 +100,8 @@ export async function submitBlueprint(
 
   revalidatePath("/dashboard");
   revalidatePath("/profile");
-  revalidatePath("/assessment");
+  revalidatePath("/assessments");
+  revalidatePath("/assessments/ci-blueprint");
 
   return { ok: true, result };
 }

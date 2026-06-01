@@ -27,19 +27,41 @@ import { cn } from "@/lib/utils";
 
 interface BlueprintResultsProps {
   result: BlueprintResult;
+  completedAt: string | null;
   onRetake: () => void;
 }
 
-export function BlueprintResults({ result, onRetake }: BlueprintResultsProps) {
+function formatCompletedAt(iso: string | null): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+export function BlueprintResults({
+  result,
+  completedAt,
+  onRetake,
+}: BlueprintResultsProps) {
   const [retakeOpen, setRetakeOpen] = useState(false);
+  const completedLabel = formatCompletedAt(completedAt);
   return (
     <div className="space-y-6">
       {/* Hero */}
       <section className="bg-foreground p-8 text-background sm:p-10">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-background/60">
-          Your Career Archetype
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-background/60">
+            Your Career Archetype
+          </p>
+          {completedLabel && (
+            <p className="text-xs text-background/60">Taken {completedLabel}</p>
+          )}
+        </div>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-background sm:text-4xl">
           {result.archetype.name}
         </h1>
         <p className="mt-3 max-w-2xl text-sm text-background/80 sm:text-base">
@@ -130,12 +152,12 @@ export function BlueprintResults({ result, onRetake }: BlueprintResultsProps) {
       {/* CTA band */}
       <section className="flex flex-col items-start gap-4 bg-foreground p-6 text-background sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="font-display text-lg font-semibold">
+          <h3 className="font-display text-lg font-semibold text-background">
             Want to go deeper?
           </h3>
           <p className="text-sm text-background/70">
-            Unlock the Deep Dive Intelligence™ suite — personalised coaching and
-            executive-search alignment from our team.
+            Work 1:1 with a coach to translate your Blueprint into a targeted
+            search and resume.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -147,8 +169,8 @@ export function BlueprintResults({ result, onRetake }: BlueprintResultsProps) {
             <RefreshCw className="mr-2 h-4 w-4" />
             Retake
           </Button>
-          <Button asChild>
-            <a href="/dashboard">Unlock Deep Dive Intelligence™ →</a>
+          <Button disabled aria-disabled="true">
+            Book a Coaching Session →
           </Button>
         </div>
       </section>
@@ -215,7 +237,7 @@ function TagRow({
 }) {
   const cls = {
     navy: "bg-foreground/5 text-foreground",
-    gold: "bg-accent/10 text-accent",
+    gold: "bg-accent text-accent-foreground",
     green: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     red: "bg-rose-500/10 text-rose-700 dark:text-rose-400",
   }[tone];

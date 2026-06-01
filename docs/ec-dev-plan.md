@@ -245,7 +245,7 @@ Some scope already landed in S2 via the job-board + pipeline plans. Remaining S4
 > scan that, for Phase 1, populates all five `candidate_scores` dimensions in a single run.
 > It is the first of a planned assessment suite, not a replacement for the dimension-specific
 > assessments (which stay on the roadmap). Tier 2 stays **plan-gated** rather than
-> assessment-gated. See [`docs/career-blueprint-integration.md`](./career-blueprint-integration.md)
+> assessment-gated. See [`docs/done/career-blueprint-integration.md`](./done/career-blueprint-integration.md)
 > for the approved scope; the checklist below predates that pivot.
 
 **Goal:** profile depth that improves matches and drives upsells.
