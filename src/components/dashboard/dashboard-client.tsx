@@ -3,13 +3,16 @@
 import { AlertCircle, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { JobBoardTeaser } from "@/components/dashboard/job-board-teaser";
-import { ProfileStrengthCard } from "@/components/dashboard/profile-strength-card";
+import { NudgesGrid } from "@/components/dashboard/nudges-grid";
+import { ProfileStrengthHero } from "@/components/dashboard/profile-strength-card";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { ResumeCard } from "@/components/dashboard/resume-card";
+import { StatCard } from "@/components/dashboard/stat-card";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import type {
@@ -17,6 +20,10 @@ import type {
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
+import {
+  computeNudges,
+  type InterviewingApplication,
+} from "@/lib/dashboard/nudges";
 
 export interface DashboardClientProps {
   profile: DashboardProfile | null;
@@ -24,6 +31,7 @@ export interface DashboardClientProps {
   activeJobCount: number;
   userEmail: string;
   blueprint: DashboardBlueprint | null;
+  interviewingApplication: InterviewingApplication | null;
 }
 
 function scrollToResumeHub() {
@@ -38,6 +46,7 @@ export function DashboardClient({
   activeJobCount,
   userEmail,
   blueprint,
+  interviewingApplication,
 }: DashboardClientProps) {
   const { signOut } = useAuth();
   const router = useRouter();
@@ -53,6 +62,27 @@ export function DashboardClient({
   };
 
   const onboardingPending = profile && !profile.onboarding_completed_at;
+
+  const nudges = useMemo(
+    () =>
+      computeNudges({
+        profile,
+        resumes,
+        blueprint,
+        activeJobCount,
+        interviewingApplication,
+      }),
+    [profile, resumes, blueprint, activeJobCount, interviewingApplication]
+  );
+
+  const latestResumeScore = resumes[0]?.resume_score ?? null;
+  const hasResume = resumes.length > 0;
+  const resumeScoreSub =
+    latestResumeScore === null
+      ? "Awaiting score"
+      : latestResumeScore >= 80
+        ? "Strong. Top quartile."
+        : "Keep iterating.";
 
   return (
     <div className="mx-auto max-w-6xl space-y-7 py-4">
@@ -90,10 +120,8 @@ export function DashboardClient({
         </div>
       )}
 
-      {/* ── Top Section ──────────────────────────────────────────── */}
+      {/* ── Header + Quick CTA ─────────────────────────────────────── */}
       <DashboardHeader profile={profile} userEmail={userEmail} />
-
-      {/* ── Quick CTA bar ──────────────────────────────────────────── */}
       <QuickActions
         profile={profile}
         resumes={resumes}
@@ -101,14 +129,37 @@ export function DashboardClient({
         onUploadResume={scrollToResumeHub}
       />
 
-      {/* ── 3-column cards grid ────────────────────────────────────── */}
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {/* ── Row 1: hero + stats ────────────────────────────────────── */}
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ProfileStrengthHero
+            profile={profile}
+            resumes={resumes}
+            blueprint={blueprint}
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <StatCard
+            title="Active matches"
+            value={activeJobCount}
+            sub="active this week"
+          />
+          {hasResume && (
+            <StatCard
+              title="Resume score"
+              value={latestResumeScore ?? "—"}
+              sub={resumeScoreSub}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* ── Row 2: nudges ──────────────────────────────────────────── */}
+      <NudgesGrid nudges={nudges} />
+
+      {/* ── Row 3: resume + job board ──────────────────────────────── */}
+      <div className="grid gap-5 md:grid-cols-2">
         <ResumeCard resumes={resumes} />
-        <ProfileStrengthCard
-          profile={profile}
-          resumes={resumes}
-          blueprint={blueprint}
-        />
         <JobBoardTeaser profile={profile} activeJobCount={activeJobCount} />
       </div>
 

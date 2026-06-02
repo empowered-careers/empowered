@@ -1,15 +1,23 @@
 "use client";
 
 import {
-  BarChart3,
-  CheckCircle2,
-  Circle,
-  ExternalLink,
+  ArrowRight,
+  ClipboardList,
+  FileText,
   Linkedin,
+  Sparkles,
+  Star,
   User,
+  UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useId, useState, useTransition } from "react";
+import {
+  type ComponentType,
+  type FormEvent,
+  useId,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 
 import { updateLinkedInUrl } from "@/app/actions/profile";
@@ -31,92 +39,39 @@ import type {
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
 import { getProfileStrength } from "@/hooks/use-dashboard-data";
+import {
+  buildProfileSteps,
+  type ProfileStep,
+  type ProfileStepId,
+} from "@/lib/dashboard/steps";
 
-interface ProfileStrengthCardProps {
+interface ProfileStrengthHeroProps {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
   blueprint?: DashboardBlueprint | null;
 }
 
-type StepStatus = "complete" | "incomplete";
+const STEP_ICONS: Record<
+  ProfileStepId,
+  ComponentType<{ className?: string }>
+> = {
+  "step-name": User,
+  "step-linkedin": Linkedin,
+  "step-resume": FileText,
+  "step-resume-score": Star,
+  "step-preferences": ClipboardList,
+  "step-blueprint": Sparkles,
+  "step-subscription": UserCheck,
+};
 
-interface Step {
-  id: string;
-  label: string;
-  description: string;
-  status: StepStatus;
-  action?: { label: string; href?: string; onClick?: () => void };
-}
+const RING_RADIUS = 42;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-function buildSteps(
-  profile: DashboardProfile | null,
-  resumes: DashboardResume[],
-  hasBlueprint: boolean
-): Step[] {
-  const hasResume = resumes.length > 0;
-  const hasResumeScore = resumes.some((r) => r.resume_score !== null);
-
-  return [
-    {
-      id: "step-name",
-      label: "Complete your profile",
-      description: "Add your full name and contact details",
-      status: profile?.full_name ? "complete" : "incomplete",
-    },
-    {
-      id: "step-linkedin",
-      label: "Add LinkedIn profile",
-      description: "Unlock LinkedIn profile scoring",
-      status: profile?.linkedin_url ? "complete" : "incomplete",
-      action: profile?.linkedin_url
-        ? {
-            label: "View",
-            href: profile.linkedin_url,
-          }
-        : { label: "Add URL" },
-    },
-    {
-      id: "step-resume",
-      label: "Upload resume",
-      description: "Required for resume scoring and job matching",
-      status: hasResume ? "complete" : "incomplete",
-    },
-    {
-      id: "step-resume-score",
-      label: "Get Resume score",
-      description: "Understand how recruiters see your resume",
-      status: hasResumeScore ? "complete" : "incomplete",
-    },
-    {
-      id: "step-preferences",
-      label: "Job preferences",
-      description: "Tell us what you're looking for",
-      status: profile?.onboarding_completed_at ? "complete" : "incomplete",
-      action: profile?.onboarding_completed_at ? undefined : { label: "Start" },
-    },
-    {
-      id: "step-blueprint",
-      label: "Discover your Career Identity Blueprint",
-      description:
-        "30-question scan — archetype, leadership style, and best company fit",
-      status: hasBlueprint ? "complete" : "incomplete",
-      action: hasBlueprint ? undefined : { label: "Start" },
-    },
-    {
-      id: "step-subscription",
-      label: "Activate membership",
-      description: "Access exclusive job matches",
-      status:
-        profile?.subscription_status === "active" ? "complete" : "incomplete",
-    },
-  ];
-}
-
-export function ProfileStrengthCard({
+export function ProfileStrengthHero({
   profile,
   resumes,
   blueprint,
-}: ProfileStrengthCardProps) {
+}: ProfileStrengthHeroProps) {
   const router = useRouter();
   const { user } = useAuth();
   const formId = useId();
@@ -128,35 +83,27 @@ export function ProfileStrengthCard({
   const [isSavingLinkedin, startLinkedinTransition] = useTransition();
 
   const hasBlueprint = !!blueprint;
-  const { completed, total, percentage } = getProfileStrength(
-    profile,
-    resumes,
-    hasBlueprint
-  );
-  const steps = buildSteps(profile, resumes, hasBlueprint);
+  const { percentage } = getProfileStrength(profile, resumes, hasBlueprint);
+  const steps = buildProfileSteps(profile, resumes, hasBlueprint);
+  const nextActions = steps.filter((s) => !s.complete).slice(0, 3);
 
-  const strengthLabel =
-    percentage >= 80
-      ? "Strong"
-      : percentage >= 60
-        ? "Good"
-        : percentage >= 40
-          ? "Fair"
-          : "Getting started";
-
-  const barColor =
-    percentage >= 80
-      ? "bg-emerald-500"
-      : percentage >= 60
-        ? "bg-accent"
-        : percentage >= 40
-          ? "bg-yellow-500"
-          : "bg-muted-foreground";
+  const strokeDashoffset =
+    RING_CIRCUMFERENCE * (1 - Math.min(Math.max(percentage, 0), 100) / 100);
 
   const openLinkedinDialog = () => {
     setLinkedinFormError(null);
     setLinkedinUrlInput(profile?.linkedin_url ?? "");
     setLinkedinDialogOpen(true);
+  };
+
+  const handleStepClick = (step: ProfileStep) => {
+    if (step.id === "step-linkedin") {
+      openLinkedinDialog();
+      return;
+    }
+    if (step.href) {
+      router.push(step.href);
+    }
   };
 
   const handleLinkedinSubmit = (e: FormEvent) => {
@@ -177,207 +124,166 @@ export function ProfileStrengthCard({
 
   return (
     <div className="flex flex-col border border-border bg-card">
-      {/* Header */}
-      <div className="flex items-center gap-2 border-b border-border px-5 py-4">
-        <BarChart3 className="h-4 w-4 text-muted-foreground" />
-        <h2 className="font-display text-lg font-semibold text-foreground">
-          Profile Strength
-        </h2>
-      </div>
+      <div className="flex-1 p-6">
+        <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Profile completeness
+        </p>
 
-      {/* Body */}
-      <div className="flex flex-1 flex-col p-5">
-        {/* Score summary */}
-        <div className="mb-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">
-              {strengthLabel}
-            </span>
-            <span className="text-xs font-semibold text-muted-foreground">
-              {completed} of {total} steps
-            </span>
-          </div>
-          {/* Progress bar */}
-          <div className="h-1.5 w-full overflow-hidden bg-muted">
+        <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-[auto_1fr]">
+          {/* Ring */}
+          <div className="relative h-24 w-24">
+            <svg
+              className="h-24 w-24 -rotate-90"
+              viewBox="0 0 96 96"
+              aria-hidden
+            >
+              <circle
+                cx="48"
+                cy="48"
+                r={RING_RADIUS}
+                fill="none"
+                stroke="var(--border)"
+                strokeWidth="6"
+              />
+              <circle
+                cx="48"
+                cy="48"
+                r={RING_RADIUS}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth="6"
+                strokeDasharray={RING_CIRCUMFERENCE}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                style={{ transition: "stroke-dashoffset 700ms ease" }}
+              />
+            </svg>
             <div
-              id="profile-strength-bar"
-              className={`h-full transition-all duration-700 ${barColor}`}
-              style={{ width: `${percentage}%` }}
+              className="absolute inset-0 flex items-center justify-center font-display text-3xl font-medium text-foreground"
               role="progressbar"
               aria-valuenow={percentage}
               aria-valuemin={0}
               aria-valuemax={100}
-            />
-          </div>
-          {/* Score chips */}
-          {profile?.linkedin_url && (
-            <div className="flex gap-2 pt-1">
-              <div className="flex items-center gap-1 border border-border bg-muted px-2 py-1">
-                <Linkedin className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  LinkedIn connected
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Steps */}
-        <ul className="space-y-3">
-          {steps.map((step) => (
-            <li
-              key={step.id}
-              id={step.id}
-              className="flex items-start justify-between gap-2"
             >
-              <div className="flex items-start gap-2.5">
-                {step.status === "complete" ? (
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                ) : (
-                  <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/40" />
-                )}
-                <div>
-                  <p
-                    className={`text-sm font-medium ${
-                      step.status === "complete"
-                        ? "text-muted-foreground line-through"
-                        : "text-foreground"
-                    }`}
-                  >
-                    {step.label}
-                  </p>
-                  {step.status === "incomplete" && (
-                    <p className="text-xs text-muted-foreground">
-                      {step.description}
-                    </p>
-                  )}
-                </div>
+              {percentage}
+            </div>
+          </div>
+
+          {/* Next actions */}
+          <div className="flex flex-col gap-2">
+            {nextActions.length === 0 ? (
+              <div className="flex h-full items-center text-sm text-muted-foreground">
+                Profile complete. New nudges will appear here as roles unlock.
               </div>
-              {step.action &&
-                step.status === "incomplete" &&
-                (step.action.href ? (
-                  <a
-                    href={step.action.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex shrink-0 items-center gap-1 text-xs font-medium text-primary underline-offset-2 hover:underline"
-                  >
-                    {step.action.label}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 shrink-0 px-2 text-xs font-medium text-primary hover:bg-muted"
-                    id="btn-add-linkedin-url"
-                    onClick={
-                      step.id === "step-linkedin"
-                        ? openLinkedinDialog
-                        : step.id === "step-preferences"
-                          ? () => router.push("/onboarding/preferences")
-                          : step.id === "step-blueprint"
-                            ? () => router.push("/assessments/ci-blueprint")
-                            : undefined
-                    }
+            ) : (
+              nextActions.map((step) => {
+                const Icon = STEP_ICONS[step.id];
+                return (
+                  <button
+                    key={step.id}
                     type="button"
+                    id={`hero-${step.id}`}
+                    onClick={() => handleStepClick(step)}
+                    className="group flex items-center gap-3 border border-border bg-background px-3 py-2.5 text-left transition-colors hover:border-accent"
                   >
-                    {step.action.label}
-                  </Button>
-                ))}
-            </li>
-          ))}
-        </ul>
-
-        <Dialog
-          onOpenChange={(open) => {
-            setLinkedinDialogOpen(open);
-            if (!open) {
-              setLinkedinFormError(null);
-            }
-          }}
-          open={linkedinDialogOpen}
-        >
-          <DialogContent aria-describedby={`${formId}-linkedin-desc`}>
-            <DialogHeader>
-              <DialogTitle>Add LinkedIn profile URL</DialogTitle>
-              <DialogDescription id={`${formId}-linkedin-desc`}>
-                Paste your public profile link (e.g.{" "}
-                <span className="whitespace-nowrap font-mono text-xs">
-                  linkedin.com/in/your-handle
-                </span>
-                ).
-              </DialogDescription>
-            </DialogHeader>
-            <form className="space-y-3" onSubmit={handleLinkedinSubmit}>
-              <div className="space-y-2">
-                <label
-                  className="font-medium text-sm text-foreground"
-                  htmlFor={`${formId}-linkedin-url`}
-                >
-                  Profile URL
-                </label>
-                <Input
-                  autoComplete="url"
-                  className={
-                    linkedinFormError ? "border-destructive" : undefined
-                  }
-                  disabled={isSavingLinkedin}
-                  id={`${formId}-linkedin-url`}
-                  name="linkedin_url"
-                  onChange={(ev) => setLinkedinUrlInput(ev.target.value)}
-                  placeholder="https://www.linkedin.com/in/your-handle"
-                  type="url"
-                  value={linkedinUrlInput}
-                />
-                {linkedinFormError ? (
-                  <p className="text-destructive text-xs" role="alert">
-                    {linkedinFormError}
-                  </p>
-                ) : null}
-              </div>
-              <DialogFooter>
-                <Button
-                  disabled={isSavingLinkedin}
-                  onClick={() => setLinkedinDialogOpen(false)}
-                  type="button"
-                  variant="outline"
-                >
-                  Cancel
-                </Button>
-                <Button disabled={isSavingLinkedin} type="submit">
-                  {isSavingLinkedin ? "Saving…" : "Save"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        {/* Empty state: No LinkedIn */}
-        {!profile?.linkedin_url && (
-          <div className="mt-4 border border-dashed border-border bg-muted/40 p-3">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">
-                Add your LinkedIn URL above to unlock profile scoring
-              </p>
-            </div>
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center bg-accent/15 text-accent-foreground dark:text-accent">
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="flex-1 text-[13px] leading-snug">
+                      <span className="font-semibold text-foreground">
+                        {step.title}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {" · "}
+                        {step.unlocks}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
+                      +{step.points}
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                  </button>
+                );
+              })
+            )}
           </div>
-        )}
-
-        {/* LinkedIn PDF export upload — unlocks profile scoring */}
-        {profile?.linkedin_url && user?.id && (
-          <div className="mt-5 border-t border-border pt-4">
-            <div className="mb-2 flex items-center gap-2">
-              <Linkedin className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">
-                Score your LinkedIn profile
-              </h3>
-            </div>
-            <LinkedInPdfUpload userId={user.id} />
-          </div>
-        )}
+        </div>
       </div>
+
+      <Dialog
+        onOpenChange={(open) => {
+          setLinkedinDialogOpen(open);
+          if (!open) {
+            setLinkedinFormError(null);
+          }
+        }}
+        open={linkedinDialogOpen}
+      >
+        <DialogContent aria-describedby={`${formId}-linkedin-desc`}>
+          <DialogHeader>
+            <DialogTitle>Add LinkedIn profile URL</DialogTitle>
+            <DialogDescription id={`${formId}-linkedin-desc`}>
+              Paste your public profile link (e.g.{" "}
+              <span className="whitespace-nowrap font-mono text-xs">
+                linkedin.com/in/your-handle
+              </span>
+              ).
+            </DialogDescription>
+          </DialogHeader>
+          <form className="space-y-3" onSubmit={handleLinkedinSubmit}>
+            <div className="space-y-2">
+              <label
+                className="font-medium text-sm text-foreground"
+                htmlFor={`${formId}-linkedin-url`}
+              >
+                Profile URL
+              </label>
+              <Input
+                autoComplete="url"
+                className={linkedinFormError ? "border-destructive" : undefined}
+                disabled={isSavingLinkedin}
+                id={`${formId}-linkedin-url`}
+                name="linkedin_url"
+                onChange={(ev) => setLinkedinUrlInput(ev.target.value)}
+                placeholder="https://www.linkedin.com/in/your-handle"
+                type="url"
+                value={linkedinUrlInput}
+              />
+              {linkedinFormError ? (
+                <p className="text-destructive text-xs" role="alert">
+                  {linkedinFormError}
+                </p>
+              ) : null}
+            </div>
+            <DialogFooter>
+              <Button
+                disabled={isSavingLinkedin}
+                onClick={() => setLinkedinDialogOpen(false)}
+                type="button"
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button disabled={isSavingLinkedin} type="submit">
+                {isSavingLinkedin ? "Saving…" : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* LinkedIn PDF export upload — unlocks profile scoring */}
+      {profile?.linkedin_url && user?.id && (
+        <div className="border-t border-border px-6 py-5">
+          <div className="mb-2 flex items-center gap-2">
+            <Linkedin className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">
+              Score your LinkedIn profile
+            </h3>
+          </div>
+          <LinkedInPdfUpload userId={user.id} />
+        </div>
+      )}
     </div>
   );
 }
