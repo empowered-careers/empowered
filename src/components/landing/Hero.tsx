@@ -19,8 +19,7 @@ export function Hero() {
       <div className="container relative z-10 mx-auto px-4">
         <div className="max-w-4xl">
           <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight text-foreground mb-8">
-            Access Exclusive Tech Roles <br className="hidden md:block" />
-            That Never Hit Job Boards
+            GT IS COOL
           </h1>
 
           <p className="font-sans text-xl md:text-2xl text-foreground/60 max-w-2xl mb-12 leading-relaxed">
