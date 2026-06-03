@@ -115,14 +115,16 @@ Assessment definitions (question banks).
 
 Candidate responses to an assessment.
 
-| column        | type          |
-| ------------- | ------------- |
-| id            | uuid (PK)     |
-| profile_id    | → profiles    |
-| assessment_id | → assessments |
-| responses     | jsonb         |
-| score         | int           |
-| completed_at  | timestamptz   |
+| column        | type                                                         |
+| ------------- | ------------------------------------------------------------ |
+| id            | uuid (PK)                                                    |
+| profile_id    | → profiles                                                   |
+| assessment_id | → assessments                                                |
+| responses     | jsonb                                                        |
+| score         | int                                                          |
+| archetype     | text — denormalized archetype name for display / admin lists |
+| result        | jsonb — full computed Blueprint display blob                 |
+| completed_at  | timestamptz                                                  |
 
 ---
 
@@ -133,21 +135,24 @@ Computed dimension scores per candidate. One row per profile.
 Phase 1 uses 5 dimensions: `role_clarity_score`, `values_score`, `strengths_score`,
 `leadership_score`, `impact_score`. `mindset_score` and `communication_score` are
 retained for Phase 2 expanded assessments (see Sprint P2-5 in `ec-dev-plan.md`)
-and should be left null by Phase 1 code.
+and should be left null by Phase 1 code. `culture_axes` stores normalized 0–100
+preference and trait axes from the Career Identity Blueprint (written on Blueprint
+completion; read by matching and future company-fit queries).
 
-| column              | type                | phase |
-| ------------------- | ------------------- | ----- |
-| id                  | uuid (PK)           | —     |
-| profile_id          | → profiles (unique) | —     |
-| role_clarity_score  | int                 | P1    |
-| values_score        | int                 | P1    |
-| strengths_score     | int                 | P1    |
-| leadership_score    | int                 | P1    |
-| impact_score        | int                 | P1    |
-| overall_score       | int                 | P1    |
-| mindset_score       | int                 | P2    |
-| communication_score | int                 | P2    |
-| updated_at          | timestamptz         | —     |
+| column              | type                                                          | phase |
+| ------------------- | ------------------------------------------------------------- | ----- |
+| id                  | uuid (PK)                                                     | —     |
+| profile_id          | → profiles (unique)                                           | —     |
+| role_clarity_score  | int                                                           | P1    |
+| values_score        | int                                                           | P1    |
+| strengths_score     | int                                                           | P1    |
+| leadership_score    | int                                                           | P1    |
+| impact_score        | int                                                           | P1    |
+| overall_score       | int                                                           | P1    |
+| mindset_score       | int                                                           | P2    |
+| communication_score | int                                                           | P2    |
+| culture_axes        | jsonb — Blueprint axes (0–100), keyed by canonical axis names | —     |
+| updated_at          | timestamptz                                                   | —     |
 
 ---
 

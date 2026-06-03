@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -148,6 +149,20 @@ export default async function EventLandingPage({
           {formatEventDateLong(event.scheduled_at)} · {event.duration_min} min
         </p>
       </header>
+
+      {event.cover_image_url && (
+        <div className="relative mt-8 aspect-[16/9] overflow-hidden border border-border bg-muted">
+          <Image
+            src={event.cover_image_url}
+            alt={event.title}
+            fill
+            sizes="(min-width: 768px) 768px, 100vw"
+            className="object-cover"
+            priority
+            unoptimized
+          />
+        </div>
+      )}
 
       <section className="mt-10 grid gap-10 md:grid-cols-[1fr_320px]">
         <div className="space-y-6">
