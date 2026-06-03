@@ -18,7 +18,8 @@
       "Bash(awk -F: '/^\\\\s{6}[a-z_]+:/')",
       "Bash(npx prettier *)",
       "Bash(npx tsc *)",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "Bash(echo \"eslint exit: $?\")"
     ]
   }
 }

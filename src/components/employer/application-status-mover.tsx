@@ -51,6 +51,7 @@ export function EmployerApplicationStatusMover({
   return (
     <div className="flex items-center gap-2">
       <select
+        aria-label="Application status"
         className="h-9 border border-border bg-background px-2 text-sm capitalize"
         disabled={pending}
         onChange={(e) => handleChange(e.target.value as EmployerStatus)}

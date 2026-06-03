@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { EmployerHeader } from "@/components/employer/employer-header";
 import { EmployerRealtime } from "@/components/employer/employer-realtime";
 import { EmployerSidebar } from "@/components/employer/employer-sidebar";
 import { createClient } from "@/lib/supabase/server";
@@ -33,7 +34,7 @@ export default async function EmployerLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, employer_id")
+    .select("role, employer_id, full_name")
     .eq("id", user.id)
     .single();
 
@@ -46,20 +47,30 @@ export default async function EmployerLayout({
   }
 
   let relationshipType: RelationshipType | null = null;
+  let companyName: string | null = null;
   if (profile.employer_id) {
     const { data: employer } = await supabase
       .from("employers")
-      .select("relationship_type")
+      .select("relationship_type, company_name")
       .eq("id", profile.employer_id)
       .single();
     relationshipType =
       (employer?.relationship_type as RelationshipType | undefined) ?? null;
+    companyName = employer?.company_name ?? null;
   }
 
   return (
-    <div className="flex min-h-screen">
-      <EmployerSidebar relationshipType={relationshipType} />
-      <main className="min-w-0 flex-1">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <EmployerHeader
+        companyName={companyName}
+        isAdminViewer={profile.role === "admin"}
+        userEmail={user.email ?? ""}
+        userName={profile.full_name ?? ""}
+      />
+      <div className="flex min-h-0 flex-1">
+        <EmployerSidebar relationshipType={relationshipType} />
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
       <EmployerRealtime />
     </div>
   );

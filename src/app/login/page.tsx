@@ -97,7 +97,8 @@ function AuthForm() {
         router.push("/dashboard");
       } else {
         toast.success("Signed in successfully!");
-        // Admins land on the console; everyone else on the candidate dashboard.
+        // Route by role: admins to the console, employers to their portal,
+        // everyone else to the candidate dashboard.
         const supabase = createClient();
         const {
           data: { user },
@@ -110,6 +111,7 @@ function AuthForm() {
             .eq("id", user.id)
             .single();
           if (profile?.role === "admin") destination = "/admin";
+          else if (profile?.role === "employer") destination = "/employer";
         }
         router.push(destination);
       }

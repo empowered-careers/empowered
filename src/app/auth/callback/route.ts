@@ -84,7 +84,8 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // Admins land on the console; everyone else on the candidate dashboard.
+      // Route by role: admins to the console, employers to their portal,
+      // everyone else to the candidate dashboard.
       let destination = "/dashboard";
       if (session?.user) {
         const { data: profile } = await supabase
@@ -93,6 +94,7 @@ export async function GET(request: NextRequest) {
           .eq("id", session.user.id)
           .single();
         if (profile?.role === "admin") destination = "/admin";
+        else if (profile?.role === "employer") destination = "/employer";
       }
 
       return NextResponse.redirect(`${siteUrl}${destination}`);
