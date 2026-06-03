@@ -33,6 +33,7 @@ export function CommissionStatusMover({ commissionId, currentStatus }: Props) {
 
   return (
     <select
+      aria-label="Commission status"
       className="h-7 border border-border bg-background px-1.5 text-[12px]"
       disabled={pending}
       onChange={(e) => handleChange(e.target.value as Status)}

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { CoachingProductForm } from "@/components/admin/coaching-product-form";
 import { createClient } from "@/lib/supabase/server";
 
@@ -64,6 +66,7 @@ export default async function AdminCoachingPage() {
                 <th className="px-4 py-2 font-medium">Price</th>
                 <th className="px-4 py-2 font-medium">Active</th>
                 <th className="px-4 py-2 font-medium">External</th>
+                <th className="px-4 py-2 font-medium" />
               </tr>
             </thead>
             <tbody>
@@ -91,13 +94,21 @@ export default async function AdminCoachingPage() {
                       "—"
                     )}
                   </td>
+                  <td className="px-4 py-2 text-right">
+                    <Link
+                      className="text-muted-foreground text-xs hover:text-accent"
+                      href={`/admin/coaching/${p.id}/edit`}
+                    >
+                      Edit
+                    </Link>
+                  </td>
                 </tr>
               ))}
               {(!products || products.length === 0) && (
                 <tr>
                   <td
                     className="px-4 py-6 text-center text-muted-foreground"
-                    colSpan={5}
+                    colSpan={6}
                   >
                     No products yet.
                   </td>

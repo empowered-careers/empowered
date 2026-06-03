@@ -7,12 +7,16 @@ import { toast } from "sonner";
 import {
   type CoachingProductInput,
   createCoachingProduct,
+  updateCoachingProduct,
 } from "@/app/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import type { CoachingProductType as ProductType } from "@/types/db";
+import type {
+  CoachingProductRow,
+  CoachingProductType as ProductType,
+} from "@/types/db";
 
 const TYPES: { value: ProductType; label: string }[] = [
   { value: "module", label: "Module" },
@@ -26,16 +30,24 @@ const selectCls = cn(
   "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
 );
 
-export function CoachingProductForm() {
+interface Props {
+  product?: CoachingProductRow;
+}
+
+export function CoachingProductForm({ product }: Props) {
   const router = useRouter();
+  const editing = !!product;
   const [pending, startTransition] = useTransition();
   const [form, setForm] = useState({
-    name: "",
-    type: "module" as ProductType,
-    description: "",
-    price_dollars: "",
-    external_url: "",
-    is_active: true,
+    name: product?.name ?? "",
+    type: (product?.type ?? "module") as ProductType,
+    description: product?.description ?? "",
+    price_dollars:
+      product?.price_cents != null
+        ? (product.price_cents / 100).toString()
+        : "",
+    external_url: product?.external_url ?? "",
+    is_active: product?.is_active ?? true,
   });
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
@@ -59,9 +71,17 @@ export function CoachingProductForm() {
     };
 
     startTransition(async () => {
-      const result = await createCoachingProduct(payload);
+      const result = editing
+        ? await updateCoachingProduct(product!.id, payload)
+        : await createCoachingProduct(payload);
       if (!result.ok) {
         toast.error(result.error);
+        return;
+      }
+      if (editing) {
+        toast.success("Product updated.");
+        router.push("/admin/coaching");
+        router.refresh();
         return;
       }
       toast.success("Product created.");
@@ -162,7 +182,13 @@ export function CoachingProductForm() {
       </div>
 
       <Button disabled={pending} type="submit">
-        {pending ? "Creating…" : "Create product"}
+        {editing
+          ? pending
+            ? "Saving…"
+            : "Save changes"
+          : pending
+            ? "Creating…"
+            : "Create product"}
       </Button>
     </form>
   );

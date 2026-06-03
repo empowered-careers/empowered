@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { AdminHeader } from "@/components/admin/admin-header";
 import { AdminRealtime } from "@/components/admin/admin-realtime";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { createClient } from "@/lib/supabase/server";
@@ -30,7 +31,7 @@ export default async function AdminLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, full_name")
     .eq("id", user.id)
     .single();
 
@@ -39,9 +40,15 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <AdminSidebar />
-      <main className="min-w-0 flex-1">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <AdminHeader
+        userEmail={user.email ?? ""}
+        userName={profile.full_name ?? ""}
+      />
+      <div className="flex min-h-0 flex-1">
+        <AdminSidebar />
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
       <AdminRealtime />
     </div>
   );

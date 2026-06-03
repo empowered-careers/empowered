@@ -51,6 +51,7 @@ export function CandidatesTable({ candidates }: Props) {
           value={query}
         />
         <select
+          aria-label="Filter by plan"
           className="h-9 border border-border bg-card px-2 text-sm"
           onChange={(e) => setPlan(e.target.value as "all" | Plan)}
           value={plan}

@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
 
 /** Google "G" monogram SVG */
 function GoogleIcon() {
@@ -91,13 +92,26 @@ function AuthForm() {
 
       if (error) {
         toast.error(error.message);
-      } else {
-        if (mode === "signup") {
-          toast.success("Account created successfully!");
-        } else {
-          toast.success("Signed in successfully!");
-        }
+      } else if (mode === "signup") {
+        toast.success("Account created successfully!");
         router.push("/dashboard");
+      } else {
+        toast.success("Signed in successfully!");
+        // Admins land on the console; everyone else on the candidate dashboard.
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        let destination = "/dashboard";
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+          if (profile?.role === "admin") destination = "/admin";
+        }
+        router.push(destination);
       }
     } catch {
       toast.error("An unexpected error occurred");

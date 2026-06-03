@@ -84,7 +84,18 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      return NextResponse.redirect(`${siteUrl}/dashboard`);
+      // Admins land on the console; everyone else on the candidate dashboard.
+      let destination = "/dashboard";
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+        if (profile?.role === "admin") destination = "/admin";
+      }
+
+      return NextResponse.redirect(`${siteUrl}${destination}`);
     }
 
     // Exchange failed — redirect back to login with an error hint

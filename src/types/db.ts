@@ -38,6 +38,8 @@ export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export type ApplicationRow =
   Database["public"]["Tables"]["applications"]["Row"];
 export type EmployerRow = Database["public"]["Tables"]["employers"]["Row"];
+export type CoachingProductRow =
+  Database["public"]["Tables"]["coaching_products"]["Row"];
 export type ResumeRow = Database["public"]["Tables"]["resumes"]["Row"];
 export type LinkedinProfileRow =
   Database["public"]["Tables"]["linkedin_profiles"]["Row"];

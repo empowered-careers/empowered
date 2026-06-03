@@ -36,7 +36,7 @@ const adminNav: AdminNavSection[] = [
     items: [{ icon: LayoutDashboard, label: "Overview", href: "/admin" }],
   },
   {
-    label: "Pipeline (S4)",
+    label: "Pipeline",
     items: [
       { icon: Briefcase, label: "Jobs", href: "/admin/jobs" },
       { icon: Users, label: "Candidates", href: "/admin/candidates" },
@@ -44,21 +44,21 @@ const adminNav: AdminNavSection[] = [
     ],
   },
   {
-    label: "Growth (S5)",
+    label: "Growth",
     items: [
       { icon: CalendarDays, label: "Events", href: "/admin/events" },
       { icon: Sparkles, label: "Leads", href: "/admin/leads" },
     ],
   },
   {
-    label: "Placements (S6)",
+    label: "Placements",
     items: [
       { icon: Send, label: "Applications", href: "/admin/applications" },
       { icon: Trophy, label: "Placements", href: "/admin/placements" },
     ],
   },
   {
-    label: "Partners (S7)",
+    label: "Partners",
     items: [
       { icon: Receipt, label: "Commissions", href: "/admin/commissions" },
       { icon: Building2, label: "Employers", href: "/admin/employers" },

@@ -127,6 +127,7 @@ export function ApplicationsKanban({ applications }: Props) {
                           {daysAgo(app.updated_at)}d in stage
                         </span>
                         <select
+                          aria-label="Application status"
                           className={cn(
                             "h-7 border border-border bg-background px-1.5 text-[11px]",
                             pending && "opacity-50"
