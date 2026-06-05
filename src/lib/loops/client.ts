@@ -133,6 +133,56 @@ export async function fireLeadAttended(p: LeadAttendedProps): Promise<void> {
   });
 }
 
+export interface CandidatePaymentProps {
+  email: string;
+  profileId: string;
+  amountCents: number;
+  productType: string;
+  billingReason: string;
+}
+
+/** Fires on every successful charge (subscription create/cycle + one-time). */
+export async function fireCandidatePayment(
+  p: CandidatePaymentProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.payment",
+    eventProperties: {
+      profileId: p.profileId,
+      amountCents: p.amountCents,
+      productType: p.productType,
+      billingReason: p.billingReason,
+    },
+  });
+}
+
+export interface CandidatePlanUpgradedProps {
+  email: string;
+  profileId: string;
+  plan: string;
+  billingCadence?: string | null;
+}
+
+/** Fires when a subscription event raises the candidate's plan. */
+export async function fireCandidatePlanUpgraded(
+  p: CandidatePlanUpgradedProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.plan_upgraded",
+    contactProperties: {
+      plan: p.plan,
+      billingCadence: p.billingCadence ?? undefined,
+    },
+    eventProperties: {
+      profileId: p.profileId,
+      plan: p.plan,
+      billingCadence: p.billingCadence ?? undefined,
+    },
+  });
+}
+
 export interface LeadConvertedProps {
   email: string;
   profileId: string;

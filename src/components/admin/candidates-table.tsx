@@ -14,9 +14,9 @@ interface Props {
 const PLAN_FILTERS: Array<{ value: "all" | Plan; label: string }> = [
   { value: "all", label: "All plans" },
   { value: "free", label: "Free" },
-  { value: "plan_1", label: "Plan 1" },
-  { value: "plan_2", label: "Plan 2" },
-  { value: "plan_3", label: "Plan 3" },
+  { value: "plan_1", label: "À la carte" },
+  { value: "plan_2", label: "Core" },
+  { value: "plan_3", label: "Pro" },
 ];
 
 function formatDate(iso: string): string {

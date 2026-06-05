@@ -19,7 +19,8 @@
       "Bash(npx prettier *)",
       "Bash(npx tsc *)",
       "Bash(tasklist)",
-      "Bash(echo \"eslint exit: $?\")"
+      "Bash(echo \"eslint exit: $?\")",
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")"
     ]
   }
 }

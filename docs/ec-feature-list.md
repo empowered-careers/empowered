@@ -78,8 +78,8 @@ Features:
 ## 7. Job Board
 
 - Tier 1 — public/curated roles (visible post signup + resume upload)
-- Tier 2 — semi-exclusive (unlocked by assessments)
-- Tier 3 — fully exclusive (subscription only)
+- Tier 2 — semi-exclusive (Core subscription)
+- Tier 3 — fully exclusive (Pro subscription)
 - Match score per role
 - Match reasoning — _"Why this matches you"_
 - Express interest / apply CTA per role
@@ -112,17 +112,16 @@ In-app nudge cards + email triggers:
 
 ---
 
-## 10. Payments (Stripe)
+## 10. Payments (Stripe) — _code shipped (S3); Stripe Dashboard + live verification pending_
 
-- Monthly subscription — Tier 3 access
-- Annual subscription — Tier 3 access (discounted)
-- À la carte purchases:
+- **Core** subscription (monthly / quarterly) — unlocks Tier 2
+- **Pro** subscription (monthly / quarterly) — unlocks Tier 3
+- À la carte purchases (grant the service/enrollment only — do **not** unlock the job board):
   - Resume review
   - LinkedIn audit
   - Interview prep
   - Coaching sessions
-- Any payment = Tier 3 unlocked
-- Subscription management (cancel, view plan)
+- Subscription management (cancel, view plan, change cadence) via Stripe Customer Portal
 
 ---
 

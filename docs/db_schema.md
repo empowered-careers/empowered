@@ -2,8 +2,9 @@
 
 Supabase (PostgreSQL). Types live in `src/types/database.types.ts`.
 
-> Vocabulary: **Plan** = what the candidate buys (free / plan_1 / plan_2 / plan_3) +
-> **billing cadence** (one_time / monthly / annual). **Job Tier** = exclusivity bucket
+> Vocabulary: **Plan** = the candidate's access tier (free / plan_1 / plan_2 / plan_3;
+> plan_2 = "Core" and plan_3 = "Pro" are the marketed subscriptions, plan_1 = legacy
+> à la carte) + **billing cadence** (one_time / monthly / quarterly / annual). **Job Tier** = exclusivity bucket
 > a job belongs to (tier_1 = public, tier_2 = curated, tier_3 = closed network).
 > Never say just "Tier 1/2/3" — always qualify as Plan or Job Tier.
 >
@@ -23,27 +24,27 @@ Supabase (PostgreSQL). Types live in `src/types/database.types.ts`.
 
 Core user table, keyed by Supabase auth `id`.
 
-| column                  | type                                                                   |
-| ----------------------- | ---------------------------------------------------------------------- |
-| id                      | uuid (PK, matches auth.users)                                          |
-| email                   | text                                                                   |
-| full_name               | text                                                                   |
-| phone                   | text                                                                   |
-| linkedin_url            | text                                                                   |
-| linkedin_provider_id    | text                                                                   |
-| google_provider_id      | text                                                                   |
-| stripe_customer_id      | text                                                                   |
-| plan                    | enum (`free` \| `plan_1` \| `plan_2` \| `plan_3`)                      |
-| billing_cadence         | enum (`one_time` \| `monthly` \| `annual`) — null when `plan = 'free'` |
-| subscription_status     | enum                                                                   |
-| role                    | enum (`candidate` \| `admin` \| `employer`) — default `candidate`      |
-| employer_id             | → employers — non-null when `role = 'employer'`                        |
-| internal_notes          | text — admin-only free-text per-candidate notes                        |
-| lead_id                 | → leads — set at OAuth callback when email matches a lead row          |
-| acquisition_source      | text — mirrors `leads.source` at conversion (`linkedin` / `email` / …) |
-| acquisition_ref         | text — mirrors `leads.source_ref` (campaign slug, post id, etc.)       |
-| onboarding_completed_at | timestamptz                                                            |
-| created_at / updated_at | timestamptz                                                            |
+| column                  | type                                                                                  |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| id                      | uuid (PK, matches auth.users)                                                         |
+| email                   | text                                                                                  |
+| full_name               | text                                                                                  |
+| phone                   | text                                                                                  |
+| linkedin_url            | text                                                                                  |
+| linkedin_provider_id    | text                                                                                  |
+| google_provider_id      | text                                                                                  |
+| stripe_customer_id      | text                                                                                  |
+| plan                    | enum (`free` \| `plan_1` \| `plan_2` \| `plan_3`)                                     |
+| billing_cadence         | enum (`one_time` \| `monthly` \| `quarterly` \| `annual`) — null when `plan = 'free'` |
+| subscription_status     | enum                                                                                  |
+| role                    | enum (`candidate` \| `admin` \| `employer`) — default `candidate`                     |
+| employer_id             | → employers — non-null when `role = 'employer'`                                       |
+| internal_notes          | text — admin-only free-text per-candidate notes                                       |
+| lead_id                 | → leads — set at OAuth callback when email matches a lead row                         |
+| acquisition_source      | text — mirrors `leads.source` at conversion (`linkedin` / `email` / …)                |
+| acquisition_ref         | text — mirrors `leads.source_ref` (campaign slug, post id, etc.)                      |
+| onboarding_completed_at | timestamptz                                                                           |
+| created_at / updated_at | timestamptz                                                                           |
 
 ---
 
@@ -516,15 +517,41 @@ Per-placement commission owed to an agency partner. Admin-only.
 
 Stripe payment records.
 
-| column                   | type                                        |
-| ------------------------ | ------------------------------------------- |
-| id                       | uuid (PK)                                   |
-| profile_id               | → profiles                                  |
-| stripe_payment_intent_id | text                                        |
-| amount                   | int (cents)                                 |
-| product_type             | enum                                        |
-| status                   | enum (`succeeded` \| `pending` \| `failed`) |
-| created_at               | timestamptz                                 |
+| column                   | type                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| id                       | uuid (PK)                                                                      |
+| profile_id               | → profiles                                                                     |
+| stripe_payment_intent_id | text (unique when set)                                                         |
+| amount                   | int (cents)                                                                    |
+| product_type             | enum                                                                           |
+| status                   | enum (`succeeded` \| `pending` \| `failed`)                                    |
+| stripe_invoice_id        | text — set on subscription renewal invoices                                    |
+| stripe_subscription_id   | text — set on subscription payments                                            |
+| stripe_price_id          | text — the Stripe price the charge was for                                     |
+| billing_reason           | text (`subscription_create` \| `subscription_cycle` \| `one_time` \| `manual`) |
+| metadata                 | jsonb                                                                          |
+| created_at               | timestamptz                                                                    |
+
+RLS: candidate self-`SELECT` (`profile_id = auth.uid()`) + admin `SELECT`. No
+client writes — the service-role Stripe webhook is the only writer.
+
+---
+
+### `stripe_webhook_events`
+
+Stripe webhook idempotency log. Stripe redelivers events; each `event_id` is
+acked exactly once (record-then-act, mark `processed_at` last).
+
+| column           | type                            |
+| ---------------- | ------------------------------- |
+| event_id         | text (PK) — Stripe event id     |
+| event_type       | text                            |
+| received_at      | timestamptz                     |
+| processed_at     | timestamptz — null until acked  |
+| payload          | jsonb — full Stripe event       |
+| processing_error | text — set if the handler threw |
+
+RLS: admin `SELECT` only (debugging). Service-role writes.
 
 ---
 
@@ -534,7 +561,7 @@ Stripe payment records.
 | ------------------------- | -------------------------------------------------------------------------------------------------- |
 | `plan`                    | `free`, `plan_1`, `plan_2`, `plan_3`                                                               |
 | `user_role`               | `candidate`, `admin`, `employer`                                                                   |
-| `billing_cadence`         | `one_time`, `monthly`, `annual`                                                                    |
+| `billing_cadence`         | `one_time`, `monthly`, `quarterly`, `annual`                                                       |
 | `subscription_status`     | `active`, `canceled`, `expired`, `trial`                                                           |
 | `job_status`              | `active`, `filled`, `expired`                                                                      |
 | `job_tier`                | `tier_1`, `tier_2`, `tier_3`                                                                       |
@@ -560,12 +587,12 @@ Stripe payment records.
 
 ## Functions
 
-| function                     | returns                                                                                                          |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `is_paid_subscriber()`       | boolean — `true` when current user's `plan <> 'free'` and `subscription_status = 'active'`                       |
-| `is_admin()`                 | boolean — `true` when current user's `profiles.role = 'admin'` (SECURITY DEFINER)                                |
-| `is_employer()`              | boolean — `true` when current user's `profiles.role = 'employer'` (SECURITY DEFINER)                             |
-| `current_employer_id()`      | uuid — current user's `profiles.employer_id` (SECURITY DEFINER; null for non-employer roles)                     |
-| `can_see_job_tier(p, t)`     | boolean — Tier 1 always; Tier 2 for `plan_1/2/3`; Tier 3 for `plan_3`. Mirrored client-side in `src/lib/plan.ts` |
-| `handle_new_user()`          | trigger — populates `profiles` on `auth.users` INSERT                                                            |
-| `handle_auth_user_updated()` | trigger — syncs email / providers on `auth.users` UPDATE                                                         |
+| function                     | returns                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `is_paid_subscriber()`       | boolean — `true` when current user's `plan <> 'free'` and `subscription_status = 'active'`                                      |
+| `is_admin()`                 | boolean — `true` when current user's `profiles.role = 'admin'` (SECURITY DEFINER)                                               |
+| `is_employer()`              | boolean — `true` when current user's `profiles.role = 'employer'` (SECURITY DEFINER)                                            |
+| `current_employer_id()`      | uuid — current user's `profiles.employer_id` (SECURITY DEFINER; null for non-employer roles)                                    |
+| `can_see_job_tier(p, t)`     | boolean — Tier 1 always; Tier 2 for `plan_2/3` (Core/Pro); Tier 3 for `plan_3` (Pro). Mirrored client-side in `src/lib/plan.ts` |
+| `handle_new_user()`          | trigger — populates `profiles` on `auth.users` INSERT                                                                           |
+| `handle_auth_user_updated()` | trigger — syncs email / providers on `auth.users` UPDATE                                                                        |
