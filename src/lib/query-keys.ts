@@ -137,6 +137,11 @@ export const queryKeys = {
     plan: (userId: string) => ["billing", "plan", userId] as const,
     payments: (userId: string) => ["billing", "payments", userId] as const,
   },
+
+  // Notifications — persistent bell feed (latest N per user).
+  notifications: {
+    feed: (userId: string) => ["notifications", "feed", userId] as const,
+  },
 } as const;
 
 // Type helper for query keys

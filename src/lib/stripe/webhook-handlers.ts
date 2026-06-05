@@ -4,6 +4,7 @@ import {
   fireCandidatePayment,
   fireCandidatePlanUpgraded,
 } from "@/lib/loops/client";
+import { createNotification } from "@/lib/notifications/create";
 import { comparePlans } from "@/lib/plan";
 import type { Database } from "@/types/database.types";
 import type { Plan, ProductType, SubscriptionStatus } from "@/types/db";
@@ -150,6 +151,18 @@ export async function handleCheckoutCompleted(
       billingReason: "one_time",
     });
   }
+
+  await createNotification(
+    {
+      profileId,
+      type: "payment_succeeded",
+      title: "Payment received",
+      body: "Your purchase is confirmed.",
+      href: "/billing",
+      metadata: { productType, billingReason: "one_time" },
+    },
+    supabase
+  );
 }
 
 /**
@@ -247,6 +260,18 @@ export async function handleInvoicePaid(
       billingReason,
     });
   }
+
+  await createNotification(
+    {
+      profileId: profile.id,
+      type: "payment_succeeded",
+      title: "Payment received",
+      body: "Your subscription payment is confirmed.",
+      href: "/billing",
+      metadata: { productType: "subscription", billingReason },
+    },
+    supabase
+  );
 }
 
 /** Subscription invoice failed — mark the account expired. */

@@ -67,6 +67,19 @@ export type ClientCompanyInsert =
 export type ClientCompanyUpdate =
   Database["public"]["Tables"]["client_companies"]["Update"];
 
+// --- Notifications (persistent bell feed) ---
+// `type` is a text column, not a Postgres enum, so the union lives here as the
+// single source of truth for valid notification kinds. `match_created` has no
+// source path yet — defined for forward-compat, wired when the matcher ships.
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+export type NotificationType =
+  | "application_status"
+  | "resume_complete"
+  | "match_created"
+  | "linkedin_sync"
+  | "payment_succeeded"
+  | "assessment_complete";
+
 // --- Assessment tables (Career Identity Blueprint + future assessments) ---
 export type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
 export type AssessmentResponseRow =

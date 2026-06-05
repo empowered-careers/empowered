@@ -12,6 +12,7 @@ import {
   BLUEPRINT_QUESTION_COUNT,
 } from "@/lib/assessment/constants";
 import type { Answers, BlueprintResult } from "@/lib/assessment/types";
+import { createNotification } from "@/lib/notifications/create";
 import { createClient } from "@/lib/supabase/server";
 import type {
   AssessmentResponseInsert,
@@ -97,6 +98,15 @@ export async function submitBlueprint(
     console.error("[submitBlueprint] candidate_scores upsert:", scoreErr);
     return { ok: false, error: scoreErr.message };
   }
+
+  await createNotification({
+    profileId: user.id,
+    type: "assessment_complete",
+    title: "Career Identity Blueprint ready",
+    body: `Your archetype: ${result.archetype.name}.`,
+    href: "/assessments/ci-blueprint",
+    metadata: { score: result.overall, archetype: result.archetype.name },
+  });
 
   revalidatePath("/dashboard");
   revalidatePath("/profile");

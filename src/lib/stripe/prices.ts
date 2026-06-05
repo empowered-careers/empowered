@@ -1,6 +1,7 @@
 import type { BillingCadence, Plan } from "@/types/db";
 
 import { env } from "../../../env";
+import { getStripe, isStripeConfigured } from "./client";
 
 export interface PlanForPrice {
   plan: Plan;
@@ -54,4 +55,33 @@ export function subscriptionPriceIds(): string[] {
   return SUBSCRIPTION_PRICES.map((p) => p.priceId).filter((id): id is string =>
     Boolean(id)
   );
+}
+
+/**
+ * Live, currency-formatted display amounts for all configured subscription
+ * prices, keyed by price ID. Empty when Stripe isn't configured. The Stripe
+ * Dashboard is the source of truth for amounts (decision #4).
+ */
+export async function fetchPriceAmounts(): Promise<Record<string, string>> {
+  const ids = subscriptionPriceIds();
+  const out: Record<string, string> = {};
+  if (!isStripeConfigured() || ids.length === 0) return out;
+  const stripe = getStripe();
+  await Promise.all(
+    ids.map(async (id) => {
+      try {
+        const price = await stripe.prices.retrieve(id);
+        if (price.unit_amount != null) {
+          out[id] = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: (price.currency ?? "usd").toUpperCase(),
+            maximumFractionDigits: 0,
+          }).format(price.unit_amount / 100);
+        }
+      } catch {
+        // Missing/unreadable price — skip; the card shows "—".
+      }
+    })
+  );
+  return out;
 }

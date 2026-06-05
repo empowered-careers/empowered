@@ -1,3 +1,4 @@
+import type { Pricing3PlansPlan } from "@/components/pricing";
 import type { BillingCadence, Plan } from "@/types/db";
 
 import { env } from "../../env";
@@ -92,3 +93,31 @@ export const PRICING_TIERS: PricingTier[] = [
     ],
   },
 ];
+
+/**
+ * Adapt PRICING_TIERS → the `Pricing4` plan shape. Amounts come live from
+ * Stripe (keyed by price ID); the "yearly" slot holds the quarterly cadence.
+ */
+export function buildPricingPlans(
+  amounts: Record<string, string>
+): Pricing3PlansPlan[] {
+  return PRICING_TIERS.map((tier) => {
+    const monthly = tier.options.find((o) => o.cadence === "monthly");
+    const quarterly = tier.options.find((o) => o.cadence === "quarterly");
+    const isFree = tier.key === "free";
+    const amountFor = (opt?: PricingOption) =>
+      opt?.priceId ? (amounts[opt.priceId] ?? "—") : isFree ? "$0" : "—";
+    return {
+      name: tier.name,
+      monthlyPrice: amountFor(monthly),
+      yearlyPrice: amountFor(quarterly),
+      period: { monthly: "Per month", yearly: "Per quarter" },
+      buttonText: isFree ? "Start Free" : `Get ${tier.name}`,
+      buttonUrl: isFree ? "/login?tab=signup" : "/pricing",
+      highlighted: tier.highlighted,
+      monthlyPriceId: monthly?.priceId,
+      yearlyPriceId: quarterly?.priceId,
+      features: tier.features,
+    };
+  });
+}

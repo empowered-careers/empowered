@@ -7,6 +7,7 @@ import {
 } from "@/lib/llm/anthropic";
 import { parseLinkedIn } from "@/lib/llm/parse-linkedin";
 import { scoreLinkedIn } from "@/lib/llm/score-linkedin";
+import { createNotification } from "@/lib/notifications/create";
 import { createServiceClient } from "@/lib/supabase/service";
 
 import {
@@ -98,6 +99,20 @@ export const parseLinkedinFn = inngest.createFunction(
         })
         .eq("id", linkedinProfileId);
       if (error) throw new Error(`write-result: ${error.message}`);
+    });
+
+    await step.run("notify-feed", async () => {
+      await createNotification(
+        {
+          profileId: row.profile_id,
+          type: "linkedin_sync",
+          title: "LinkedIn synced",
+          body: "Your LinkedIn score is ready.",
+          href: "/dashboard",
+          metadata: { linkedinProfileId, profileScore: scoring.overall },
+        },
+        supabase
+      );
     });
 
     await step.sendEvent(
