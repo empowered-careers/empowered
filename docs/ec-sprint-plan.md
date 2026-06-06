@@ -71,10 +71,10 @@ graph TD
 
 Goal: a real candidate completes signup → resume → first value with no dead-ends. Small, unblocks the funnel.
 
-- [ ] **Resume-before-dashboard hard gate.** Today only the preferences soft-gate exists; a user can reach `/dashboard` with no resume. Mirror the `onboarding_completed_at` redirect pattern in the `(app)` layer to require a current resume.
-- [ ] **Surface LinkedIn `profile_score` badge** in the Profile Strength card (`src/components/dashboard/profile-strength-card.tsx`). The score is already rendered on the `/linkedin` detail page + admin — just not the dashboard strength card.
-- [ ] **Stale-job watchdog** in `useResumeNotifications` + `useLinkedinNotifications` — flag rows stuck `uploading`/`processing` > 60s as `failed` (covers silent `inngest.send` failures).
-- [ ] **Nudge: resume_score < 70 → resume-review CTA.** `computeNudges()` (`src/lib/dashboard/nudges.ts`) today has 4 rules (interviewing, profile-completion, free-plan-with-active-jobs, content) — no resume-score rule. Add it; CTA target finalizes once Sprint E lands. _(Sprint B has landed — upgrade CTAs are live.)_
+- [x] **Resume-before-dashboard hard gate.** `src/app/(app)/dashboard/page.tsx` redirects to `/resume` when the user has no resume rows (mirrors the `onboarding_completed_at` soft-gate). Page-level so it never blocks `/resume` itself.
+- [x] **Surface LinkedIn `profile_score` badge** in the Profile Strength card (`src/components/dashboard/profile-strength-card.tsx`). Score fetched in the dashboard server component, threaded through `DashboardClient` → `ProfileStrengthHero`; renders letter grade + `/100` (reuses `scoreToLetterGrade`) when LinkedIn URL + score exist.
+- [x] **Stale-job watchdog** in `useResumeNotifications` + `useLinkedinNotifications` — per-row 60s timers (armed on mount + realtime INSERT/UPDATE) flip rows still stuck `uploading`/`processing` to `failed` via owner-RLS update; existing failure toast fires from the resulting UPDATE.
+- [x] **Nudge: resume_score < 70 → resume-review CTA.** Added `nudge-resume-score` rule (priority 75) to `computeNudges()` (`src/lib/dashboard/nudges.ts`); CTA "Improve resume" → `/resume` (retarget once Sprint E lands). _(Sprint B has landed — upgrade CTAs are live.)_
 - [ ] **Ops / manual:** `ANTHROPIC_API_KEY` local + prod; register Inngest prod endpoint + `INNGEST_EVENT_KEY`/`INNGEST_SIGNING_KEY`; promote Lauren to `role='admin'`; seed 10–15 Tier-1 roles; full end-to-end smoke test (`docs/todo.md`).
 - [ ] _(optional)_ Eval fixtures ≥5 per harness (`evals/*`).
 

@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner";
 
 import { updateLinkedInUrl } from "@/app/actions/profile";
+import { scoreToLetterGrade } from "@/components/linkedin/grade";
 import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ interface ProfileStrengthHeroProps {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
   blueprint?: DashboardBlueprint | null;
+  linkedinScore?: number | null;
 }
 
 const STEP_ICONS: Record<
@@ -71,6 +73,7 @@ export function ProfileStrengthHero({
   profile,
   resumes,
   blueprint,
+  linkedinScore,
 }: ProfileStrengthHeroProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -125,9 +128,20 @@ export function ProfileStrengthHero({
   return (
     <div className="flex flex-col border border-border bg-card">
       <div className="flex-1 p-6">
-        <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Profile completeness
-        </p>
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Profile completeness
+          </p>
+          {profile?.linkedin_url && linkedinScore != null && (
+            <span className="inline-flex items-center gap-1.5 border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground">
+              <Linkedin className="h-3 w-3" />
+              <span className="font-semibold text-foreground">
+                {scoreToLetterGrade(linkedinScore)}
+              </span>
+              <span>{linkedinScore}/100</span>
+            </span>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-[auto_1fr]">
           {/* Ring */}

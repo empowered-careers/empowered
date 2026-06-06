@@ -3,6 +3,7 @@
 import { useApplicationNotifications } from "@/hooks/use-application-notifications";
 import { useLinkedinNotifications } from "@/hooks/use-linkedin-notifications";
 import { useNotificationFeed } from "@/hooks/use-notification-feed";
+import { usePaymentNotifications } from "@/hooks/use-payment-notifications";
 import { useResumeNotifications } from "@/hooks/use-resume-notifications";
 
 /**
@@ -14,6 +15,7 @@ export function RealtimeNotifications() {
   useResumeNotifications();
   useLinkedinNotifications();
   useApplicationNotifications();
+  usePaymentNotifications();
   // Keeps the persistent bell feed warm + subscribed across navigation.
   useNotificationFeed();
   return null;

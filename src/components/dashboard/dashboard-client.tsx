@@ -33,6 +33,7 @@ export interface DashboardClientProps {
   userEmail: string;
   blueprint: DashboardBlueprint | null;
   interviewingApplication: InterviewingApplication | null;
+  linkedinScore: number | null;
 }
 
 function scrollToResumeHub() {
@@ -48,6 +49,7 @@ export function DashboardClient({
   userEmail,
   blueprint,
   interviewingApplication,
+  linkedinScore,
 }: DashboardClientProps) {
   const { signOut } = useAuth();
   const router = useRouter();
@@ -150,6 +152,7 @@ export function DashboardClient({
             profile={profile}
             resumes={resumes}
             blueprint={blueprint}
+            linkedinScore={linkedinScore}
           />
         </div>
         <div className="flex flex-col gap-5">

@@ -99,5 +99,21 @@ export function computeNudges(input: ComputeNudgesInput): Nudge[] {
     });
   }
 
+  // Resume scoring below the recruiter bar — surface a review CTA.
+  // CTA points at /resume for now; retarget to the dedicated review flow
+  // once Sprint E (coaching delivery) lands.
+  const scoredResume = resumes.find((r) => r.resume_score !== null);
+  const latestResumeScore = scoredResume?.resume_score ?? null;
+  if (latestResumeScore !== null && latestResumeScore < 70) {
+    nudges.push({
+      id: "nudge-resume-score",
+      tag: "Resume",
+      title: "Your resume scores below the bar",
+      body: `At ${latestResumeScore}/100, recruiters may pass. A quick review can lift it.`,
+      cta: { label: "Improve resume", href: "/resume" },
+      priority: 75,
+    });
+  }
+
   return nudges.sort((a, b) => b.priority - a.priority).slice(0, 3);
 }
