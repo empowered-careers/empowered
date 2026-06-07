@@ -150,7 +150,13 @@ export async function syncLinkedInProfileUrlFromSession(
     return { success: false, error: "LinkedIn identityMe call failed" };
   }
 
-  const rawUrl = identityMe.basicInfo?.profileUrl?.trim();
+  // Prefer the vanityName from /v2/me to build a clean /in/<handle> URL.
+  // identityMe.basicInfo.profileUrl is a `profile-thirdparty-redirect` URL,
+  // so it's only used as a fallback when the /v2/me scope is unavailable.
+  const vanityName = profileApi?.vanityName?.trim();
+  const rawUrl = vanityName
+    ? `https://www.linkedin.com/in/${vanityName}`
+    : identityMe.basicInfo?.profileUrl?.trim();
   const userId = session.user.id;
 
   let normalizedUrl: string | null = null;
