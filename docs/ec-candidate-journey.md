@@ -44,7 +44,7 @@ Three things visible immediately:
 ### 1. Job Board Preview — All Three Tiers
 
 - **Tier 1 (public/curated):** Fully visible and browsable
-- **Tier 2 (semi-exclusive):** Company and level visible, role title blurred — _"Complete your profile to unlock"_
+- **Tier 2 (semi-exclusive):** Company and level visible, role title blurred — _"Subscribe to Core to unlock"_
 - **Tier 3 (exclusive):** Fully locked — _"X exclusive roles active this month — subscribe to access"_
 
 ### 2. Profile Completeness Card
@@ -89,8 +89,8 @@ Each action is self-motivated — improves match quality and shows real signal t
 
 | Assessment           | What Candidate Gets                   | Nudge Toward         |
 | -------------------- | ------------------------------------- | -------------------- |
-| Role Clarity         | Target role defined, shown on profile | Tier 2 unlock        |
-| Values + Environment | Culture fit card                      | Tier 2 unlock        |
+| Role Clarity         | Target role defined, shown on profile | Core upsell          |
+| Values + Environment | Culture fit card                      | Core upsell          |
 | Strengths            | Zone of genius summary                | Coaching upsell      |
 | Leadership Style     | Style card + blind spots              | Coaching upsell      |
 | Big Wins             | Impact statement draft                | Resume review upsell |
@@ -98,19 +98,19 @@ Each action is self-motivated — improves match quality and shows real signal t
 Each completed assessment:
 
 - Visibly improves match score
-- Unlocks more Tier 2 roles
+- Surfaces more Tier 2 previews (full access needs a Core subscription)
 - Triggers a specific nudge based on the result
 
 ---
 
-## Stage 5 — Tier 2 Unlock
+## Stage 5 — Tier 2 Conversion
 
-Completing 2–3 assessments + resume upload unlocks Tier 2.
+A strong profile (resume + 2–3 assessments) maximizes match quality and primes the upgrade. Tier 2 roles unlock with a **Core** subscription.
 
-_"You've unlocked 12 semi-exclusive roles — these aren't on LinkedIn yet."_
+_"You match 12 semi-exclusive roles — subscribe to Core to view them. They aren't on LinkedIn."_
 
 Tier 3 remains locked with a persistent but non-intrusive banner:
-_"X exclusive roles this month. Subscribed members only."_
+_"X exclusive roles this month. Pro members only."_
 
 ---
 
@@ -135,7 +135,7 @@ Every nudge is specific, not generic — based on actual score or behavior.
 
 ### Subscription Unlocks
 
-- Full Tier 3 job access
+- Job board access — Tier 2 roles with Core, Tier 3 exclusive roles with Pro
 - Match reasoning per role — _"Why this matches you"_
 - New match alerts (email + in-app)
 - Express interest / apply per role — confirming this shares the candidate's full profile (name, email, phone, LinkedIn, resume, assessment results) with the hiring company
@@ -152,7 +152,7 @@ Every nudge is specific, not generic — based on actual score or behavior.
 - _"You matched to a VP Engineering role — want interview prep?"_
 - _"Your resume hasn't been updated in 60 days — this role requires X skill you haven't highlighted"_
 
-**Rule: Any payment = Tier 3 access unlocked.**
+**Rule: Core subscription unlocks Tier 2; Pro subscription unlocks Tier 3. À la carte purchases and webinars do not unlock the job board.**
 
 ---
 
@@ -168,8 +168,8 @@ Every nudge is specific, not generic — based on actual score or behavior.
 
 ## Job Board Tier Definition
 
-| Tier   | Source                                  | Access                   | Purpose                              |
-| ------ | --------------------------------------- | ------------------------ | ------------------------------------ |
-| Tier 1 | Public / curated by Lauren              | On signup                | Show immediate value, set baseline   |
-| Tier 2 | Agency submitted, non-priority          | Complete 2-3 assessments | Reward engagement, prove exclusivity |
-| Tier 3 | Lauren's direct clients, priority roles | Paid subscription        | The moat. Never posted publicly.     |
+| Tier   | Source                                  | Access            | Purpose                              |
+| ------ | --------------------------------------- | ----------------- | ------------------------------------ |
+| Tier 1 | Public / curated by Lauren              | On signup         | Show immediate value, set baseline   |
+| Tier 2 | Agency submitted, non-priority          | Core subscription | Recurring revenue, prove exclusivity |
+| Tier 3 | Lauren's direct clients, priority roles | Pro subscription  | The moat. Never posted publicly.     |

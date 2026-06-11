@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 
+import { ManageSubscriptionLink } from "@/components/billing/manage-subscription-link";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { JobBoardTeaser } from "@/components/dashboard/job-board-teaser";
 import { NudgesGrid } from "@/components/dashboard/nudges-grid";
@@ -32,6 +33,7 @@ export interface DashboardClientProps {
   userEmail: string;
   blueprint: DashboardBlueprint | null;
   interviewingApplication: InterviewingApplication | null;
+  linkedinScore: number | null;
 }
 
 function scrollToResumeHub() {
@@ -47,6 +49,7 @@ export function DashboardClient({
   userEmail,
   blueprint,
   interviewingApplication,
+  linkedinScore,
 }: DashboardClientProps) {
   const { signOut } = useAuth();
   const router = useRouter();
@@ -86,6 +89,19 @@ export function DashboardClient({
 
   return (
     <div className="mx-auto max-w-6xl space-y-7 py-4">
+      {profile?.subscription_status === "expired" && (
+        <div className="flex items-center gap-3 border border-destructive/40 bg-destructive/10 px-4 py-3">
+          <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+          <div className="flex-1 text-sm">
+            <span className="font-medium text-foreground">Payment failed</span>
+            <span className="ml-2 text-muted-foreground">
+              — update your card to keep your membership active.
+            </span>
+          </div>
+          <ManageSubscriptionLink label="Update card" />
+        </div>
+      )}
+
       {onboardingPending && (
         <div className="flex items-center gap-3 border border-yellow-500/40 bg-yellow-500/10 px-4 py-3">
           <AlertCircle className="h-4 w-4 shrink-0 text-yellow-600 dark:text-yellow-500" />
@@ -136,6 +152,7 @@ export function DashboardClient({
             profile={profile}
             resumes={resumes}
             blueprint={blueprint}
+            linkedinScore={linkedinScore}
           />
         </div>
         <div className="flex flex-col gap-5">

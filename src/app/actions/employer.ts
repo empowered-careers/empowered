@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireEmployer } from "@/lib/auth/require-role";
+import { notifyApplicationStatus } from "@/lib/notifications/create";
 import { createClient } from "@/lib/supabase/server";
 import type { ApplicationStatus, JobStatus, RemotePolicy } from "@/types/db";
 
@@ -142,7 +143,7 @@ export async function advanceApplicationStatus(
 
   const { data: current, error: readError } = await supabase
     .from("applications")
-    .select("status, status_log")
+    .select("status, status_log, profile_id")
     .eq("id", applicationId)
     .single();
 
@@ -166,6 +167,8 @@ export async function advanceApplicationStatus(
     .eq("id", applicationId);
 
   if (error) return { ok: false, error: error.message };
+
+  await notifyApplicationStatus(current.profile_id, status);
 
   revalidatePath("/employer/applications");
   revalidatePath(`/employer/applications/${applicationId}`);

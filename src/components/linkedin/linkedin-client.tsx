@@ -10,6 +10,7 @@ import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { linkedInDisplayHandle } from "@/lib/linkedin-url";
 import type { LinkedInScoring, ParsedLinkedIn } from "@/lib/llm/schemas";
 import type { LinkedinSyncStatus as LinkedinStatus } from "@/types/db";
 
@@ -82,7 +83,7 @@ function EmptyState({
             rel="noopener noreferrer"
             target="_blank"
           >
-            {linkedinUrl}
+            {linkedInDisplayHandle(linkedinUrl)}
           </a>
         </div>
       )}
@@ -168,7 +169,7 @@ export function LinkedinClient({
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                {row.linkedin_url}
+                {linkedInDisplayHandle(row.linkedin_url)}
               </a>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {row.status === "processing" && (

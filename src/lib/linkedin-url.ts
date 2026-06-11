@@ -59,3 +59,22 @@ export function normalizeLinkedInProfileUrl(
 
   return { ok: true, url: normalized };
 }
+
+/**
+ * Short display label for a stored LinkedIn URL — the vanity handle (e.g.
+ * `john-doe`) for /in/ profile URLs, falling back to the bare host+path for
+ * anything else (e.g. legacy third-party-redirect URLs).
+ */
+export function linkedInDisplayHandle(url: string): string {
+  try {
+    const u = new URL(url);
+    const match = u.pathname.match(/\/(?:in|pub|sales)\/([^/]+)\/?$/i);
+    if (match) return decodeURIComponent(match[1]);
+    return `${u.hostname.replace(/^www\./, "")}${u.pathname}`.replace(
+      /\/+$/,
+      ""
+    );
+  } catch {
+    return url;
+  }
+}

@@ -25,6 +25,7 @@ export type SubscriptionStatus =
 export type CoachingProductType =
   Database["public"]["Enums"]["coaching_product_type"];
 export type CommissionStatus = Database["public"]["Enums"]["commission_status"];
+export type ProductType = Database["public"]["Enums"]["product_type"];
 export type EventType = Database["public"]["Enums"]["event_type"];
 export type SwitchUrgency = Database["public"]["Enums"]["switch_urgency"];
 export type WorkAuth = Database["public"]["Enums"]["work_auth"];
@@ -40,6 +41,10 @@ export type ApplicationRow =
 export type EmployerRow = Database["public"]["Tables"]["employers"]["Row"];
 export type CoachingProductRow =
   Database["public"]["Tables"]["coaching_products"]["Row"];
+export type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
+export type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
+export type StripeWebhookEventInsert =
+  Database["public"]["Tables"]["stripe_webhook_events"]["Insert"];
 export type ResumeRow = Database["public"]["Tables"]["resumes"]["Row"];
 export type LinkedinProfileRow =
   Database["public"]["Tables"]["linkedin_profiles"]["Row"];
@@ -61,6 +66,19 @@ export type ClientCompanyInsert =
   Database["public"]["Tables"]["client_companies"]["Insert"];
 export type ClientCompanyUpdate =
   Database["public"]["Tables"]["client_companies"]["Update"];
+
+// --- Notifications (persistent bell feed) ---
+// `type` is a text column, not a Postgres enum, so the union lives here as the
+// single source of truth for valid notification kinds. `match_created` has no
+// source path yet — defined for forward-compat, wired when the matcher ships.
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+export type NotificationType =
+  | "application_status"
+  | "resume_complete"
+  | "match_created"
+  | "linkedin_sync"
+  | "payment_succeeded"
+  | "assessment_complete";
 
 // --- Assessment tables (Career Identity Blueprint + future assessments) ---
 export type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];

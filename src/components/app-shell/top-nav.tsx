@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,9 +10,9 @@ import {
   topNavTabs,
 } from "@/components/app-shell/sidebar-config";
 import { ThemeToggle } from "@/components/app-shell/theme-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,15 +101,7 @@ export function TopNav({
 
         <ThemeToggle />
 
-        <Button
-          aria-label="Notifications"
-          className="h-9 w-9"
-          size="icon"
-          type="button"
-          variant="ghost"
-        >
-          <Bell className="size-4" />
-        </Button>
+        <NotificationBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

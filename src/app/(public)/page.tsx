@@ -1,8 +1,8 @@
 import { CTASection } from "@/components/landing/CTASection";
 import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
+import { HomePricing } from "@/components/landing/HomePricing";
 import { HowItWorks } from "@/components/landing/HowItWorks";
-import { PricingTeaser } from "@/components/landing/PricingTeaser";
 import { SocialProof } from "@/components/landing/SocialProof";
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
       <SocialProof />
       <HowItWorks />
       <Features />
-      <PricingTeaser />
+      <HomePricing />
       <CTASection />
     </>
   );

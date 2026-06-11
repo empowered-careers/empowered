@@ -38,6 +38,26 @@ export async function requireAdmin(): Promise<{ userId: string }> {
 }
 
 /**
+ * Server-side authenticated-user guard for Server Actions and Route Handlers.
+ *
+ * Returns the authenticated user id, or redirects unauthenticated callers to
+ * /login. No role check — use where any signed-in user is allowed (billing,
+ * checkout, self-service flows). Mirrors `requireAdmin()` / `requireEmployer()`.
+ */
+export async function requireUser(): Promise<{ userId: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return { userId: user.id };
+}
+
+/**
  * Server-side employer guard for Server Actions, Route Handlers, and the
  * `/employer/*` layout.
  *

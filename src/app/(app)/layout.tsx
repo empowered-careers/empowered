@@ -69,16 +69,18 @@ export default async function AppGroupLayout({
     if (!isActive || !profile || profile.plan === "free") return "Free";
     const tier =
       profile.plan === "plan_3"
-        ? "Plan 3"
+        ? "Pro"
         : profile.plan === "plan_2"
-          ? "Plan 2"
-          : "Plan 1";
+          ? "Core"
+          : "À la carte";
     const cadence =
       profile.billing_cadence === "annual"
         ? "Annual"
-        : profile.billing_cadence === "monthly"
-          ? "Monthly"
-          : null;
+        : profile.billing_cadence === "quarterly"
+          ? "Quarterly"
+          : profile.billing_cadence === "monthly"
+            ? "Monthly"
+            : null;
     return cadence ? `${tier} · ${cadence}` : tier;
   })();
 

@@ -18,14 +18,23 @@ export type ActionResult<T = undefined> =
 export interface OnboardingPreferencesInput {
   target_role: string;
   target_seniority: string | null;
-  industries: string[];
   switch_urgency: SwitchUrgency;
   notice_period_days: number;
   work_authorization: WorkAuth;
+  remote_preference: RemotePreference | null;
+  comp_target_min_cents: number | null;
+  expertise_area: string | null;
+  biggest_challenge: string | null;
+  primary_goal_6mo: string | null;
+  confidence_level: string | null;
+  role_clarity: string | null;
+  career_readiness: string | null;
+  most_valued_benefit: string | null;
+  support_preference: string | null;
 }
 
 /**
- * Validates and saves the Tier A subset, then stamps
+ * Validates and saves the intake survey answers, then stamps
  * `profiles.onboarding_completed_at` to release the soft gate. Idempotent —
  * calling again with a stamped profile just updates the prefs row.
  */
@@ -40,19 +49,24 @@ export async function completeOnboarding(
 
   if (!input.target_role.trim())
     return { ok: false, error: "Target role is required." };
-  if (input.industries.length === 0)
-    return { ok: false, error: "Pick at least one industry." };
-  if (input.notice_period_days < 0)
-    return { ok: false, error: "Notice period must be zero or more." };
 
   const payload: CandidatePreferencesInsert = {
     profile_id: user.id,
     target_role: input.target_role.trim(),
     target_seniority: input.target_seniority,
-    industries: input.industries,
     switch_urgency: input.switch_urgency,
     notice_period_days: input.notice_period_days,
     work_authorization: input.work_authorization,
+    remote_preference: input.remote_preference,
+    comp_target_min_cents: input.comp_target_min_cents,
+    expertise_area: input.expertise_area,
+    biggest_challenge: input.biggest_challenge,
+    primary_goal_6mo: input.primary_goal_6mo,
+    confidence_level: input.confidence_level,
+    role_clarity: input.role_clarity,
+    career_readiness: input.career_readiness,
+    most_valued_benefit: input.most_valued_benefit,
+    support_preference: input.support_preference,
     updated_at: new Date().toISOString(),
   };
 

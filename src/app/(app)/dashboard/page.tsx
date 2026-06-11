@@ -34,6 +34,7 @@ export default async function DashboardPage() {
     jobCountResult,
     blueprintResult,
     interviewingResult,
+    linkedinResult,
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -69,6 +70,12 @@ export default async function DashboardPage() {
       .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+
+    supabase
+      .from("linkedin_profiles")
+      .select("profile_score")
+      .eq("profile_id", user.id)
+      .maybeSingle(),
   ]);
 
   if (profileResult.error && profileResult.error.code !== "PGRST116") {
@@ -77,7 +84,17 @@ export default async function DashboardPage() {
 
   const profile = (profileResult.data as DashboardProfile | null) ?? null;
   const resumes = (resumesResult.data as DashboardResume[]) ?? [];
+
+  // Resume-before-dashboard hard gate: a candidate must have uploaded a resume
+  // before reaching the dashboard. Mirrors the onboarding soft-gate redirect.
+  if (resumes.length === 0) {
+    redirect("/resume");
+  }
+
   const activeJobCount = jobCountResult.count ?? 0;
+  const linkedinScore = (linkedinResult.data?.profile_score ?? null) as
+    | number
+    | null;
   const blueprint = (blueprintResult.data as DashboardBlueprint | null) ?? null;
 
   const interviewingRow = interviewingResult.data as {
@@ -110,6 +127,7 @@ export default async function DashboardPage() {
         activeJobCount={activeJobCount}
         blueprint={blueprint}
         interviewingApplication={interviewingApplication}
+        linkedinScore={linkedinScore}
         profile={profile}
         resumes={resumes}
         userEmail={user.email ?? ""}

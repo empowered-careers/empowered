@@ -8,6 +8,7 @@ import {
 import { parseResume } from "@/lib/llm/parse-resume";
 import type { ParsedResume, Scoring } from "@/lib/llm/schemas";
 import { scoreResume } from "@/lib/llm/score-resume";
+import { createNotification } from "@/lib/notifications/create";
 import { createServiceClient } from "@/lib/supabase/service";
 
 import {
@@ -129,6 +130,20 @@ export const parseResumeFn = inngest.createFunction(
         })
         .eq("id", resumeId);
       if (error) throw new Error(`write-result: ${error.message}`);
+    });
+
+    await step.run("notify-feed", async () => {
+      await createNotification(
+        {
+          profileId: resume.profile_id,
+          type: "resume_complete",
+          title: "Resume parsed",
+          body: "Your resume score is ready.",
+          href: "/dashboard#resume-hub",
+          metadata: { resumeId, resumeScore: scoring.overall },
+        },
+        supabase
+      );
     });
 
     await step.sendEvent(

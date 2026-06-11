@@ -31,6 +31,21 @@ const envSchema = z.object({
   // unset, lead.* event firing is a no-op so local registration still works.
   LOOPS_API_KEY: z.string().optional(),
 
+  // Stripe (server-side billing). All optional until the Stripe Dashboard is
+  // provisioned — when unset, the app boots normally; Checkout/portal/webhook
+  // routes simply can't run yet.
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+
+  // Stripe price IDs — the catalog lives in the Stripe Dashboard. The two
+  // subscription tiers (Core = plan_2, Pro = plan_3), each billed monthly or
+  // quarterly. (À la carte services are priced via coaching_products.stripe_price_id.)
+  STRIPE_PRICE_CORE_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_CORE_QUARTERLY: z.string().optional(),
+  STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_PRO_QUARTERLY: z.string().optional(),
+
   // Versioned at code level; bump when prompts/rubric change
   RESUME_PROMPT_VERSION: z.string().default("1.0.0"),
   LINKEDIN_PROMPT_VERSION: z.string().default("1.0.0"),

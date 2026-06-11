@@ -123,17 +123,17 @@ All four must be green before Phase 2 work begins:
 
 ## Epics
 
-| ID  | Epic                            | Why it exists                                                                                                                 | Status           |
-| --- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| E1  | Foundations & Schema Realign    | Land Plan/Job-Tier split, applicant pipeline tables, placements, referrals, coaching schema. Doc rewrite.                     | Not started      |
-| E2  | Candidate Activation            | Resume gate, Resume score, profile completeness, marketing trust, basic nudges.                                               | Sprint 0 partial |
-| E3  | Paywall & Plans                 | Stripe, four-Plan model, à la carte products, Plan-based gating.                                                              | Not started      |
-| E4  | Job Board & Matching v1         | Admin job CRUD, Job Tier assignment, lightweight match score, "why this matches you" reasoning.                               | Not started      |
-| E5  | Assessments                     | 5 core assessments, dimension scoring, Job Tier 2 unlock.                                                                     | Not started      |
-| E6  | Applicant Pipeline & Placements | Applications table, Lauren's pipeline view, placements + referrals first-class, marketing placement count wired to real data. | Not started      |
-| E7  | Coaching Delivery Surface       | Hybrid model: external hosting + EC-tracked enrollments, Cal.com booking embed, "My coaching" dashboard.                      | Not started      |
-| E8  | Lifecycle Automation            | Full nudge system + Loops event pipeline + sequences.                                                                         | Not started      |
-| E9  | Phase 2 Prep                    | Employer/agency portal spec, commission tracking schema groundwork.                                                           | Not started      |
+| ID  | Epic                            | Why it exists                                                                                                                 | Status                                               |
+| --- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| E1  | Foundations & Schema Realign    | Land Plan/Job-Tier split, applicant pipeline tables, placements, referrals, coaching schema. Doc rewrite.                     | Not started                                          |
+| E2  | Candidate Activation            | Resume gate, Resume score, profile completeness, marketing trust, basic nudges.                                               | Sprint 0 partial                                     |
+| E3  | Paywall & Plans                 | Stripe, Core/Pro subscriptions, à la carte products, Plan-based gating.                                                       | Code shipped; Stripe Dashboard + live verify pending |
+| E4  | Job Board & Matching v1         | Admin job CRUD, Job Tier assignment, lightweight match score, "why this matches you" reasoning.                               | Not started                                          |
+| E5  | Assessments                     | 5 core assessments, dimension scoring, Job Tier 2 unlock.                                                                     | Not started                                          |
+| E6  | Applicant Pipeline & Placements | Applications table, Lauren's pipeline view, placements + referrals first-class, marketing placement count wired to real data. | Not started                                          |
+| E7  | Coaching Delivery Surface       | Hybrid model: external hosting + EC-tracked enrollments, Cal.com booking embed, "My coaching" dashboard.                      | Not started                                          |
+| E8  | Lifecycle Automation            | Full nudge system + Loops event pipeline + sequences.                                                                         | Not started                                          |
+| E9  | Phase 2 Prep                    | Employer/agency portal spec, commission tracking schema groundwork.                                                           | Not started                                          |
 
 E1–E8 are Phase 1. E9 straddles into Phase 2.
 
@@ -209,16 +209,18 @@ Status as of 2026-05-15: core tables + OAuth hardening + async job columns lande
 
 **Goal:** first dollar in.
 
-- [ ] Stripe integration (customer create, webhook handlers)
-- [ ] Stripe products for Plan 1 (one-time), Plan 2 (monthly + annual), Plan 3 (monthly + annual)
-- [ ] À la carte products: resume review, LinkedIn audit, interview prep, individual coaching sessions
-- [ ] Plan-based gating helpers (server + RLS): `has_plan(level)`, `can_see_job_tier(tier)`
-- [ ] Payment confirmation flow → Plan upgrade on profile
-- [ ] Subscription management UI (cancel, view plan, change cadence)
-- [ ] À la carte purchase grants Plan 1 automatically
-- [ ] Nudge: viewing locked Job Tier → corresponding Plan upgrade prompt
+Status: **code shipped** (see `docs/done/ec-paywall-plan.md`). Remaining is the manual Stripe Dashboard setup (4 prices + webhook endpoint + keys) and the live verification checklist.
 
-**Exit:** a candidate can pay; Plan persists; gating works end-to-end; Lauren is notified of new payments.
+- [x] Stripe integration (customer create, webhook handlers — signature-verified, idempotent via `stripe_webhook_events`)
+- [ ] Stripe Dashboard: 4 prices — Core (monthly + quarterly), Pro (monthly + quarterly) _(manual, GT/Lauren)_
+- [x] À la carte products: resume review, LinkedIn audit, interview prep, coaching sessions (priced via `coaching_products`; checkout + webhook support)
+- [x] Plan-based gating helpers (server + RLS): `can_see_job_tier`, `comparePlans` (mirrored in `src/lib/plan.ts`)
+- [x] Payment confirmation flow → Plan upgrade on profile (subscription events flip `plan`)
+- [x] Subscription management UI (Stripe Customer Portal link on `/billing`)
+- [x] À la carte purchase records payment + enrollment, **no plan change** (jobs are subscription-only)
+- [x] Nudge: viewing locked Job Tier → Core/Pro upgrade prompt (tier-lock banner deeplinks to `/pricing`)
+
+**Exit:** a candidate can pay; Plan persists; gating works end-to-end; Lauren is notified of new payments. _(Reachable once the Stripe Dashboard prices/keys are set.)_
 
 ---
 
@@ -231,7 +233,6 @@ Some scope already landed in S2 via the job-board + pipeline plans. Remaining S4
 - [x] Admin: add/edit/archive jobs (landed in S2 via `docs/done/ec-job-board-plan.md`)
 - [x] Admin: assign `job_tier`, status (same)
 - [x] Express interest CTA → writes to `applications` table at `interested` (landed in S2 via `docs/done/ec-candidate-pipeline-plan.md`)
-- [ ] Match score v1 — the **ATS Score** (resume-vs-job fit, resume keyword overlap + Plan visibility filter). Writes to `matches.match_score`. Distinct from the upload-time Resume Score on `resumes.resume_score`.
 - [ ] Match reasoning (AI-generated, single sentence — Claude API)
 - [x] Candidate pool view for Lauren — `/admin/candidates` + `/admin/payments` (admin-super slice 1, shipped 2026-05-20 via `docs/done/ec-admin-super-plan.md`)
 

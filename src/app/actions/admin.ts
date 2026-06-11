@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/require-role";
+import { notifyApplicationStatus } from "@/lib/notifications/create";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/types/database.types";
@@ -89,7 +90,7 @@ export async function updateApplicationStatus(
 
   const { data: current, error: readError } = await supabase
     .from("applications")
-    .select("status, status_log")
+    .select("status, status_log, profile_id")
     .eq("id", applicationId)
     .single();
 
@@ -113,6 +114,8 @@ export async function updateApplicationStatus(
     .eq("id", applicationId);
 
   if (error) return { ok: false, error: error.message };
+
+  await notifyApplicationStatus(current.profile_id, status);
 
   revalidatePath("/admin/applications");
   revalidatePath(`/admin/applications/${applicationId}`);
@@ -200,6 +203,8 @@ export async function markAsPlaced(
     .eq("id", app.id);
 
   if (statusError) return { ok: false, error: statusError.message };
+
+  await notifyApplicationStatus(app.profile_id, "placed");
 
   let commissionId: string | null = null;
   if (

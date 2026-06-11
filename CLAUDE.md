@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Empowered Careers is a closed-loop SaaS talent network for mid-to-senior tech professionals. The platform assesses, scores, and matches candidates to exclusive roles that don't appear on public job boards. Revenue comes from candidate coaching/services and B2B placement fees. Any payment unlocks lifetime private job board access.
+Empowered Careers is a closed-loop SaaS talent network for mid-to-senior tech professionals. The platform assesses, scores, and matches candidates to exclusive roles that don't appear on public job boards. Revenue comes from candidate coaching/services, Core/Pro subscriptions, and B2B placement fees. A paid subscription unlocks the private job board — Core (plan_2) for Tier 2 curated roles, Pro (plan_3) for Tier 3 exclusive roles. One-time purchases (webinars, à la carte services) monetize the funnel but do not unlock the board.
 
 ## Working Principles
 

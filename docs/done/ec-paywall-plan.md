@@ -1,7 +1,7 @@
 # Paywall & Plans (Plan)
 
 > Created: 2026-05-23
-> Status: Spec — Sprint 3 in `docs/ec-dev-plan.md`
+> Status: **Done** — code shipped, migrations applied, types regenerated. Everything remaining is non-code: the manual Stripe Dashboard setup (prices/keys) + the live verification checklist, both tracked in `docs/todo.md`. Bundled coaching (decision #7) is deferred as a separate future build. Sprint 3 in `docs/ec-dev-plan.md`.
 > Related:
 >
 > - `docs/done/ec-job-board-plan.md` — already wires `can_see_job_tier(plan, job_tier)` SQL function + `src/lib/plan.ts` mirror. This plan flips `profiles.plan` so those gates start mattering.
@@ -13,7 +13,7 @@
 
 The plan/billing-cadence schema, the `can_see_job_tier(plan, job_tier)` SQL helper, and the client-side mirror in `src/lib/plan.ts` all landed in S1. Job Board (S2) and Pipeline (S2) already enforce gating against `profiles.plan`. **Today every account is `plan = 'free'`** — nothing flips it, so Tier 2 and Tier 3 are functionally unreachable except by manual SQL.
 
-S3 closes the loop: Stripe takes money, a webhook flips `profiles.plan` + writes a `payments` row, and the existing gates start doing their job. À la carte purchases (resume review, LinkedIn audit, interview prep, individual coaching sessions) reuse the same plumbing; they grant `plan_1` (the cheapest paid tier) on first purchase.
+S3 closes the loop: Stripe takes money, a webhook flips `profiles.plan` + writes a `payments` row, and the existing gates start doing their job. The two subscription tiers are **Core** (`plan_2`, unlocks Tier 2) and **Pro** (`plan_3`, unlocks Tier 3), each billed monthly or quarterly. À la carte purchases (resume review, LinkedIn audit, interview prep, individual coaching sessions) reuse the same plumbing but **do not unlock the job board** — jobs are subscription-only.
 
 This is the next unblocked sprint — independent of the Anthropic API key, Lauren's manual seeding, and the recruiters portal currently being finished.
 
@@ -25,17 +25,18 @@ These are surfaced up front because they affect schema + pricing copy. **Default
 
 1. **Stripe surface: hosted Checkout for v1** (not Payment Element). One redirect per purchase, near-zero PCI scope, ~1 day to wire. Cost: brand jumps domain mid-flow. Acceptable for S3; revisit when à la carte volume justifies inline checkout.
 2. **Plan ↔ purchase mapping**:
-   - À la carte (any one-time service: resume review, LinkedIn audit, interview prep, single coaching session) → `plan = 'plan_1'`, `billing_cadence = 'one_time'` if currently `free`. Never downgrades.
-   - Plan 2 monthly / annual subscription → `plan = 'plan_2'`, `billing_cadence = 'monthly'` / `'annual'`.
-   - Plan 3 monthly / annual subscription → `plan = 'plan_3'`, same cadence rule.
-   - **Upgrade is monotonic** (`plan_3 > plan_2 > plan_1 > free`). Buying a single coaching session doesn't downgrade a Plan 3 subscriber.
-   - This matches the existing `can_see_job_tier` helper. `docs/context.md` and `docs/ec-candidate-journey.md` both say "any payment = Tier 3 access" — that's marketing aspiration; the actual gate today is `tier_3 ↔ plan_3`. **Lock the gate, fix the docs**, not the other way around.
-3. **Subscription model**: stripe-native subscriptions for Plan 2 / Plan 3 (monthly + annual). Plan 1 is a one-time charge that grants lifetime entry-tier access — no recurring object, no renewal logic. The `subscription_status` enum on `profiles` only applies to plan_2/plan_3 rows; for plan_1 it stays null.
+   - **Core** subscription (monthly / quarterly) → `plan = 'plan_2'`, `billing_cadence = 'monthly'` / `'quarterly'`. Unlocks Tier 2.
+   - **Pro** subscription (monthly / quarterly) → `plan = 'plan_3'`, same cadence rule. Unlocks Tier 2 + Tier 3.
+   - À la carte (any one-time service: resume review, LinkedIn audit, interview prep, single coaching session) grants the service/enrollment only — it **does not unlock the job board** (jobs are subscription-only). `plan_1` is retained in the enum as a legacy state but is no longer granted for board access.
+   - **Upgrade is monotonic** (`plan_3 > plan_2 > plan_1 > free`). Buying a one-time service never downgrades a Core/Pro subscriber.
+   - The gate is `tier_2 ↔ plan_2/plan_3`, `tier_3 ↔ plan_3` (see `can_see_job_tier`). `docs/context.md`, `docs/ec-candidate-journey.md`, and `CLAUDE.md` have been updated to match.
+3. **Subscription model**: stripe-native subscriptions for Core / Pro (monthly + quarterly). À la carte purchases are one-time charges (no recurring object, no renewal logic) that grant the service/enrollment but no job-board access. The `subscription_status` enum on `profiles` only applies to plan_2/plan_3 rows; for one-time purchases it stays null.
 4. **Catalog source of truth**: Stripe Dashboard owns the product/price catalog. We store price IDs in two places:
-   - **Subscription tiers (5 fixed prices)** — env vars (`STRIPE_PRICE_PLAN_1_ONE_TIME`, `STRIPE_PRICE_PLAN_2_MONTHLY`, `STRIPE_PRICE_PLAN_2_ANNUAL`, `STRIPE_PRICE_PLAN_3_MONTHLY`, `STRIPE_PRICE_PLAN_3_ANNUAL`). Validated in `env.ts`.
+   - **Subscription tiers (4 fixed prices)** — env vars (`STRIPE_PRICE_CORE_MONTHLY`, `STRIPE_PRICE_CORE_QUARTERLY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_QUARTERLY`). Validated in `env.ts`.
    - **À la carte services** — the existing `coaching_products.stripe_price_id` column. Lauren manages from `/admin/coaching` (already shipped via admin-super slice 3).
 5. **Cancel UX**: Stripe Customer Portal (hosted) for v1. Same tradeoff as Checkout — fastest to ship, brand jumps domain. One link in `/billing`.
-6. **What "à la carte" includes for the plan_1 grant**: every product in `coaching_products` (already includes resume_review, linkedin_review, interview_prep, coaching modules + session packs). Webinar registrations are a separate flow (`/api/events/register`) and do NOT grant plan upgrades — webinars stay top-of-funnel acquisition, not monetization.
+6. **What "à la carte" includes**: every product in `coaching_products` (resume_review, linkedin_review, interview_prep, coaching modules + session packs). These grant the service/enrollment but **no job-board access** (jobs are subscription-only). Webinar registrations are a separate flow (`/api/events/register`) and do NOT grant plan upgrades — webinars stay top-of-funnel acquisition.
+7. **Bundled coaching (open)**: Core and Pro include "X coaching sessions per period." This is a recurring, resetting entitlement (sessions granted per billing period, reset on renewal) — net-new mechanics beyond the current one-time `enrollments` model. Counts, reset logic, and tracking table are **not yet specified**; resolve before building the subscription grant path. Price points and the per-tier session counts are pending from GT/Lauren.
 
 ---
 
@@ -95,7 +96,7 @@ No changes to `profiles` (already has `plan`, `billing_cadence`, `subscription_s
 
 | Route                     | Purpose                                                                                       |
 | ------------------------- | --------------------------------------------------------------------------------------------- |
-| `/pricing`                | Public-facing plan table (Plan 1 one-time, Plan 2 monthly/annual, Plan 3 monthly/annual)      |
+| `/pricing`                | Public-facing plan table (Free, Core monthly/quarterly, Pro monthly/quarterly)                |
 | `/(app)/billing`          | Authenticated: current plan, next renewal, manage-subscription link to Stripe Customer Portal |
 | `/(app)/checkout/success` | Post-Checkout return URL — confirms payment, polls until webhook flips plan, then redirects   |
 | `/(app)/checkout/cancel`  | Post-Checkout cancel return URL — preserves intent in URL so we can re-CTA                    |
@@ -181,18 +182,18 @@ try {
 
 #### Handler logic
 
-- **`handleCheckoutCompleted`**: read `metadata.profile_id` + `metadata.kind`. For `kind='one_time'`: write `payments` row, look up `coaching_products` by `stripe_price_id` to derive `product_type`, grant `enrollments` row if the product is a coaching module, and upgrade `plan='plan_1'`, `billing_cadence='one_time'` only if current plan is `free`. For `kind='subscription'`: defer plan flip to `customer.subscription.updated` (Stripe will fire it).
+- **`handleCheckoutCompleted`**: read `metadata.profile_id` + `metadata.kind`. For `kind='one_time'`: write `payments` row, look up `coaching_products` by `stripe_price_id` to derive `product_type`, and grant an `enrollments` row if the product is a coaching module. **No plan change** — à la carte does not unlock the board. For `kind='subscription'`: defer the plan flip to `customer.subscription.updated` (Stripe will fire it).
 - **`handleSubscriptionChange`**: map `price_id` → target plan (env-driven lookup). Write/update `profiles.plan`, `billing_cadence`, `subscription_status`, `stripe_subscription_id`. On `deleted`, set `subscription_status='canceled'`. **Do not downgrade `plan` immediately** — Stripe gives a `cancel_at_period_end` flag; downgrade is handled when the period actually ends (next `subscription.deleted` event).
 - **`handleInvoicePaid`**: write a `payments` row keyed by `invoice.id` (renewal record-keeping). `billing_reason = 'subscription_cycle'`.
 - **`handleInvoiceFailed`**: set `subscription_status='expired'` after Stripe's retry window exhausts.
 
 ### Helpers in `src/lib/stripe/`
 
-| File          | Purpose                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------ |
-| `client.ts`   | Server-only `Stripe` SDK instance. Reads `STRIPE_SECRET_KEY`.                                          |
-| `prices.ts`   | Env-driven `priceIdToPlan` lookup — maps the 5 subscription price IDs to `{ plan, billing_cadence }`.  |
-| `validate.ts` | `assertAllowedPriceId(supabase, priceId)` — checks against env allowlist + active `coaching_products`. |
+| File          | Purpose                                                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `client.ts`   | Server-only `Stripe` SDK instance. Reads `STRIPE_SECRET_KEY`.                                                                        |
+| `prices.ts`   | Env-driven `priceIdToPlan` lookup — maps the 4 subscription price IDs (Core/Pro × monthly/quarterly) to `{ plan, billing_cadence }`. |
+| `validate.ts` | `assertAllowedPriceId(supabase, priceId)` — checks against env allowlist + active `coaching_products`.                               |
 
 ### `src/lib/plan.ts` additions
 
@@ -220,7 +221,7 @@ create policy payments_admin_read on payments for select to authenticated
 
 - **`/job-board`** Tier 2 / Tier 3 lock banners (already shipped via job-board plan) link to `/pricing#plan_2` / `/pricing#plan_3` deeplinks. Add anchors to `/pricing`.
 - **`/(app)/checkout/success`** polls `/api/me` (or the existing dashboard query) until `profiles.plan` updates, then routes to `/dashboard` with a success toast. Cap polling at 30s — if the webhook is lagging beyond that, surface "We received your payment, your account will update shortly" + a manual refresh button.
-- **Dashboard nudges**: tie the existing nudge framework to `profiles.plan`. Free → upgrade prompts. Plan 1 → subscribe prompts. Plan 2 → upgrade to Plan 3 prompt when viewing Tier 3 lock banner.
+- **Dashboard nudges**: tie the existing nudge framework to `profiles.plan`. Free / à la carte → subscribe-to-Core prompts. Core (plan_2) → upgrade-to-Pro prompt when viewing a Tier 3 lock banner.
 - **`expressInterest` modal** (already shipped): when a free user clicks Express Interest on a Tier 2/3 role they can't see (shouldn't happen via RLS, but defensive), the consent modal swaps to a "subscribe to apply" CTA.
 
 ---
@@ -251,7 +252,7 @@ create policy payments_admin_read on payments for select to authenticated
 
 | Path                                                         | Change                                                                                                                                                            |
 | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `env.ts`                                                     | Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, the 5 `STRIPE_PRICE_*` env vars                                           |
+| `env.ts`                                                     | Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, the 4 `STRIPE_PRICE_*` env vars (Core/Pro × monthly/quarterly) — _done_   |
 | `src/lib/plan.ts`                                            | Add `comparePlans()` for monotonic-upgrade enforcement                                                                                                            |
 | `src/lib/auth/require-role.ts`                               | Add `requireUser()` (no role check, just authenticated)                                                                                                           |
 | `src/lib/query-keys.ts`                                      | Add `queryKeys.billing.*` (current plan, payments history)                                                                                                        |
@@ -279,14 +280,14 @@ create policy payments_admin_read on payments for select to authenticated
 ## Sequencing
 
 1. **Schema first** (migrations + env vars + types regen). No app code yet.
-2. **Stripe Dashboard setup** (manual, by GT / Lauren): create 5 prices for plans, create webhook endpoint pointing at the prod webhook URL, copy IDs into env. Local dev uses `stripe listen --forward-to localhost:3000/api/stripe/webhook` and `STRIPE_WEBHOOK_SECRET` from the CLI output.
+2. **Stripe Dashboard setup** (manual, by GT / Lauren): create 4 prices (Core/Pro × monthly/quarterly), create webhook endpoint pointing at the prod webhook URL, copy IDs into env. Local dev uses `stripe listen --forward-to localhost:3000/api/stripe/webhook` and `STRIPE_WEBHOOK_SECRET` from the CLI output.
 3. **Webhook receiver + handlers** (most important — build this before any Checkout UI so we can verify webhooks land correctly using Stripe's "Send test event" tool).
 4. **Checkout + portal route handlers**.
 5. **`/pricing` page** + `<PlanCard>` form actions. End-to-end test: card-test number → Checkout → webhook → profile flip → `/checkout/success` shows new plan.
 6. **`/billing` page** + Customer Portal link.
 7. **Job-board tier-lock CTA deeplinks** + dashboard upgrade nudge.
 8. **Loops events** for `candidate.payment` + `candidate.plan_upgraded`.
-9. **À la carte path**: hook up one `coaching_products` row (e.g. "Resume Review — $99") and verify one-time purchase → `plan_1` upgrade flow end-to-end.
+9. **À la carte path**: hook up one `coaching_products` row (e.g. "Resume Review — $99") and verify one-time purchase → `payments` row (`product_type` inferred) + `enrollments` row, **no plan change**. Note the `product_type` derivation is keyword-based (see `inferProductType` in `webhook-handlers.ts`); revisit if finer reporting is needed.
 
 ---
 
@@ -295,10 +296,10 @@ create policy payments_admin_read on payments for select to authenticated
 Manual (no automated tests in repo):
 
 1. `npm run type-check` and `npm run check` clean after each migration.
-2. **Subscription happy path**: as a free candidate, visit `/pricing`, click "Subscribe" on Plan 2 monthly. Stripe Checkout opens. Pay with `4242 4242 4242 4242`. Redirected to `/checkout/success`. Within 30s `profiles.plan` becomes `plan_2`, `billing_cadence='monthly'`, `subscription_status='active'`. `payments` has a row with `billing_reason='subscription_create'`. `/job-board` now shows Tier 2 roles unlocked; Tier 3 still locked.
-3. **Upgrade**: same user clicks "Upgrade to Plan 3 (annual)". After Checkout, `plan='plan_3'`, `billing_cadence='annual'`. Tier 3 roles now visible.
-4. **À la carte**: free candidate buys "Resume Review" (one-time). After Checkout, `payments` row written, `enrollments` row written for the coaching product, `plan='plan_1'`, `billing_cadence='one_time'`, `subscription_status` stays null.
-5. **Monotonic upgrade**: a Plan 3 subscriber buys a one-time coaching session. Their plan stays `plan_3` (does not downgrade to `plan_1`).
+2. **Subscription happy path**: as a free candidate, visit `/pricing`, click "Subscribe" on Core monthly. Stripe Checkout opens. Pay with `4242 4242 4242 4242`. Redirected to `/checkout/success`. Within 30s `profiles.plan` becomes `plan_2`, `billing_cadence='monthly'`, `subscription_status='active'`. `payments` has a row with `billing_reason='subscription_create'`. `/job-board` now shows Tier 2 roles unlocked; Tier 3 still locked.
+3. **Upgrade**: same user clicks "Upgrade to Pro (quarterly)". After Checkout, `plan='plan_3'`, `billing_cadence='quarterly'`. Tier 3 roles now visible.
+4. **À la carte**: free candidate buys "Resume Review" (one-time). After Checkout, `payments` row written, `enrollments` row written for the coaching product, **`plan` stays `free`** (à la carte does not unlock the job board), `subscription_status` stays null.
+5. **Monotonic upgrade**: a Pro subscriber buys a one-time coaching session. Their plan stays `plan_3` (does not downgrade).
 6. **Cancel**: from `/billing`, click "Manage subscription" → Stripe Portal. Cancel at period end. `subscription_status='canceled'` immediately; `plan` stays `plan_3` until period end (verified by waiting for the `subscription.deleted` event or simulating it via Stripe CLI). After deletion, `plan='free'`, `billing_cadence=null`.
 7. **Failed payment**: simulate `invoice.payment_failed` via Stripe CLI. `subscription_status` flips to `expired`. Dashboard surfaces a "Payment failed — update card" banner that links to the Customer Portal.
 8. **Webhook idempotency**: replay the same `checkout.session.completed` event twice via Stripe CLI. Only one `payments` row exists. The second delivery returns 200 immediately without re-processing.

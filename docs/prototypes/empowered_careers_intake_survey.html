@@ -1,0 +1,253 @@
+
+<style>
+  .survey-wrap { max-width: 640px; margin: 0 auto; padding: 1.5rem 0 2rem; font-family: var(--font-sans); }
+  .survey-header { margin-bottom: 2rem; }
+  .survey-header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 6px; }
+  .survey-header p { font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.6; }
+  .progress-bar-bg { background: var(--color-background-secondary); border-radius: 99px; height: 4px; margin: 1.25rem 0 2rem; }
+  .progress-bar-fill { background: #534AB7; height: 4px; border-radius: 99px; transition: width 0.4s ease; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .step-label { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .step-q { font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 1.5rem; line-height: 1.5; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--border-radius-md); background: #EEEDFE; color: #3C3489; margin-bottom: 1rem; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); cursor: pointer; transition: border-color 0.15s, background 0.15s; background: var(--color-background-primary); }
+  .opt:hover { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
+  .opt.selected { border: 1.5px solid #534AB7; background: #EEEDFE; }
+  .opt.selected .opt-label { color: #3C3489; }
+  .opt-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .opt.selected .opt-radio { border-color: #534AB7; background: #534AB7; }
+  .opt.selected .opt-radio::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; }
+  .opt-label { font-size: 15px; color: var(--color-text-primary); }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+  .btn-back { background: none; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 20px; font-size: 14px; color: var(--color-text-secondary); cursor: pointer; }
+  .btn-back:hover { background: var(--color-background-secondary); }
+  .btn-next { background: #534AB7; border: none; border-radius: var(--border-radius-md); padding: 9px 24px; font-size: 14px; color: white; cursor: pointer; font-weight: 500; }
+  .btn-next:disabled { background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: default; }
+  .btn-next:not(:disabled):hover { background: #3C3489; }
+  .step-counter { font-size: 13px; color: var(--color-text-secondary); }
+  .complete { display: none; text-align: center; padding: 2rem 0; }
+  .complete-icon { width: 56px; height: 56px; background: #EEEDFE; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 24px; color: #534AB7; }
+  .complete h2 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 8px; }
+  .complete p { font-size: 15px; color: var(--color-text-secondary); margin: 0 0 1.75rem; }
+  .complete-btn { background: #534AB7; border: none; border-radius: var(--border-radius-md); padding: 10px 28px; font-size: 15px; color: white; cursor: pointer; font-weight: 500; }
+  .complete-btn:hover { background: #3C3489; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.75rem; text-align: left; }
+  .summary-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; }
+  .summary-card .sc-label { font-size: 11px; color: var(--color-text-secondary); margin: 0 0 3px; }
+  .summary-card .sc-val { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Empowered Careers new member intake survey, 10 questions</h2>
+
+<div class="survey-wrap">
+  <div class="survey-header">
+    <h1>Empowered Careers™ — new member assessment</h1>
+    <p>10 quick questions to personalize your experience and connect you with the right resources.</p>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog" style="width:0%"></div></div>
+
+  <div id="steps-wrap">
+
+    <div class="step active" data-index="0">
+      <div class="tag">Career Navigator™</div>
+      <p class="step-q">Which best describes your current situation?</p>
+      <div class="options">
+        <div class="opt" data-val="Immediate need"><div class="opt-radio"></div><span class="opt-label">I need a job immediately</span></div>
+        <div class="opt" data-val="Actively searching"><div class="opt-radio"></div><span class="opt-label">Actively searching</span></div>
+        <div class="opt" data-val="Passively exploring"><div class="opt-radio"></div><span class="opt-label">Passively exploring opportunities</span></div>
+        <div class="opt" data-val="Career growth"><div class="opt-radio"></div><span class="opt-label">I want career growth</span></div>
+        <div class="opt" data-val="Leadership prep"><div class="opt-radio"></div><span class="opt-label">Preparing for leadership opportunities</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="1">
+      <div class="tag">Career Navigator™</div>
+      <p class="step-q">What level best describes your current role?</p>
+      <div class="options">
+        <div class="opt" data-val="Senior IC"><div class="opt-radio"></div><span class="opt-label">Senior individual contributor</span></div>
+        <div class="opt" data-val="Lead / Principal"><div class="opt-radio"></div><span class="opt-label">Lead / principal</span></div>
+        <div class="opt" data-val="Manager"><div class="opt-radio"></div><span class="opt-label">Manager</span></div>
+        <div class="opt" data-val="Director"><div class="opt-radio"></div><span class="opt-label">Director</span></div>
+        <div class="opt" data-val="VP / Executive"><div class="opt-radio"></div><span class="opt-label">Vice president / executive</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="2">
+      <div class="tag">Career Navigator™</div>
+      <p class="step-q">Which area best describes your expertise?</p>
+      <div class="options">
+        <div class="opt" data-val="Software Engineering"><div class="opt-radio"></div><span class="opt-label">Software engineering</span></div>
+        <div class="opt" data-val="Cybersecurity"><div class="opt-radio"></div><span class="opt-label">Cybersecurity</span></div>
+        <div class="opt" data-val="Data / AI"><div class="opt-radio"></div><span class="opt-label">Data / AI</span></div>
+        <div class="opt" data-val="Cloud / Infrastructure"><div class="opt-radio"></div><span class="opt-label">Cloud / infrastructure</span></div>
+        <div class="opt" data-val="Product / Program / IT Leadership"><div class="opt-radio"></div><span class="opt-label">Product / program / IT leadership</span></div>
+        <div class="opt" data-val="Other"><div class="opt-radio"></div><span class="opt-label">Other</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="3">
+      <div class="tag">Career Navigator™</div>
+      <p class="step-q">What is your biggest challenge right now?</p>
+      <div class="options">
+        <div class="opt" data-val="Career clarity"><div class="opt-radio"></div><span class="opt-label">Career clarity</span></div>
+        <div class="opt" data-val="Personal branding"><div class="opt-radio"></div><span class="opt-label">Personal branding</span></div>
+        <div class="opt" data-val="Getting interviews"><div class="opt-radio"></div><span class="opt-label">Getting interviews</span></div>
+        <div class="opt" data-val="Interview performance"><div class="opt-radio"></div><span class="opt-label">Interview performance</span></div>
+        <div class="opt" data-val="Confidence and mindset"><div class="opt-radio"></div><span class="opt-label">Confidence and mindset</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="4">
+      <div class="tag">North Star Discovery™</div>
+      <p class="step-q">What is your primary goal for the next 6 months?</p>
+      <div class="options">
+        <div class="opt" data-val="Land a new role"><div class="opt-radio"></div><span class="opt-label">Land a new role</span></div>
+        <div class="opt" data-val="Increase compensation"><div class="opt-radio"></div><span class="opt-label">Increase compensation</span></div>
+        <div class="opt" data-val="Earn a promotion"><div class="opt-radio"></div><span class="opt-label">Earn a promotion</span></div>
+        <div class="opt" data-val="Move into leadership"><div class="opt-radio"></div><span class="opt-label">Move into leadership</span></div>
+        <div class="opt" data-val="Find meaningful work"><div class="opt-radio"></div><span class="opt-label">Find more meaningful work</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="5">
+      <div class="tag">Mindset Mastery™</div>
+      <p class="step-q">How confident are you in your ability to achieve your career goals?</p>
+      <div class="options">
+        <div class="opt" data-val="Very Low"><div class="opt-radio"></div><span class="opt-label">Very low</span></div>
+        <div class="opt" data-val="Low"><div class="opt-radio"></div><span class="opt-label">Low</span></div>
+        <div class="opt" data-val="Moderate"><div class="opt-radio"></div><span class="opt-label">Moderate</span></div>
+        <div class="opt" data-val="High"><div class="opt-radio"></div><span class="opt-label">High</span></div>
+        <div class="opt" data-val="Very High"><div class="opt-radio"></div><span class="opt-label">Very high</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="6">
+      <div class="tag">North Star Discovery™</div>
+      <p class="step-q">How clear are you about your ideal next role?</p>
+      <div class="options">
+        <div class="opt" data-val="Not Clear"><div class="opt-radio"></div><span class="opt-label">Not clear</span></div>
+        <div class="opt" data-val="Slightly Clear"><div class="opt-radio"></div><span class="opt-label">Slightly clear</span></div>
+        <div class="opt" data-val="Somewhat Clear"><div class="opt-radio"></div><span class="opt-label">Somewhat clear</span></div>
+        <div class="opt" data-val="Mostly Clear"><div class="opt-radio"></div><span class="opt-label">Mostly clear</span></div>
+        <div class="opt" data-val="Crystal Clear"><div class="opt-radio"></div><span class="opt-label">Crystal clear</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="7">
+      <div class="tag">Brand Magnification™</div>
+      <p class="step-q">Which best describes your current career readiness?</p>
+      <div class="options">
+        <div class="opt" data-val="Start from scratch"><div class="opt-radio"></div><span class="opt-label">I need to start from scratch</span></div>
+        <div class="opt" data-val="Resume needs work"><div class="opt-radio"></div><span class="opt-label">My resume needs work</span></div>
+        <div class="opt" data-val="LinkedIn needs work"><div class="opt-radio"></div><span class="opt-label">My LinkedIn needs work</span></div>
+        <div class="opt" data-val="Needs stronger strategy"><div class="opt-radio"></div><span class="opt-label">I need a stronger strategy</span></div>
+        <div class="opt" data-val="Ready to pursue"><div class="opt-radio"></div><span class="opt-label">I'm ready to pursue opportunities</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="8">
+      <div class="tag">Career Navigator™</div>
+      <p class="step-q">Which benefit is most valuable to you?</p>
+      <div class="options">
+        <div class="opt" data-val="Exclusive job opportunities"><div class="opt-radio"></div><span class="opt-label">Exclusive job opportunities</span></div>
+        <div class="opt" data-val="Career coaching"><div class="opt-radio"></div><span class="opt-label">Career coaching</span></div>
+        <div class="opt" data-val="AI-powered guidance"><div class="opt-radio"></div><span class="opt-label">AI-powered guidance</span></div>
+        <div class="opt" data-val="Professional networking"><div class="opt-radio"></div><span class="opt-label">Professional networking</span></div>
+        <div class="opt" data-val="Interview preparation"><div class="opt-radio"></div><span class="opt-label">Interview preparation</span></div>
+      </div>
+    </div>
+
+    <div class="step" data-index="9">
+      <div class="tag">Distinguished Dialogues™</div>
+      <p class="step-q">How much support would you like throughout your career journey?</p>
+      <div class="options">
+        <div class="opt" data-val="Self-Guided"><div class="opt-radio"></div><span class="opt-label">Self-guided</span></div>
+        <div class="opt" data-val="AI-Guided"><div class="opt-radio"></div><span class="opt-label">AI-guided</span></div>
+        <div class="opt" data-val="Group Coaching"><div class="opt-radio"></div><span class="opt-label">Group coaching</span></div>
+        <div class="opt" data-val="1:1 Coaching"><div class="opt-radio"></div><span class="opt-label">1:1 coaching</span></div>
+        <div class="opt" data-val="Not Sure Yet"><div class="opt-radio"></div><span class="opt-label">Not sure yet</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav">
+    <button class="btn-back" id="btn-back" style="visibility:hidden">← Back</button>
+    <span class="step-counter" id="counter">1 of 10</span>
+    <button class="btn-next" id="btn-next" disabled>Next →</button>
+  </div>
+
+  <div class="complete" id="complete">
+    <div class="complete-icon"><i class="ti ti-check" aria-hidden="true"></i></div>
+    <h2>Assessment complete</h2>
+    <p>Here's a summary of your profile. Your Empowered Careers journey is tailored to your goals.</p>
+    <div class="summary-grid" id="summary-grid"></div>
+    <button class="complete-btn" onclick="sendPrompt('Based on my intake survey answers, what should my first steps be with Empowered Careers?')">Get my personalized plan ↗</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+const answers = new Array(TOTAL).fill(null);
+let current = 0;
+
+const steps = document.querySelectorAll('.step');
+const btnNext = document.getElementById('btn-next');
+const btnBack = document.getElementById('btn-back');
+const prog = document.getElementById('prog');
+const counter = document.getElementById('counter');
+const stepsWrap = document.getElementById('steps-wrap');
+const completeEl = document.getElementById('complete');
+const navEl = document.querySelector('.nav');
+
+const labels = [
+  'Current situation','Role level','Expertise area','Biggest challenge',
+  'Primary goal','Confidence level','Role clarity','Career readiness',
+  'Most valued benefit','Support preference'
+];
+
+function render() {
+  steps.forEach((s, i) => s.classList.toggle('active', i === current));
+  const pct = Math.round((current / TOTAL) * 100);
+  prog.style.width = pct + '%';
+  counter.textContent = (current + 1) + ' of ' + TOTAL;
+  btnBack.style.visibility = current === 0 ? 'hidden' : 'visible';
+  btnNext.disabled = !answers[current];
+  btnNext.textContent = current === TOTAL - 1 ? 'Submit ✓' : 'Next →';
+}
+
+document.querySelectorAll('.opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const stepEl = opt.closest('.step');
+    const idx = parseInt(stepEl.dataset.index);
+    stepEl.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    answers[idx] = opt.dataset.val;
+    btnNext.disabled = false;
+  });
+});
+
+btnNext.addEventListener('click', () => {
+  if (current < TOTAL - 1) {
+    current++;
+    render();
+  } else {
+    stepsWrap.style.display = 'none';
+    navEl.style.display = 'none';
+    prog.style.width = '100%';
+    completeEl.style.display = 'block';
+    const grid = document.getElementById('summary-grid');
+    grid.innerHTML = answers.map((a, i) =>
+      `<div class="summary-card"><p class="sc-label">${labels[i]}</p><p class="sc-val">${a || '—'}</p></div>`
+    ).join('');
+  }
+});
+
+btnBack.addEventListener('click', () => {
+  if (current > 0) { current--; render(); }
+});
+
+render();
+</script>

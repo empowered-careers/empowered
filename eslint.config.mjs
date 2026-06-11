@@ -3,7 +3,7 @@ import typescript from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
-export default [
+const config = [
   {
     ignores: [
       "**/node_modules/**",
@@ -30,3 +30,5 @@ export default [
   },
   eslintConfigPrettier,
 ];
+
+export default config;

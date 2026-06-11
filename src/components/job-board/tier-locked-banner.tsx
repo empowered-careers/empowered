@@ -13,6 +13,7 @@ export function TierLockedBanner({
 }) {
   const requiredPlan = tierRequiredPlan[tier];
   const noun = count === 1 ? "role" : "roles";
+  const pricingAnchor = requiredPlan === "plan_3" ? "pro" : "core";
 
   return (
     <div className="flex flex-col items-start gap-3 border border-dashed border-border bg-card/50 p-6 md:flex-row md:items-center md:justify-between">
@@ -27,8 +28,10 @@ export function TierLockedBanner({
           </p>
         </div>
       </div>
-      <Button size="sm" type="button">
-        Upgrade to {planLabel[requiredPlan]}
+      <Button asChild size="sm">
+        <a href={`/pricing#${pricingAnchor}`}>
+          Upgrade to {planLabel[requiredPlan]}
+        </a>
       </Button>
     </div>
   );

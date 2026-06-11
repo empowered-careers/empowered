@@ -47,6 +47,39 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
   - [ ] Hit `/events/<slug>?src=linkedin` — canonical resolves to un-tagged URL
   - [ ] Confirm an unpublished event 404s and does not appear in sitemap or `llms.txt`
 
+## Paywall & Plans / Stripe (S3 — code shipped, `docs/done/ec-paywall-plan.md`)
+
+> Everything below runs in a **Stripe sandbox** (or legacy test mode) — test keys, test prices, `4242…` cards, no real charges. The app is env-driven and the API version is unpinned, so you just paste sandbox keys/price IDs into `.env.local`. Going live later = recreate prices in live mode and swap the env values.
+
+### Blocking (payments won't work without these)
+
+- [x] Stripe Dashboard: create 4 prices — Core monthly, Core quarterly, Pro monthly, Pro quarterly (verified: $19/mo, $49/qtr Core · $49/mo, $135/qtr Pro, all recurring)
+- [x] Stripe Dashboard: create a webhook endpoint → `https://<prod-domain>/api/stripe/webhook`; subscribe to `checkout.session.completed`, `customer.subscription.created` / `.updated` / `.deleted`, `invoice.payment_succeeded`, `invoice.payment_failed`
+- [x] Add to `.env.local` (+ deploy host): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_CORE_MONTHLY`, `STRIPE_PRICE_CORE_QUARTERLY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_QUARTERLY`
+- [ ] À la carte: set `coaching_products.stripe_price_id` (sandbox price IDs) for each active product via `/admin/coaching` — required for the one-time path (`assertAllowedPriceId` rejects unknown prices)
+- [x] Stripe Dashboard → Settings → Billing → **Customer Portal**: activate/configure it in the same sandbox/test environment — `/api/stripe/portal` (the `/billing` "Manage subscription" + dashboard "Update card" buttons) errors until it's configured
+- [x] Local dev: `stripe listen --forward-to localhost:3000/api/stripe/webhook`, copy the printed signing secret into `STRIPE_WEBHOOK_SECRET`
+
+### Verification (Stripe sandbox or test mode, card `4242 4242 4242 4242`)
+
+> Tip: use a **Test Clock** to fast-forward subscription renewals and cancel-at-period-end (the `subscription_cycle` / `subscription.deleted` steps) without waiting; `stripe trigger invoice.payment_failed` fires the failed-payment step.
+
+- [x] Subscribe to Core monthly → `/checkout/success` → within 30s `plan='plan_2'`, `billing_cadence='monthly'`, `subscription_status='active'`; `payments` row `billing_reason='subscription_create'`; `/job-board` Tier 2 unlocked, Tier 3 still locked
+- [x] Upgrade to Pro quarterly → `plan='plan_3'`, `billing_cadence='quarterly'`; Tier 3 visible
+- [ ] À la carte one-time (e.g. Resume Review) → `payments` + `enrollments` rows written, `plan` stays `free`, `subscription_status` null
+- [ ] Monotonic: Pro subscriber buys a one-time session → plan stays `plan_3`
+- [ ] Cancel via `/billing` → Customer Portal → cancel at period end: `subscription_status='canceled'` immediately, `plan` stays until period end; after `subscription.deleted`, `plan='free'`, `billing_cadence=null`
+- [ ] Failed payment (simulate `invoice.payment_failed`) → `subscription_status='expired'`, dashboard shows the "Payment failed — update card" banner
+- [ ] Idempotency: replay the same `checkout.session.completed` twice → only one `payments` row; second delivery returns 200 instantly
+- [ ] Security: bad signature → 400; no signature → 400; GET from browser → 405
+- [ ] RLS (candidate JWT in Supabase Studio): `select * from payments where profile_id != auth.uid()` blocked; `insert into payments ...` blocked
+- [ ] Loops: confirm `candidate.payment` + `candidate.plan_upgraded` events arrive in the Loops event log
+
+### Decide before building bundled coaching (plan decision #7)
+
+- [ ] Set Core/Pro price points + per-tier coaching-session counts ("X sessions / period")
+- [ ] Spec the resetting-entitlement mechanics (counts, reset-on-renewal, tracking table) before building the subscription grant path — this is net-new code, not part of S3
+
 ## Optional / later
 
 - [ ] Place ≥5 PDF fixtures in `evals/parser/fixtures/` with ground-truth JSON in `evals/parser/ground-truth/`, then `npm run eval:parser`

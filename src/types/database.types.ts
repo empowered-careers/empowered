@@ -161,7 +161,11 @@ export type Database = {
       }
       candidate_preferences: {
         Row: {
+          biggest_challenge: string | null
           blocklist_companies: string[]
+          career_readiness: string | null
+          comp_target_min_cents: number | null
+          confidence_level: string | null
           created_at: string
           current_location: string | null
           current_salary_cents: number | null
@@ -169,14 +173,19 @@ export type Database = {
           expected_salary_currency: string | null
           expected_salary_max_cents: number | null
           expected_salary_min_cents: number | null
+          expertise_area: string | null
           id: string
           industries: string[]
+          most_valued_benefit: string | null
           notice_period_days: number | null
           preferred_domains: string[]
+          primary_goal_6mo: string | null
           profile_id: string
           remote_preference:
             | Database["public"]["Enums"]["remote_preference"]
             | null
+          role_clarity: string | null
+          support_preference: string | null
           switch_urgency: Database["public"]["Enums"]["switch_urgency"] | null
           target_companies: string[]
           target_role: string | null
@@ -186,7 +195,11 @@ export type Database = {
           work_authorization: Database["public"]["Enums"]["work_auth"] | null
         }
         Insert: {
+          biggest_challenge?: string | null
           blocklist_companies?: string[]
+          career_readiness?: string | null
+          comp_target_min_cents?: number | null
+          confidence_level?: string | null
           created_at?: string
           current_location?: string | null
           current_salary_cents?: number | null
@@ -194,14 +207,19 @@ export type Database = {
           expected_salary_currency?: string | null
           expected_salary_max_cents?: number | null
           expected_salary_min_cents?: number | null
+          expertise_area?: string | null
           id?: string
           industries?: string[]
+          most_valued_benefit?: string | null
           notice_period_days?: number | null
           preferred_domains?: string[]
+          primary_goal_6mo?: string | null
           profile_id: string
           remote_preference?:
             | Database["public"]["Enums"]["remote_preference"]
             | null
+          role_clarity?: string | null
+          support_preference?: string | null
           switch_urgency?: Database["public"]["Enums"]["switch_urgency"] | null
           target_companies?: string[]
           target_role?: string | null
@@ -211,7 +229,11 @@ export type Database = {
           work_authorization?: Database["public"]["Enums"]["work_auth"] | null
         }
         Update: {
+          biggest_challenge?: string | null
           blocklist_companies?: string[]
+          career_readiness?: string | null
+          comp_target_min_cents?: number | null
+          confidence_level?: string | null
           created_at?: string
           current_location?: string | null
           current_salary_cents?: number | null
@@ -219,14 +241,19 @@ export type Database = {
           expected_salary_currency?: string | null
           expected_salary_max_cents?: number | null
           expected_salary_min_cents?: number | null
+          expertise_area?: string | null
           id?: string
           industries?: string[]
+          most_valued_benefit?: string | null
           notice_period_days?: number | null
           preferred_domains?: string[]
+          primary_goal_6mo?: string | null
           profile_id?: string
           remote_preference?:
             | Database["public"]["Enums"]["remote_preference"]
             | null
+          role_clarity?: string | null
+          support_preference?: string | null
           switch_urgency?: Database["public"]["Enums"]["switch_urgency"] | null
           target_companies?: string[]
           target_role?: string | null
@@ -926,33 +953,92 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          href: string | null
+          id: string
+          metadata: Json
+          profile_id: string
+          read_at: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          metadata?: Json
+          profile_id: string
+          read_at?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          metadata?: Json
+          profile_id?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
+          billing_reason: string | null
           created_at: string
           id: string
+          metadata: Json | null
           product_type: Database["public"]["Enums"]["product_type"]
           profile_id: string
           status: Database["public"]["Enums"]["payment_status"]
+          stripe_invoice_id: string | null
           stripe_payment_intent_id: string
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
         }
         Insert: {
           amount: number
+          billing_reason?: string | null
           created_at?: string
           id?: string
+          metadata?: Json | null
           product_type: Database["public"]["Enums"]["product_type"]
           profile_id: string
           status?: Database["public"]["Enums"]["payment_status"]
+          stripe_invoice_id?: string | null
           stripe_payment_intent_id: string
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
         }
         Update: {
           amount?: number
+          billing_reason?: string | null
           created_at?: string
           id?: string
+          metadata?: Json | null
           product_type?: Database["public"]["Enums"]["product_type"]
           profile_id?: string
           status?: Database["public"]["Enums"]["payment_status"]
+          stripe_invoice_id?: string | null
           stripe_payment_intent_id?: string
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
         }
         Relationships: [
           {
@@ -1294,6 +1380,33 @@ export type Database = {
           },
         ]
       }
+      stripe_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          payload: Json
+          processed_at: string | null
+          processing_error: string | null
+          received_at: string
+        }
+        Insert: {
+          event_id: string
+          event_type: string
+          payload: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          payload?: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1321,7 +1434,7 @@ export type Database = {
         | "placed"
         | "rejected"
         | "withdrawn"
-      billing_cadence: "one_time" | "monthly" | "annual"
+      billing_cadence: "one_time" | "monthly" | "annual" | "quarterly"
       coaching_product_type: "module" | "session_pack" | "one_to_one"
       coaching_session_status:
         | "scheduled"
@@ -1348,6 +1461,7 @@ export type Database = {
         | "linkedin_review"
         | "interview_prep"
         | "subscription"
+        | "coaching"
       referral_status: "invited" | "signed_up" | "placed"
       relationship_type: "direct_client" | "agency_partner"
       remote_policy: "remote" | "hybrid" | "onsite"
@@ -1502,7 +1616,7 @@ export const Constants = {
         "rejected",
         "withdrawn",
       ],
-      billing_cadence: ["one_time", "monthly", "annual"],
+      billing_cadence: ["one_time", "monthly", "annual", "quarterly"],
       coaching_product_type: ["module", "session_pack", "one_to_one"],
       coaching_session_status: [
         "scheduled",
@@ -1531,6 +1645,7 @@ export const Constants = {
         "linkedin_review",
         "interview_prep",
         "subscription",
+        "coaching",
       ],
       referral_status: ["invited", "signed_up", "placed"],
       relationship_type: ["direct_client", "agency_partner"],

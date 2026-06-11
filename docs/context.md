@@ -33,7 +33,7 @@ Candidates pay to enter the ecosystem via:
 - À la carte services (resume, LinkedIn, interview prep)
 - Career Symmetry coaching modules (Lauren's existing IP)
 
-**Any payment = lifetime access to the private job board.**
+**A Core or Pro subscription unlocks the private job board** — Core unlocks Tier 2 (curated) roles, Pro unlocks Tier 3 (exclusive) roles. One-time purchases (webinars, à la carte services, coaching) monetize the funnel but do not by themselves unlock the board.
 
 Free tier exists as a lead magnet (AI-powered Resume score at upload, LinkedIn grade) — but the job board is gated. The job-vs-resume ATS Score is unlocked when a paid candidate views a specific role. If it's free on ChatGPT, it's free here. If it requires Lauren's network or judgment, it's paid.
 
@@ -51,7 +51,7 @@ Free content (webinars, LinkedIn, Reddit)
         ↓
 Candidate signs up → shares LinkedIn + resume
         ↓
-        [PAYWALL GATE — any payment unlocks lifetime access]
+        [PAYWALL GATE — Core/Pro subscription unlocks the job board]
         ↓
 Candidate Pool (vetted, profiled, scored)
         ↓                          ↓
@@ -211,7 +211,7 @@ No SaaS tool can replicate: _"These aren't scraped jobs. These are roles we acti
 
 - **Not building another resume tool** — that's the free tier lead magnet, not the product
 - **Exclusive job board is the moat** — not assessments, not AI tools
-- **Any payment = lifetime job board access** — reduces friction, increases perceived value
+- **Subscription gates the job board** — Core unlocks Tier 2, Pro unlocks Tier 3 (the moat); à la carte purchases and webinars monetize the funnel without unlocking it
 - **Gates before platform build** — prove the flywheel manually before engineering it
 - **Disposable channels first** — test with cold traffic (Reddit, paid ads) before activating warm network (Jim Huling, Doug Henderson / Visionaire Partners)
 - **Lauren as brand validator, platform as separate entity** — to be confirmed: new brand vs. Empowered Careers
