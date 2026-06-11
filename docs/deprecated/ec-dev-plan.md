@@ -233,7 +233,6 @@ Some scope already landed in S2 via the job-board + pipeline plans. Remaining S4
 - [x] Admin: add/edit/archive jobs (landed in S2 via `docs/done/ec-job-board-plan.md`)
 - [x] Admin: assign `job_tier`, status (same)
 - [x] Express interest CTA → writes to `applications` table at `interested` (landed in S2 via `docs/done/ec-candidate-pipeline-plan.md`)
-- [ ] Match score v1 — the **ATS Score** (resume-vs-job fit, resume keyword overlap + Plan visibility filter). Writes to `matches.match_score`. Distinct from the upload-time Resume Score on `resumes.resume_score`.
 - [ ] Match reasoning (AI-generated, single sentence — Claude API)
 - [x] Candidate pool view for Lauren — `/admin/candidates` + `/admin/payments` (admin-super slice 1, shipped 2026-05-20 via `docs/done/ec-admin-super-plan.md`)
 

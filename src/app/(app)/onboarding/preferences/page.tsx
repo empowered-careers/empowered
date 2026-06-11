@@ -16,50 +16,24 @@ export default async function OnboardingPreferencesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [prefsResult, resumeResult] = await Promise.all([
-    supabase
-      .from("candidate_preferences")
-      .select(
-        "target_role, target_seniority, industries, switch_urgency, notice_period_days, work_authorization"
-      )
-      .eq("profile_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("resumes")
-      .select("seniority_level")
-      .eq("profile_id", user.id)
-      .eq("is_current", true)
-      .order("uploaded_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
-  const existing = prefsResult.data;
-  const seniorityFromResume = resumeResult.data?.seniority_level ?? null;
+  const { data: existing } = await supabase
+    .from("candidate_preferences")
+    .select("target_role")
+    .eq("profile_id", user.id)
+    .maybeSingle();
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10">
-      <header className="mb-6 space-y-2">
+    <div className="mx-auto max-w-xl px-6 py-10">
+      <header className="mb-8 space-y-1.5">
         <h1 className="font-display text-2xl font-semibold text-foreground">
-          Tell us what you&apos;re looking for
+          Empowered Careers™ — new member assessment
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Six quick fields. We use these to match you with roles and to time our
-          outreach. You can change everything later from{" "}
-          <span className="font-mono text-xs">/profile</span>.
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          15 quick questions to personalize your experience and connect you with
+          the right resources.
         </p>
       </header>
-      <PreferencesForm
-        initial={{
-          target_role: existing?.target_role ?? "",
-          target_seniority:
-            existing?.target_seniority ?? seniorityFromResume ?? "",
-          industries: existing?.industries ?? [],
-          switch_urgency: existing?.switch_urgency ?? null,
-          notice_period_days: existing?.notice_period_days ?? null,
-          work_authorization: existing?.work_authorization ?? null,
-        }}
-      />
+      <PreferencesForm initialRole={existing?.target_role ?? ""} />
     </div>
   );
 }

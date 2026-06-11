@@ -1,7 +1,7 @@
 # Empowered Careers — Sprint Checklist to Finished Product
 
-> Status: **Active** (created 2026-06-05 · last reconciled against code 2026-06-05)
-> Reconciliation note: **Sprint B (Stripe paywall) shipped same day** and D1 is resolved — see that section.
+> Status: **Active** (created 2026-06-05 · last reconciled against code 2026-06-11)
+> Reconciliation note: **Sprint B fully code-complete** (paywall + `usePaymentNotifications` shipped; D1 resolved). Only ops items remain (Stripe catalog/keys).
 > Single source-of-truth backlog from today's verified state to a finished product —
 > Phase 1 launch, Phase 2, and the explicitly-deferred items folded in as real sprints.
 > Supersedes the stale checkboxes in `docs/ec-dev-plan.md` (kept as historical narrative).
@@ -33,6 +33,7 @@ diagram (§3) is the build order; never start a sprint whose prerequisite is lat
 - [x] Employer portal `/employer/*` — jobs CRUD, applications (+full-PII detail + status mover), client_companies (agency), placements; `useEmployerApplicationNotifications`.
 - [x] Events + leads — public `/events`, registration, lead reconcile at OAuth, `lead.*` Loops events.
 - [x] Realtime notifications provider (resume / linkedin / application hooks in root layout).
+- [x] **Persistent notifications system** — `notifications` table fed by source mutations; bell-popover in top nav with unread badge, history, and mark-read UX; `useNotificationFeed` hook + `NotificationBell` component (`src/components/notifications/`). Distinct from nudges (derived) and realtime toasts (ephemeral).
 - [x] SEO — sitemap, `llms.txt`, robots, JSON-LD, canonicals.
 - [x] In-app nudges **v1** — `computeNudges()` (4 rules: interviewing, profile-completion, free-plan-with-active-jobs, content) feeding the dashboard "For your attention" grid.
 - [x] **Stripe paywall (Sprint B, shipped 2026-06-05)** — hosted Checkout + Customer Portal + signature-verified webhook; `profiles.plan` flips on subscription events; à-la-carte grants `enrollments` only (no board access); `candidate.payment`/`candidate.plan_upgraded` Loops events. Blocked only on live Stripe keys/catalog (ops) + an optional realtime payment toast. _(Full detail in Sprint B below.)_
@@ -93,7 +94,7 @@ Goal: first dollar in. **D1 resolved — jobs are subscription-only:** Core (`pl
 - [x] À-la-carte purchase → `payments` + `enrollments` row, **no plan change** (per D1) (`webhook-handlers.ts` `handleCheckoutCompleted`).
 - [x] Subscription-management UI: `/(app)/billing` (current plan + 20-row payment history) → `/api/stripe/portal` Customer Portal; `/(app)/checkout/{success,cancel}` (success polls `profiles.plan` until the webhook lands).
 - [x] Locked-tier upgrade prompt — `tier-locked-banner.tsx` CTA deeplinks to `/pricing#core` / `/pricing#pro`.
-- [ ] `usePaymentNotifications` realtime hook (per the CLAUDE.md async-job pattern) mounted in `RealtimeNotifications` — payment status flip → toast + invalidate. **Today `/checkout/success` polls instead** (the documented fallback); the websocket toast is the remaining polish. `RealtimeNotifications` currently mounts only resume/linkedin/application hooks.
+- [x] `usePaymentNotifications` realtime hook (per the CLAUDE.md async-job pattern) mounted in `RealtimeNotifications` — payment status flip → toast + invalidate. Shipped 2026-06-07; `/checkout/success` poll retained as fallback. `RealtimeNotifications` now mounts resume/linkedin/application/payment hooks.
 - [ ] **Ops / manual:** create the Stripe Dashboard catalog (4 subscription prices + à-la-carte `coaching_products.stripe_price_id`), register the prod webhook endpoint, populate the `STRIPE_*` env vars (test + live). No keys set yet.
 
 **Exit:** candidate pays, plan persists, gating works end-to-end, Lauren sees the payment. _(Code path complete; blocked only on the ops catalog/keys + the optional realtime toast.)_

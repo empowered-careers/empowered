@@ -1,6 +1,6 @@
 # Empowered Careers — Feature List
 
-> Last updated: May 2026
+> Last updated: June 2026
 > Status: Working document
 
 ---
@@ -22,18 +22,18 @@
 
 ## 3. Onboarding Flow
 
-- Resume upload — mandatory before dashboard access
+- Resume upload — mandatory before dashboard access ✅
 - Progress indicator
-- No skip option on resume upload
+- No skip option on resume upload ✅
 
 ---
 
 ## 4. Resume Features
 
 - Upload + storage ✅
-- PDF/DOCX parsing ✅ (in progress)
-- Resume score (0–100) with breakdown — job-agnostic LLM scoring at upload
-- Resume score display card on dashboard
+- PDF/DOCX parsing ✅
+- Resume score (0–100) with breakdown — job-agnostic LLM scoring at upload ✅
+- Resume score display card on dashboard ✅
 - Staleness tracking (last updated date, nudge after X days)
 - Resume rewrite service CTA (à la carte upsell)
 
@@ -51,48 +51,45 @@
 
 ## 6. Assessments
 
-> **Status note:** The first assessment being built is the **Career Identity Blueprint™** —
-> a single 30-question scan that, for Phase 1, alone populates all five `candidate_scores`
-> dimensions below. It is **one of** a planned assessment suite, not a replacement; the
-> granular per-dimension assessments remain on the roadmap. See
-> [`docs/done/career-blueprint-integration.md`](./done/career-blueprint-integration.md) (and
-> [`docs/assessment.md`](./assessment.md)) for the current approved approach.
+> **Status:** The **Career Identity Blueprint™** ✅ — a 30-question scan populating all five
+> `candidate_scores` dimensions — shipped 2026-06-02. The five granular per-dimension
+> assessments (Role Clarity, Values + Environment, Strengths, Leadership Style, Big Wins)
+> are deferred to Phase 2. See [`docs/done/career-blueprint-integration.md`](./done/career-blueprint-integration.md).
 
-Five core assessments for Phase 1:
+Phase 1 — shipped:
 
-- Role Clarity — target role, level, location
-- Values + Environment — culture fit signal
-- Strengths — zone of genius
-- Leadership Style — team and org fit
-- Big Wins — proof of impact
+- Career Identity Blueprint™ (30 questions → 6 `candidate_scores` dimensions) ✅
+- Assessment runner UI (multi-step form) ✅
+- Dimension scores written to `candidate_scores` ✅
 
-Features:
+Phase 2 — deferred (see Phase 2 section below):
 
+- Role Clarity, Values + Environment, Strengths, Leadership Style, Big Wins (granular assessments)
 - Progressive unlock — each improves match score visibly
 - Results displayed as profile cards
 - Coaching upsell embedded per result
-- Tier 2 unlock tied to completing 2–3 assessments
 
 ---
 
 ## 7. Job Board
 
-- Tier 1 — public/curated roles (visible post signup + resume upload)
-- Tier 2 — semi-exclusive (Core subscription)
-- Tier 3 — fully exclusive (Pro subscription)
-- Match score per role
-- Match reasoning — _"Why this matches you"_
-- Express interest / apply CTA per role
-- New match notifications (email + in-app)
+- Tier 1 — public/curated roles (visible post signup + resume upload) ✅
+- Tier 2 — semi-exclusive (Core subscription) ✅
+- Tier 3 — fully exclusive (Pro subscription) ✅
+- Match score per role — pending (Sprint C)
+- Match reasoning — _"Why this matches you"_ — pending (Sprint C)
+- Express interest / apply CTA per role ✅
+- New match notifications (email + in-app) — pending (Sprint C)
 
 ---
 
 ## 8. Dashboard
 
-- Profile completeness score (0–100)
-- Nudge cards (personalized, score and behavior based)
-- Job tier preview with correct lock states
-- Match count visible at all times
+- Profile completeness score (0–100) ✅
+- Nudge cards (personalized, score and behavior based) ✅ v1 — 5 rules shipped; v2 engine deferred (Sprint F)
+- Job tier preview with correct lock states ✅
+- Persistent notifications bell (bell popover, unread badge, mark-read) ✅
+- Match count visible at all times — pending (Sprint C)
 
 ---
 
@@ -112,7 +109,7 @@ In-app nudge cards + email triggers:
 
 ---
 
-## 10. Payments (Stripe) — _code shipped (S3); Stripe Dashboard + live verification pending_
+## 10. Payments (Stripe) — _fully code-complete (incl. realtime payment notifications); Stripe Dashboard catalog + live keys pending (ops)_
 
 - **Core** subscription (monthly / quarterly) — unlocks Tier 2
 - **Pro** subscription (monthly / quarterly) — unlocks Tier 3
@@ -167,14 +164,15 @@ Triggered by candidate events piped from Supabase:
 
 ## Phase 2 Features (Deferred)
 
-| Feature                       | Reason Deferred                        |
-| ----------------------------- | -------------------------------------- |
-| Full matching algorithm       | Need candidate + job volume first      |
-| ~~Agency portal~~             | Shipped 2026-05-23 (Sprint P2-1)       |
-| AI resume rewriting           | Conversion lever, not core             |
-| Conversational AI assessments | Complexity without proven demand       |
-| Public job scraping           | Manual curation sufficient for Phase 1 |
-| Referral system               | Need placements first                  |
-| Pipedrive CRM                 | After 10 agencies onboarded            |
-| Mobile app                    | Phase 3                                |
-| AI coach                      | Phase 3                                |
+| Feature                                                                      | Reason Deferred                        |
+| ---------------------------------------------------------------------------- | -------------------------------------- |
+| Full matching algorithm                                                      | Need candidate + job volume first      |
+| ~~Agency portal~~                                                            | Shipped 2026-05-23 (Sprint P2-1)       |
+| Granular assessments (Role Clarity, Values, Strengths, Leadership, Big Wins) | Career Blueprint covers Phase 1 needs  |
+| AI resume rewriting                                                          | Conversion lever, not core             |
+| Conversational AI assessments                                                | Complexity without proven demand       |
+| Public job scraping                                                          | Manual curation sufficient for Phase 1 |
+| Referral system                                                              | Need placements first                  |
+| Pipedrive CRM                                                                | After 10 agencies onboarded            |
+| Mobile app                                                                   | Phase 3                                |
+| AI coach                                                                     | Phase 3                                |

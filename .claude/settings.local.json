@@ -20,7 +20,9 @@
       "Bash(npx tsc *)",
       "Bash(tasklist)",
       "Bash(echo \"eslint exit: $?\")",
-      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
+      "Bash(curl -s \"https://ec-kanban.vercel.app/api/cards/5692951a-caec-49a0-9d82-9751d6ede23e\" -H \"Authorization: Bearer 00hClfwXLT89kKcK\")",
+      "Bash(curl -s \"https://ec-kanban.vercel.app/api/cards/f4191879-d857-4041-8d7f-8f9331e28548\" -H \"Authorization: Bearer 00hClfwXLT89kKcK\")"
     ]
   }
 }

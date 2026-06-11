@@ -161,7 +161,11 @@ export type Database = {
       }
       candidate_preferences: {
         Row: {
+          biggest_challenge: string | null
           blocklist_companies: string[]
+          career_readiness: string | null
+          comp_target_min_cents: number | null
+          confidence_level: string | null
           created_at: string
           current_location: string | null
           current_salary_cents: number | null
@@ -169,14 +173,19 @@ export type Database = {
           expected_salary_currency: string | null
           expected_salary_max_cents: number | null
           expected_salary_min_cents: number | null
+          expertise_area: string | null
           id: string
           industries: string[]
+          most_valued_benefit: string | null
           notice_period_days: number | null
           preferred_domains: string[]
+          primary_goal_6mo: string | null
           profile_id: string
           remote_preference:
             | Database["public"]["Enums"]["remote_preference"]
             | null
+          role_clarity: string | null
+          support_preference: string | null
           switch_urgency: Database["public"]["Enums"]["switch_urgency"] | null
           target_companies: string[]
           target_role: string | null
@@ -186,7 +195,11 @@ export type Database = {
           work_authorization: Database["public"]["Enums"]["work_auth"] | null
         }
         Insert: {
+          biggest_challenge?: string | null
           blocklist_companies?: string[]
+          career_readiness?: string | null
+          comp_target_min_cents?: number | null
+          confidence_level?: string | null
           created_at?: string
           current_location?: string | null
           current_salary_cents?: number | null
@@ -194,14 +207,19 @@ export type Database = {
           expected_salary_currency?: string | null
           expected_salary_max_cents?: number | null
           expected_salary_min_cents?: number | null
+          expertise_area?: string | null
           id?: string
           industries?: string[]
+          most_valued_benefit?: string | null
           notice_period_days?: number | null
           preferred_domains?: string[]
+          primary_goal_6mo?: string | null
           profile_id: string
           remote_preference?:
             | Database["public"]["Enums"]["remote_preference"]
             | null
+          role_clarity?: string | null
+          support_preference?: string | null
           switch_urgency?: Database["public"]["Enums"]["switch_urgency"] | null
           target_companies?: string[]
           target_role?: string | null
@@ -211,7 +229,11 @@ export type Database = {
           work_authorization?: Database["public"]["Enums"]["work_auth"] | null
         }
         Update: {
+          biggest_challenge?: string | null
           blocklist_companies?: string[]
+          career_readiness?: string | null
+          comp_target_min_cents?: number | null
+          confidence_level?: string | null
           created_at?: string
           current_location?: string | null
           current_salary_cents?: number | null
@@ -219,14 +241,19 @@ export type Database = {
           expected_salary_currency?: string | null
           expected_salary_max_cents?: number | null
           expected_salary_min_cents?: number | null
+          expertise_area?: string | null
           id?: string
           industries?: string[]
+          most_valued_benefit?: string | null
           notice_period_days?: number | null
           preferred_domains?: string[]
+          primary_goal_6mo?: string | null
           profile_id?: string
           remote_preference?:
             | Database["public"]["Enums"]["remote_preference"]
             | null
+          role_clarity?: string | null
+          support_preference?: string | null
           switch_urgency?: Database["public"]["Enums"]["switch_urgency"] | null
           target_companies?: string[]
           target_role?: string | null
