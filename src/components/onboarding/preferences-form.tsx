@@ -30,14 +30,14 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "text",
     field: "target_role",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What role title are you targeting?",
     placeholder: "e.g. Senior Software Engineer",
   },
   {
     type: "radio",
     field: "switch_urgency",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "Which best describes your current situation?",
     options: [
       { value: "Immediate need", label: "I need a job immediately" },
@@ -56,7 +56,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "target_seniority",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What level best describes your current role?",
     options: [
       { value: "Senior IC", label: "Senior individual contributor" },
@@ -69,7 +69,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "expertise_area",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "Which area best describes your expertise?",
     options: [
       { value: "Software Engineering", label: "Software engineering" },
@@ -86,7 +86,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "biggest_challenge",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What is your biggest challenge right now?",
     options: [
       { value: "Career clarity", label: "Career clarity" },
@@ -99,7 +99,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "primary_goal_6mo",
-    tag: "North Star Discovery™",
+    tag: "Your goals",
     question: "What is your primary goal for the next 6 months?",
     options: [
       { value: "Land a new role", label: "Land a new role" },
@@ -112,7 +112,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "confidence_level",
-    tag: "Mindset Mastery™",
+    tag: "Mindset",
     question:
       "How confident are you in your ability to achieve your career goals?",
     options: [
@@ -126,7 +126,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "role_clarity",
-    tag: "North Star Discovery™",
+    tag: "Your goals",
     question: "How clear are you about your ideal next role?",
     options: [
       { value: "Not Clear", label: "Not clear" },
@@ -139,7 +139,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "career_readiness",
-    tag: "Brand Magnification™",
+    tag: "Your readiness",
     question: "Which best describes your current career readiness?",
     options: [
       { value: "Start from scratch", label: "I need to start from scratch" },
@@ -152,7 +152,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "most_valued_benefit",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "Which benefit is most valuable to you?",
     options: [
       {
@@ -168,7 +168,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "support_preference",
-    tag: "Distinguished Dialogues™",
+    tag: "Support",
     question: "How much support would you like throughout your career journey?",
     options: [
       { value: "Self-Guided", label: "Self-guided" },
@@ -181,7 +181,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "work_authorization",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What is your current work authorization status?",
     options: [
       { value: "U.S. Citizen", label: "U.S. Citizen" },
@@ -197,7 +197,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "comp_target",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What is your compensation target?",
     options: [
       { value: "Under $150k", label: "Under $150k" },
@@ -210,7 +210,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "remote_preference",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What is your work location preference?",
     options: [
       { value: "Remote", label: "Remote" },
@@ -222,7 +222,7 @@ const STEPS: (TextStep | RadioStep)[] = [
   {
     type: "radio",
     field: "notice_period",
-    tag: "Career Navigator™",
+    tag: "Your search",
     question: "What is your notice period?",
     options: [
       { value: "Immediately", label: "Available immediately" },
@@ -367,9 +367,9 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
   if (done) {
     return (
       <div className="text-center py-8">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#EEEDFE]">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-accent/15">
           <svg
-            className="h-6 w-6 text-[#534AB7]"
+            className="h-6 w-6 text-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -411,7 +411,7 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
             router.push("/dashboard");
             router.refresh();
           }}
-          className="rounded-md bg-[#534AB7] px-7 py-2.5 text-sm font-medium text-white hover:bg-[#3C3489] transition-colors"
+          className="bg-primary px-7 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           View my dashboard ↗
         </button>
@@ -422,15 +422,15 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
   return (
     <div className="max-w-xl">
       {/* Progress bar */}
-      <div className="h-1 w-full rounded-full bg-muted mb-8">
+      <div className="h-1 w-full bg-muted mb-8">
         <div
-          className="h-1 rounded-full bg-[#534AB7] transition-all duration-300"
+          className="h-1 bg-accent transition-all duration-300"
           style={{ width: `${pct}%` }}
         />
       </div>
 
       {/* Tag */}
-      <span className="inline-block rounded-md bg-[#EEEDFE] px-2 py-0.5 text-[11px] font-medium text-[#3C3489] mb-3">
+      <span className="inline-block bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">
         {current.tag}
       </span>
 
@@ -444,7 +444,7 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
         <input
           autoFocus
           type="text"
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#534AB7]/40 focus:border-[#534AB7]"
+          className="w-full border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
           placeholder={current.placeholder}
           value={answer}
           onChange={(e) => select(e.target.value)}
@@ -460,26 +460,28 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
                 type="button"
                 onClick={() => select(opt.value)}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm transition-colors",
+                  "flex items-center gap-3 border px-4 py-3 text-left text-sm transition-colors",
                   selected
-                    ? "border-[#534AB7] bg-[#EEEDFE]"
+                    ? "border-foreground bg-accent/10"
                     : "border-border/60 bg-background hover:border-border hover:bg-muted/40"
                 )}
               >
                 <span
                   className={cn(
                     "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
-                    selected ? "border-[#534AB7] bg-[#534AB7]" : "border-border"
+                    selected
+                      ? "border-foreground bg-foreground"
+                      : "border-border"
                   )}
                 >
                   {selected && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-background" />
                   )}
                 </span>
                 <span
                   className={cn(
                     "font-[450]",
-                    selected ? "text-[#3C3489]" : "text-foreground"
+                    selected ? "text-foreground" : "text-foreground"
                   )}
                 >
                   {opt.label}
@@ -496,7 +498,7 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
           type="button"
           onClick={goBack}
           className={cn(
-            "rounded-md border border-border px-5 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/40",
+            "border border-border px-5 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/40",
             step === 0 && "invisible"
           )}
         >
@@ -511,7 +513,7 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
           type="button"
           onClick={goNext}
           disabled={!canAdvance || pending}
-          className="rounded-md bg-[#534AB7] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#3C3489] disabled:bg-muted disabled:text-muted-foreground disabled:cursor-default"
+          className="bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-default"
         >
           {pending ? "Saving…" : step === TOTAL - 1 ? "Submit ✓" : "Next →"}
         </button>
