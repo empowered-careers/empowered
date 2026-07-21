@@ -169,20 +169,29 @@ fields are optional, editable from `/profile`. One row per profile.
 | profile_id                                            | → profiles (unique)               |
 | target_role                                           | text                              |
 | target_seniority                                      | text — mirrors resume seniority   |
+| expertise_area                                        | text                              |
 | industries                                            | text[]                            |
+| preferred_domains                                     | text[]                            |
 | switch_urgency                                        | enum `switch_urgency`             |
 | notice_period_days                                    | int                               |
 | work_authorization                                    | enum `work_auth`                  |
 | expected_salary_min_cents / expected_salary_max_cents | int                               |
 | expected_salary_currency                              | text — default `'USD'`            |
+| comp_target_min_cents                                 | int                               |
 | current_location                                      | text                              |
 | remote_preference                                     | enum `remote_preference`          |
+| willing_to_relocate                                   | boolean                           |
 | current_salary_cents                                  | int                               |
 | current_salary_currency                               | text — default `'USD'`            |
-| willing_to_relocate                                   | boolean                           |
 | target_companies                                      | text[] — free text, keyed later   |
 | blocklist_companies                                   | text[] — never shown to employers |
-| preferred_domains                                     | text[]                            |
+| primary_goal_6mo                                      | text                              |
+| biggest_challenge                                     | text                              |
+| confidence_level                                      | text                              |
+| career_readiness                                      | text                              |
+| role_clarity                                          | text                              |
+| most_valued_benefit                                   | text                              |
+| support_preference                                    | text                              |
 | created_at / updated_at                               | timestamptz                       |
 
 RLS: `candidate_preferences_self` (self read/insert/update keyed on
@@ -298,6 +307,26 @@ first writer; today the table exists but no code reads or writes it.
 | candidate_interested | boolean                                |
 | employer_interested  | boolean                                |
 | created_at           | timestamptz                            |
+
+---
+
+### `notifications`
+
+In-app notifications delivered to candidates. Written by server-side hooks (e.g. application status changes, resume parse complete). Read by the `useResumeNotifications` / `useAssessmentNotifications` hooks via Supabase Realtime.
+
+| column     | type                                               |
+| ---------- | -------------------------------------------------- |
+| id         | uuid (PK)                                          |
+| profile_id | → profiles                                         |
+| type       | text — notification category (e.g. `resume_ready`) |
+| title      | text                                               |
+| body       | text                                               |
+| href       | text — optional deep-link URL                      |
+| metadata   | jsonb                                              |
+| read_at    | timestamptz — null until the user dismisses        |
+| created_at | timestamptz                                        |
+
+RLS: candidates read/update their own rows (`profile_id = auth.uid()`); service-role writes.
 
 ---
 
@@ -571,7 +600,7 @@ RLS: admin `SELECT` only (debugging). Service-role writes.
 | `switch_urgency`          | `actively_looking`, `open`, `passive`, `not_looking`                                               |
 | `work_auth`               | `us_citizen`, `us_permanent_resident`, `us_visa_needed`, `eu_citizen`, `other`                     |
 | `remote_preference`       | `remote`, `hybrid`, `onsite`, `flexible`                                                           |
-| `product_type`            | `webinar`, `resume_review`, `linkedin_review`, `interview_prep`, `subscription`                    |
+| `product_type`            | `webinar`, `resume_review`, `linkedin_review`, `interview_prep`, `subscription`, `coaching`        |
 | `payment_status`          | `succeeded`, `pending`, `failed`                                                                   |
 | `resume_status`           | `uploading`, `processing`, `complete`, `failed`                                                    |
 | `linkedin_sync_status`    | `idle`, `processing`, `complete`, `failed`                                                         |

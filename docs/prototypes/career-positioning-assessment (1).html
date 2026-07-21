@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Positioning Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EFF2EE;
+    --surface: #FFFFFF;
+    --ink: #16231F;
+    --muted: #5E6B66;
+    --teal: #1F5E5B;
+    --teal-soft: #DCE7E4;
+    --amber: #D98E2B;
+    --amber-soft: #F6E3C4;
+    --coral: #C1543D;
+    --line: #D9DED9;
+    --radius: 18px;
+  }
+
+  @media (prefers-color-scheme: dark){
+    /* keep light — this is meant to sit inside the client's site chrome */
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cpa-root{
+    min-height: 100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .cpa-shell{
+    width:100%;
+    max-width: 620px;
+  }
+
+  .cpa-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-align:center;
+    margin-bottom: 18px;
+    font-weight: 600;
+    min-height: 16px;
+  }
+
+  /* ---- Dial ---- */
+  .cpa-dial-wrap{
+    display:flex;
+    justify-content:center;
+    margin-bottom: 8px;
+  }
+  .cpa-dial{
+    width: 220px;
+    height: 132px;
+  }
+  .cpa-dial-track{
+    fill:none;
+    stroke: var(--teal-soft);
+    stroke-width: 12;
+    stroke-linecap: round;
+  }
+  .cpa-dial-fill{
+    fill:none;
+    stroke: var(--teal);
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .cpa-dial-center{
+    text-align:center;
+    margin-top: -58px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .cpa-dial-num{
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--ink);
+    display:block;
+    line-height:1;
+  }
+  .cpa-dial-label{
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ---- Card ---- */
+  .cpa-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    box-shadow: 0 1px 2px rgba(22,35,31,0.04);
+  }
+  @media (max-width: 480px){
+    .cpa-card{ padding: 28px 22px; }
+  }
+
+  .cpa-fade{
+    animation: cpaFadeIn 0.35s ease both;
+  }
+  @keyframes cpaFadeIn{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cpa-fade{ animation: none; }
+    .cpa-dial-fill{ transition:none; }
+  }
+
+  .cpa-cat{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+
+  h1.cpa-h{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: 27px;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  p.cpa-sub{
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 26px;
+  }
+
+  .cpa-question{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 21px;
+    line-height: 1.4;
+    margin: 0 0 26px;
+    letter-spacing: -0.005em;
+  }
+
+  /* ---- Answer types ---- */
+  .cpa-options{ display:flex; flex-direction:column; gap:10px; }
+
+  .cpa-opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family:'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    cursor:pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .cpa-opt:hover{ border-color: var(--teal); }
+  .cpa-opt:focus-visible{ outline: 2px solid var(--teal); outline-offset: 2px; }
+  .cpa-opt.is-selected{
+    border-color: var(--teal);
+    background: var(--teal-soft);
+    font-weight: 600;
+  }
+
+  .cpa-scale{
+    display:flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .cpa-scale-btn{
+    flex:1;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: var(--bg);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    cursor:pointer;
+    transition: border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .cpa-scale-btn:hover{ border-color: var(--teal); transform: translateY(-1px); }
+  .cpa-scale-btn:focus-visible{ outline: 2px solid var(--teal); outline-offset: 2px; }
+  .cpa-scale-btn.is-selected{
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+  .cpa-scale-labels{
+    display:flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .cpa-scale-labels span:last-child{ text-align:right; }
+
+  /* ---- Lead form ---- */
+  .cpa-field{ margin-bottom: 16px; }
+  .cpa-field label{
+    display:block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .cpa-field input{
+    width:100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--line);
+    font-family:'Inter', sans-serif;
+    font-size: 15px;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .cpa-field input:focus-visible{ outline: 2px solid var(--teal); border-color: var(--teal); }
+
+  /* ---- Nav ---- */
+  .cpa-nav{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-top: 28px;
+  }
+  .cpa-btn{
+    font-family:'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor:pointer;
+    border: none;
+    transition: opacity .15s ease, transform .1s ease;
+  }
+  .cpa-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+  .cpa-btn-primary{
+    background: var(--amber);
+    color: #29190A;
+  }
+  .cpa-btn-primary:not(:disabled):hover{ transform: translateY(-1px); }
+  .cpa-btn-ghost{
+    background: transparent;
+    color: var(--muted);
+    padding: 12px 8px;
+  }
+  .cpa-btn-ghost:hover{ color: var(--ink); }
+  .cpa-btn-block{ width:100%; text-align:center; }
+
+  .cpa-start-btn{
+    margin-top: 6px;
+  }
+
+  /* ---- Results ---- */
+  .cpa-tier{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--teal);
+    margin: 4px 0 2px;
+  }
+  .cpa-chip{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--amber-soft);
+    color: #6B4611;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin: 6px 0 22px;
+  }
+  .cpa-breakdown{
+    border-top: 1px solid var(--line);
+    margin-top: 22px;
+    padding-top: 18px;
+  }
+  .cpa-bd-row{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .cpa-bd-label{
+    width: 150px;
+    flex-shrink:0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .cpa-bd-track{
+    flex:1;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 999px;
+    overflow:hidden;
+  }
+  .cpa-bd-fill{
+    height:100%;
+    background: var(--teal);
+    border-radius: 999px;
+  }
+
+  .cpa-footnote{
+    text-align:center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 18px;
+  }
+</style>
+</head>
+<body>
+
+<div class="cpa-root">
+  <div class="cpa-shell">
+    <div class="cpa-eyebrow" id="cpaEyebrow"></div>
+    <div class="cpa-dial-wrap">
+      <svg class="cpa-dial" viewBox="0 0 220 132" aria-hidden="true">
+        <path class="cpa-dial-track" d="M 20 112 A 90 90 0 0 1 200 112" />
+        <path class="cpa-dial-fill" id="cpaDialFill" d="M 20 112 A 90 90 0 0 1 200 112" />
+      </svg>
+    </div>
+    <div class="cpa-dial-center">
+      <span class="cpa-dial-num" id="cpaDialNum">0%</span>
+      <span class="cpa-dial-label" id="cpaDialLabel">Progress</span>
+    </div>
+
+    <div class="cpa-card cpa-fade" id="cpaCard"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  var CATS = {
+    brand:    { label: "Personal Brand" },
+    market:   { label: "Market Positioning" },
+    mindset:  { label: "Mindset & Momentum" },
+    network:  { label: "Networking" },
+    interview:{ label: "Interview Readiness" },
+    worth:    { label: "Know Your Worth" }
+  };
+
+  var QUESTIONS = [
+    { id:1, cat:'brand', type:'scale', text:"How confident are you that your resume clearly shows your biggest professional wins?", low:"Not confident", high:"Very confident" },
+    { id:2, cat:'brand', type:'mc', text:"When someone looks at your LinkedIn profile, how well does it represent your value?", options:[
+      {label:"It's outdated or incomplete", val:1},
+      {label:"It's decent but generic", val:2},
+      {label:"It's solid but could be sharper", val:3},
+      {label:"It's strong and gets attention", val:4}
+    ]},
+    { id:3, cat:'brand', type:'mc', text:"Can you describe what makes you different from other candidates in one sentence?", options:[
+      {label:"Not really — I haven't thought about it", val:1},
+      {label:"I have an idea but haven't put it into words", val:2},
+      {label:"Yes, but I don't use it consistently", val:3},
+      {label:"Yes, and I use it in every conversation", val:4}
+    ]},
+    { id:4, cat:'market', type:'scale', text:"How confident are you that your target role or industry will still be in demand 2–3 years from now?", low:"Not confident", high:"Very confident" },
+    { id:5, cat:'market', type:'mc', text:"Have you researched how AI or automation might affect your specific role?", options:[
+      {label:"No, haven't thought about it", val:1},
+      {label:"I've heard general news but nothing specific to me", val:2},
+      {label:"I've looked into it a bit", val:3},
+      {label:"Yes, and I've adjusted my strategy because of it", val:4}
+    ]},
+    { id:6, cat:'market', type:'mc', text:"Is your current job search targeting roles similar to your past jobs, or roles that reflect where the market is heading?", options:[
+      {label:"Mostly the same type of role I've always had", val:1},
+      {label:"A mix", val:2},
+      {label:"Mostly forward-looking roles", val:4},
+      {label:"Not sure how to tell the difference", val:2}
+    ]},
+    { id:7, cat:'mindset', type:'scale', text:"How would you describe your energy level around your job search right now?", low:"Exhausted / discouraged", high:"Motivated & clear-headed" },
+    { id:8, cat:'mindset', type:'mc', text:"How often do you find yourself avoiding job search tasks (applications, networking, etc.)?", options:[
+      {label:"Almost daily", val:1},
+      {label:"A few times a week", val:2},
+      {label:"Occasionally", val:3},
+      {label:"Rarely", val:4}
+    ]},
+    { id:9, cat:'mindset', type:'mc', text:"Do you have a consistent weekly plan for your search, or does it happen in bursts?", options:[
+      {label:"No real plan — it's random", val:1},
+      {label:"Loose plan, inconsistent", val:2},
+      {label:"Mostly consistent", val:3},
+      {label:"Yes, structured and consistent", val:4}
+    ]},
+    { id:10, cat:'network', type:'mc', text:"In the past month, how many new professional conversations (calls, coffee chats, LinkedIn messages) have you had?", options:[
+      {label:"0", val:1}, {label:"1–2", val:2}, {label:"3–5", val:3}, {label:"6+", val:4}
+    ]},
+    { id:11, cat:'network', type:'scale', text:"How comfortable are you reaching out to someone you don't know for an informational conversation?", low:"Very uncomfortable", high:"Very comfortable" },
+    { id:12, cat:'network', type:'mc', text:"Do you have a system for following up and staying in touch with your network?", options:[
+      {label:"No system at all", val:1},
+      {label:"I follow up when I remember", val:2},
+      {label:"Somewhat consistent", val:3},
+      {label:"Yes, I track and follow up regularly", val:4}
+    ]},
+    { id:13, cat:'interview', type:'scale', text:"How confident are you answering \u201cTell me about yourself\u201d in a way that's tight and compelling?", low:"Not confident", high:"Very confident" },
+    { id:14, cat:'interview', type:'mc', text:"When you talk about your accomplishments, do you use specific numbers or metrics?", options:[
+      {label:"Rarely — I speak in general terms", val:1},
+      {label:"Sometimes", val:2},
+      {label:"Usually", val:3},
+      {label:"Always — I have numbers ready for every story", val:4}
+    ]},
+    { id:15, cat:'interview', type:'mc', text:"How many mock interviews or practice sessions have you done in the last 3 months?", options:[
+      {label:"0", val:1}, {label:"1–2", val:2}, {label:"3–5", val:3}, {label:"6+", val:4}
+    ]},
+    { id:16, cat:'worth', type:'scale', text:"How confident are you that you know your accurate market value for your target role?", low:"Not confident", high:"Very confident" },
+    { id:17, cat:'worth', type:'mc', text:"Have you ever negotiated a job offer?", options:[
+      {label:"No, never", val:1},
+      {label:"Tried once but backed down", val:2},
+      {label:"Yes, negotiated but unsure if I got the best outcome", val:3},
+      {label:"Yes, confidently and successfully", val:4}
+    ]},
+    { id:18, cat:'worth', type:'scale', text:"If you got an offer next week, how prepared do you feel to negotiate it?", low:"Not prepared", high:"Very prepared" }
+  ];
+
+  // Build the full step sequence: intro -> q1 -> q2 -> lead -> q3..q18 -> results
+  var steps = [{type:'intro'}];
+  QUESTIONS.forEach(function(q, i){
+    steps.push({type:'question', q: q});
+    if (i === 1) steps.push({type:'lead'}); // after Q2
+  });
+  steps.push({type:'results'});
+
+  var current = 0;
+  var answers = {};     // id -> value
+  var lead = { name:'', email:'' };
+
+  var cardEl = document.getElementById('cpaCard');
+  var eyebrowEl = document.getElementById('cpaEyebrow');
+  var dialFill = document.getElementById('cpaDialFill');
+  var dialNum = document.getElementById('cpaDialNum');
+  var dialLabel = document.getElementById('cpaDialLabel');
+
+  var DIAL_ARC = Math.PI * 90; // radius 90
+
+  function setDial(fraction, text, label){
+    fraction = Math.max(0, Math.min(1, fraction));
+    dialFill.style.strokeDasharray = DIAL_ARC;
+    dialFill.style.strokeDashoffset = DIAL_ARC * (1 - fraction);
+    dialNum.textContent = text;
+    dialLabel.textContent = label;
+  }
+
+  function totalQuestions(){ return QUESTIONS.length; }
+
+  function answeredCount(){
+    return QUESTIONS.filter(function(q){ return answers[q.id] !== undefined; }).length;
+  }
+
+  function render(){
+    var step = steps[current];
+    cardEl.classList.remove('cpa-fade');
+    void cardEl.offsetWidth; // restart animation
+    cardEl.classList.add('cpa-fade');
+
+    if (step.type === 'intro'){
+      eyebrowEl.textContent = '';
+      setDial(0, '0%', 'Get started');
+      cardEl.innerHTML =
+        '<p class="cpa-cat">Free Assessment · 4–6 minutes</p>' +
+        '<h1 class="cpa-h">How strong is your job search — really?</h1>' +
+        '<p class="cpa-sub">Answer 18 quick questions across brand, market positioning, mindset, networking, interview readiness, and negotiation. You\'ll get a personalized snapshot of where your search stands, and where to focus first.</p>' +
+        '<button class="cpa-btn cpa-btn-primary cpa-btn-block cpa-start-btn" id="cpaStart">Start the assessment</button>';
+      document.getElementById('cpaStart').addEventListener('click', function(){ go(1); });
+      return;
+    }
+
+    if (step.type === 'question'){
+      var idx = QUESTIONS.indexOf(step.q) + 1;
+      eyebrowEl.textContent = 'Question ' + idx + ' of ' + totalQuestions();
+      setDial(answeredCount() / totalQuestions(), Math.round(100*answeredCount()/totalQuestions()) + '%', 'Progress');
+
+      var html = '<p class="cpa-cat">' + CATS[step.q.cat].label + '</p>';
+      html += '<p class="cpa-question">' + step.q.text + '</p>';
+
+      if (step.q.type === 'scale'){
+        html += '<div class="cpa-scale" role="group" aria-label="Rate from 1 to 5">';
+        for (var v=1; v<=5; v++){
+          var sel = answers[step.q.id] === v ? ' is-selected' : '';
+          html += '<button class="cpa-scale-btn' + sel + '" data-val="' + v + '">' + v + '</button>';
+        }
+        html += '</div>';
+        html += '<div class="cpa-scale-labels"><span>' + step.q.low + '</span><span>' + step.q.high + '</span></div>';
+      } else {
+        html += '<div class="cpa-options" role="group">';
+        step.q.options.forEach(function(opt, i){
+          var sel = answers[step.q.id] === opt.val ? ' is-selected' : '';
+          html += '<button class="cpa-opt' + sel + '" data-val="' + opt.val + '">' + opt.label + '</button>';
+        });
+        html += '</div>';
+      }
+
+      html += '<div class="cpa-nav">' +
+        '<button class="cpa-btn cpa-btn-ghost" id="cpaBack"' + (current===0?' disabled':'') + '>Back</button>' +
+        '<button class="cpa-btn cpa-btn-primary" id="cpaNext"' + (answers[step.q.id]===undefined?' disabled':'') + '>' +
+        (idx === totalQuestions() ? 'See my results' : 'Next') + '</button>' +
+        '</div>';
+
+      cardEl.innerHTML = html;
+
+      var buttons = cardEl.querySelectorAll('.cpa-scale-btn, .cpa-opt');
+      buttons.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          answers[step.q.id] = parseFloat(btn.getAttribute('data-val'));
+          render();
+        });
+      });
+      document.getElementById('cpaBack').addEventListener('click', function(){ go(current-1); });
+      document.getElementById('cpaNext').addEventListener('click', function(){ go(current+1); });
+      return;
+    }
+
+    if (step.type === 'lead'){
+      eyebrowEl.textContent = 'Almost there';
+      cardEl.innerHTML =
+        '<p class="cpa-cat">One quick step</p>' +
+        '<h1 class="cpa-h">Where should we send your results?</h1>' +
+        '<p class="cpa-sub">We\'ll email your full breakdown and save your spot to keep going.</p>' +
+        '<div class="cpa-field"><label for="cpaName">First name</label><input id="cpaName" type="text" autocomplete="given-name" value="' + lead.name + '"></div>' +
+        '<div class="cpa-field"><label for="cpaEmail">Email</label><input id="cpaEmail" type="email" autocomplete="email" value="' + lead.email + '"></div>' +
+        '<div class="cpa-nav">' +
+        '<button class="cpa-btn cpa-btn-ghost" id="cpaBack">Back</button>' +
+        '<button class="cpa-btn cpa-btn-primary" id="cpaNext">Continue</button>' +
+        '</div>';
+
+      document.getElementById('cpaBack').addEventListener('click', function(){ go(current-1); });
+      document.getElementById('cpaNext').addEventListener('click', function(){
+        lead.name = document.getElementById('cpaName').value.trim();
+        lead.email = document.getElementById('cpaEmail').value.trim();
+        if (!lead.email || lead.email.indexOf('@') === -1){
+          document.getElementById('cpaEmail').style.borderColor = 'var(--coral)';
+          return;
+        }
+        // ---- INTEGRATION POINT ----
+        // Send { name: lead.name, email: lead.email } to your CRM / ESP here, e.g.:
+        // fetch('https://your-endpoint.example.com/leads', {
+        //   method: 'POST',
+        //   headers: {'Content-Type':'application/json'},
+        //   body: JSON.stringify(lead)
+        // });
+        go(current+1);
+      });
+      return;
+    }
+
+    if (step.type === 'results'){
+      var result = computeResults();
+      eyebrowEl.textContent = 'Your results';
+      setDial(result.pct/100, result.pct + '%', result.tier.name);
+
+      var html = '<p class="cpa-cat">' + (lead.name ? lead.name + '\u2019s' : 'Your') + ' snapshot</p>' +
+        '<p class="cpa-tier">' + result.tier.name + '</p>' +
+        '<h1 class="cpa-h">' + result.tier.headline + '</h1>' +
+        '<span class="cpa-chip">Biggest opportunity: ' + CATS[result.lowestCat].label + '</span>' +
+        '<p class="cpa-sub">' + result.tier.copy + '</p>' +
+        '<button class="cpa-btn cpa-btn-primary cpa-btn-block" id="cpaCta">' + result.tier.cta + '</button>' +
+        '<div class="cpa-breakdown">';
+
+      Object.keys(CATS).forEach(function(catKey){
+        var pct = result.catPct[catKey];
+        html += '<div class="cpa-bd-row">' +
+          '<div class="cpa-bd-label">' + CATS[catKey].label + '</div>' +
+          '<div class="cpa-bd-track"><div class="cpa-bd-fill" style="width:' + pct + '%"></div></div>' +
+          '</div>';
+      });
+
+      html += '</div>' +
+        '<p class="cpa-footnote">A full breakdown was sent to ' + (lead.email || 'your email') + '.</p>';
+
+      cardEl.innerHTML = html;
+      document.getElementById('cpaCta').addEventListener('click', function(){
+        // ---- INTEGRATION POINT ----
+        // Point this at your booking page / calendar link, e.g.:
+        window.location.href = '#book-a-call';
+      });
+      return;
+    }
+  }
+
+  function computeResults(){
+    var catPoints = {}, catMax = {};
+    Object.keys(CATS).forEach(function(k){ catPoints[k]=0; catMax[k]=0; });
+
+    QUESTIONS.forEach(function(q){
+      var max = q.type === 'scale' ? 5 : 4;
+      catMax[q.cat] += max;
+      catPoints[q.cat] += (answers[q.id] || 0);
+    });
+
+    var totalPoints = 0, totalMax = 0;
+    var catPct = {};
+    Object.keys(CATS).forEach(function(k){
+      totalPoints += catPoints[k];
+      totalMax += catMax[k];
+      catPct[k] = Math.round(100 * catPoints[k] / catMax[k]);
+    });
+
+    var pct = Math.round(100 * totalPoints / totalMax);
+
+    var lowestCat = Object.keys(CATS).reduce(function(a,b){
+      return catPct[a] <= catPct[b] ? a : b;
+    });
+
+    var tier;
+    if (pct <= 45){
+      tier = {
+        name: 'Search Reset Needed',
+        headline: 'Your search has real potential — it just needs a stronger foundation.',
+        copy: "Your results show clear opportunities to strengthen your brand, positioning, and strategy before you keep spending energy applying. Every one of these is fixable, and most candidates in this range see a real shift within a few weeks of focused work.",
+        cta: 'Book your free strategy call to build a plan'
+      };
+    } else if (pct <= 72){
+      tier = {
+        name: 'Building Momentum',
+        headline: "You're on the right track — a few targeted fixes will accelerate things fast.",
+        copy: "You've got real strengths to work with, but a few specific gaps are holding back your results — especially in " + CATS[lowestCat].label + ". Closing gaps like this is usually where we see the biggest jump in interview activity.",
+        cta: 'Book your free strategy call to pinpoint your gaps'
+      };
+    } else {
+      tier = {
+        name: 'Market Ready',
+        headline: "You're close. Let's make sure you land the right offer — not just an offer.",
+        copy: "You're already doing a lot right. At this stage, the biggest lever left is usually negotiation and market positioning — making sure you're not leaving money or the ideal role on the table.",
+        cta: 'Book your free strategy call to talk offer strategy'
+      };
+    }
+
+    return { pct: pct, catPct: catPct, lowestCat: lowestCat, tier: tier };
+  }
+
+  function go(i){
+    current = Math.max(0, Math.min(steps.length-1, i));
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>

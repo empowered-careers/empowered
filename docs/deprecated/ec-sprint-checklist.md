@@ -38,12 +38,12 @@ diagram (§3) is the build order; never start a sprint whose prerequisite is lat
 
 ## 2. Open decisions (resolve before the dependent sprint)
 
-| # | Decision | Blocks | Notes |
-|---|----------|--------|-------|
-| D1 | **Gating rule:** `context.md` / `ec-candidate-journey.md` say *"any payment = lifetime Tier 3."* `ec-dev-plan.md` S3 says *"à la carte grants Plan 1."* These conflict. | Sprint B | Pick one and make `canSeeJobTier` + the webhook plan-setter agree. |
-| D2 | **Coaching host** (Kajabi vs Teachable) + **Cal.com** account for 1:1 booking. | Sprint E | Drives the progress webhook + booking embed. |
-| D3 | **Content engine** — MDX-in-repo (`docs/deferred/ec-blog-mdx-plan.md`, already speced) vs external CMS. | Sprint G | MDX plan is ready to execute. |
-| D4 | **Tier-1 sourcing** — Lauren manual curation vs lightweight RSS/Greenhouse importer. | Sprint A (ops) | Affects whether the 10–15 roles/month gate is manual. |
+| #   | Decision                                                                                                                                                                | Blocks         | Notes                                                              |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------ |
+| D1  | **Gating rule:** `context.md` / `ec-candidate-journey.md` say _"any payment = lifetime Tier 3."_ `ec-dev-plan.md` S3 says _"à la carte grants Plan 1."_ These conflict. | Sprint B       | Pick one and make `canSeeJobTier` + the webhook plan-setter agree. |
+| D2  | **Coaching host** (Kajabi vs Teachable) + **Cal.com** account for 1:1 booking.                                                                                          | Sprint E       | Drives the progress webhook + booking embed.                       |
+| D3  | **Content engine** — MDX-in-repo (`docs/deferred/ec-blog-mdx-plan.md`, already speced) vs external CMS.                                                                 | Sprint G       | MDX plan is ready to execute.                                      |
+| D4  | **Tier-1 sourcing** — Lauren manual curation vs lightweight RSS/Greenhouse importer.                                                                                    | Sprint A (ops) | Affects whether the 10–15 roles/month gate is manual.              |
 
 ---
 
@@ -73,13 +73,13 @@ Goal: a real candidate completes signup → resume → first value with no dead-
 - [ ] **Stale-job watchdog** in `useResumeNotifications` + `useLinkedinNotifications` — flag rows stuck `uploading`/`processing` > 60s as `failed` (covers silent `inngest.send` failures).
 - [~] **Nudge: resume_score < 70 → resume-review CTA** — extend the existing `computeNudges()` (`src/lib/dashboard/nudges.ts`); CTA target finalizes once Sprint B/E land.
 - [ ] **Ops / manual:** `ANTHROPIC_API_KEY` local + prod; register Inngest prod endpoint + `INNGEST_EVENT_KEY`/`INNGEST_SIGNING_KEY`; promote Lauren to `role='admin'`; seed 10–15 Tier-1 roles; full end-to-end smoke test (`docs/todo.md`).
-- [ ] *(optional)* Eval fixtures ≥5 per harness (`evals/*`).
+- [ ] _(optional)_ Eval fixtures ≥5 per harness (`evals/*`).
 
 **Exit:** signup → resume upload → resume score + Tier-1 roles visible, gated correctly.
 
 ---
 
-## Sprint B — Paywall & Plans (E3, Stripe)  ⚠ largest gap
+## Sprint B — Paywall & Plans (E3, Stripe) ⚠ largest gap
 
 Goal: first dollar in. Nothing built today beyond the `payments` table + admin ledger + `grantPlan3()`.
 **Resolve D1 first.**
@@ -99,7 +99,7 @@ Goal: first dollar in. Nothing built today beyond the `payments` table + admin l
 
 ## Sprint C — Matching v1 (E4)
 
-Goal: candidates see *why* a role fits. `matches` table exists but is never written; job board is browse-all.
+Goal: candidates see _why_ a role fits. `matches` table exists but is never written; job board is browse-all.
 
 - [ ] **`matches.match_score` writer** (the ATS score: resume-vs-job overlap + plan-visibility filter) — Inngest fn triggered on resume-parse-complete and on job publish.
 - [ ] **`match_reasons`** — single-sentence "why this matches you" via Claude.
@@ -185,11 +185,11 @@ Goal: real content surface (currently `/blog` + Content Hub are placeholders). *
 
 ## Phase-1 gate tracker
 
-| Gate | Target | Enabled by |
-|------|--------|-----------|
-| Free candidates in pool | 100 | Sprint A + content/events |
-| Paid candidates | 30 | Sprint B |
-| Employer/agency relationships | 3–5 | Lauren (employer portal shipped) |
-| Exclusive roles / month | 10–15 | Sprint A ops + D4 |
+| Gate                          | Target | Enabled by                       |
+| ----------------------------- | ------ | -------------------------------- |
+| Free candidates in pool       | 100    | Sprint A + content/events        |
+| Paid candidates               | 30     | Sprint B                         |
+| Employer/agency relationships | 3–5    | Lauren (employer portal shipped) |
+| Exclusive roles / month       | 10–15  | Sprint A ops + D4                |
 
 All four green → Phase 2 begins.
