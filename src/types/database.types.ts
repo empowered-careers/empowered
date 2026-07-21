@@ -779,6 +779,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          assessment_result: Json | null
           attended_at: string | null
           converted_at: string | null
           converted_profile_id: string | null
@@ -793,6 +794,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assessment_result?: Json | null
           attended_at?: string | null
           converted_at?: string | null
           converted_profile_id?: string | null
@@ -807,6 +809,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assessment_result?: Json | null
           attended_at?: string | null
           converted_at?: string | null
           converted_profile_id?: string | null

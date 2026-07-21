@@ -1,0 +1,358 @@
+/*
+ * Career Positioning Assessment — ported from the HTML mockup.
+ * Layout/spacing/radii kept as prototyped; colors + fonts resolve from the
+ * app's design tokens so it stays on-brand and theme-aware.
+ *   teal  → --chart-2 (dial + bars)      amber → --chart-4 (small accents)
+ *   interactive/CTA → --primary / --primary-foreground
+ */
+
+.root {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.shell {
+  width: 100%;
+  max-width: 620px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chart-2);
+  text-align: center;
+  margin-bottom: 18px;
+  font-weight: 600;
+  min-height: 16px;
+}
+
+/* ---- Dial ---- */
+.dialWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.dial {
+  width: 220px;
+  height: 132px;
+}
+.dialTrack {
+  fill: none;
+  stroke: color-mix(in oklch, var(--chart-2) 22%, transparent);
+  stroke-width: 12;
+  stroke-linecap: round;
+}
+.dialFill {
+  fill: none;
+  stroke: var(--chart-2);
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dialCenter {
+  text-align: center;
+  margin-top: -58px;
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+}
+.dialNum {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--foreground);
+  display: block;
+  line-height: 1;
+}
+.dialLabel {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ---- Card ---- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 40px 36px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
+@media (max-width: 480px) {
+  .card {
+    padding: 28px 22px;
+  }
+}
+
+.fade {
+  animation: cpaFadeIn 0.35s ease both;
+}
+@keyframes cpaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade {
+    animation: none;
+  }
+  .dialFill {
+    transition: none;
+  }
+}
+
+.cat {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--chart-4);
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.h {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  font-size: 27px;
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.sub {
+  font-size: 15px;
+  color: var(--muted-foreground);
+  line-height: 1.55;
+  margin: 0 0 26px;
+}
+
+.question {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-size: 21px;
+  line-height: 1.4;
+  margin: 0 0 26px;
+  letter-spacing: -0.005em;
+}
+
+/* ---- Answer types ---- */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--background);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.opt:hover {
+  border-color: var(--primary);
+}
+.opt:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.opt.selected {
+  border-color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 8%, var(--card));
+  font-weight: 600;
+}
+
+.scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.scaleBtn {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--background);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.1s ease;
+}
+.scaleBtn:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+.scaleBtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.scaleBtn.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+.scaleLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-bottom: 24px;
+}
+.scaleLabels span:last-child {
+  text-align: right;
+}
+
+/* ---- Lead form ---- */
+.field {
+  margin-bottom: 16px;
+}
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+.field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 15px;
+  background: var(--background);
+  color: var(--foreground);
+}
+.field input:focus-visible {
+  outline: 2px solid var(--primary);
+  border-color: var(--primary);
+}
+.field input.invalid {
+  border-color: var(--destructive);
+}
+
+/* ---- Nav ---- */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+}
+.btn {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.1s ease;
+}
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btnPrimary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.btnPrimary:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+.btnGhost {
+  background: transparent;
+  color: var(--muted-foreground);
+  padding: 12px 8px;
+}
+.btnGhost:hover {
+  color: var(--foreground);
+}
+.btnBlock {
+  width: 100%;
+  text-align: center;
+}
+.startBtn {
+  margin-top: 6px;
+}
+
+/* ---- Results ---- */
+.tier {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--chart-2);
+  margin: 4px 0 2px;
+}
+.chip {
+  display: inline-block;
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  background: color-mix(in oklch, var(--chart-4) 18%, var(--card));
+  color: var(--chart-4);
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin: 6px 0 22px;
+}
+.breakdown {
+  border-top: 1px solid var(--border);
+  margin-top: 22px;
+  padding-top: 18px;
+}
+.bdRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.bdLabel {
+  width: 150px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.bdTrack {
+  flex: 1;
+  height: 8px;
+  background: var(--background);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bdFill {
+  height: 100%;
+  background: var(--chart-2);
+  border-radius: 999px;
+}
+
+.footnote {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-top: 18px;
+}

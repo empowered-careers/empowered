@@ -183,6 +183,59 @@ export async function fireCandidatePlanUpgraded(
   });
 }
 
+export interface AssessmentStartedProps {
+  email: string;
+  firstName?: string | null;
+  source: string;
+  sourceRef?: string | null;
+}
+
+/** Fires when a quiz-taker submits their email at the mid-quiz gate. */
+export async function fireAssessmentStarted(
+  p: AssessmentStartedProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "assessment.started",
+    contactProperties: {
+      firstName: p.firstName ?? undefined,
+      acquisitionSource: p.source,
+      acquisitionRef: p.sourceRef ?? undefined,
+    },
+    eventProperties: {
+      source: p.source,
+      sourceRef: p.sourceRef ?? undefined,
+    },
+  });
+}
+
+export interface AssessmentCompletedProps {
+  email: string;
+  tier: string;
+  overallPct: number;
+  weakestArea: string;
+}
+
+/** Fires when a quiz-taker reaches the results screen — drives nurture. */
+export async function fireAssessmentCompleted(
+  p: AssessmentCompletedProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "assessment.completed",
+    contactProperties: {
+      assessmentTier: p.tier,
+      assessmentScore: p.overallPct,
+      assessmentWeakestArea: p.weakestArea,
+    },
+    eventProperties: {
+      tier: p.tier,
+      overallPct: p.overallPct,
+      weakestArea: p.weakestArea,
+    },
+  });
+}
+
 export interface LeadConvertedProps {
   email: string;
   profileId: string;
