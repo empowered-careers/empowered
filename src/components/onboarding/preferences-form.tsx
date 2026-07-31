@@ -5,6 +5,8 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { completeOnboarding } from "@/app/actions/preferences";
+import { RoleTagInput } from "@/components/onboarding/role-tag-input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import type { RemotePreference, SwitchUrgency, WorkAuth } from "@/types/db";
 
@@ -18,6 +20,8 @@ type TextStep = {
   placeholder: string;
 };
 
+type RolesStep = Omit<TextStep, "type"> & { type: "roles" };
+
 type RadioStep = {
   type: "radio";
   field: string;
@@ -26,13 +30,13 @@ type RadioStep = {
   options: { value: string; label: string }[];
 };
 
-const STEPS: (TextStep | RadioStep)[] = [
+const STEPS: (TextStep | RolesStep | RadioStep)[] = [
   {
-    type: "text",
+    type: "roles",
     field: "target_role",
     tag: "Your search",
-    question: "What role title are you targeting?",
-    placeholder: "e.g. Senior Software Engineer",
+    question: "What roles are you targeting?",
+    placeholder: "Start typing a role…",
   },
   {
     type: "radio",
@@ -237,7 +241,7 @@ const STEPS: (TextStep | RadioStep)[] = [
 const TOTAL = STEPS.length;
 
 const SUMMARY_LABELS: Record<string, string> = {
-  target_role: "Target role",
+  target_role: "Target roles",
   switch_urgency: "Current situation",
   target_seniority: "Role level",
   expertise_area: "Expertise area",
@@ -318,7 +322,7 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
   const current = STEPS[step];
   const answer = answers[current.field] ?? "";
   const canAdvance =
-    current.type === "text" ? answer.trim().length > 0 : answer.length > 0;
+    current.type === "radio" ? answer.length > 0 : answer.trim().length > 0;
 
   const select = (value: string) =>
     setAnswers((prev) => ({ ...prev, [current.field]: value }));
@@ -362,7 +366,7 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
     });
   };
 
-  const pct = Math.round((step / TOTAL) * 100);
+  const pct = Math.round(((step + 1) / TOTAL) * 100);
 
   if (done) {
     return (
@@ -440,7 +444,13 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
       </p>
 
       {/* Step content */}
-      {current.type === "text" ? (
+      {current.type === "roles" ? (
+        <RoleTagInput
+          value={answer}
+          onChange={select}
+          placeholder={current.placeholder}
+        />
+      ) : current.type === "text" ? (
         <input
           autoFocus
           type="text"
@@ -451,45 +461,36 @@ export function PreferencesForm({ initialRole }: { initialRole: string }) {
           onKeyDown={(e) => e.key === "Enter" && goNext()}
         />
       ) : (
-        <div className="flex flex-col gap-2.5">
+        <RadioGroup
+          value={answer}
+          onValueChange={select}
+          className="gap-2.5"
+          aria-label={current.question}
+        >
           {current.options.map((opt) => {
             const selected = answer === opt.value;
+            const id = `${current.field}-${opt.value}`;
             return (
-              <button
+              <label
                 key={opt.value}
-                type="button"
-                onClick={() => select(opt.value)}
+                htmlFor={id}
                 className={cn(
-                  "flex items-center gap-3 border px-4 py-3 text-left text-sm transition-colors",
+                  "flex cursor-pointer items-center gap-3 border px-4 py-3 text-left text-sm transition-colors",
                   selected
                     ? "border-foreground bg-accent/10"
                     : "border-border/60 bg-background hover:border-border hover:bg-muted/40"
                 )}
               >
-                <span
-                  className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
-                    selected
-                      ? "border-foreground bg-foreground"
-                      : "border-border"
-                  )}
-                >
-                  {selected && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-background" />
-                  )}
-                </span>
-                <span
-                  className={cn(
-                    "font-[450]",
-                    selected ? "text-foreground" : "text-foreground"
-                  )}
-                >
-                  {opt.label}
-                </span>
-              </button>
+                <RadioGroupItem
+                  id={id}
+                  value={opt.value}
+                  className="shadow-none data-[state=checked]:border-foreground data-[state=checked]:bg-foreground [&_svg]:fill-background"
+                />
+                <span className="font-[450] text-foreground">{opt.label}</span>
+              </label>
             );
           })}
-        </div>
+        </RadioGroup>
       )}
 
       {/* Navigation */}

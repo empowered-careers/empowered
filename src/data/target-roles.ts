@@ -13,6 +13,27 @@
  * where they aren't already spelled out. This list is a starting set — extend
  * freely; custom entries are always allowed.
  */
+/**
+ * Roles are persisted comma-joined in the single `candidate_preferences.target_role`
+ * text column.
+ * ponytail: comma-joined string, migrate to `text[]` when matching actually
+ * queries roles (nothing reads this column yet).
+ */
+export function parseRoles(value: string): string[] {
+  return value
+    .split(",")
+    .map((r) => r.trim())
+    .filter(Boolean);
+}
+
+/** Appends `role` unless an equal-ignoring-case entry is already present. */
+export function withRole(roles: string[], role: string): string[] {
+  const next = role.trim();
+  if (!next) return roles;
+  if (roles.some((r) => r.toLowerCase() === next.toLowerCase())) return roles;
+  return [...roles, next];
+}
+
 export const TARGET_ROLES: string[] = [
   // ── Software Engineering (IC) ─────────────────────────────
   "Software Engineer",
@@ -105,7 +126,7 @@ export const TARGET_ROLES: string[] = [
   "Security Architect",
   "Penetration Tester",
   "Security Operations (SecOps) Engineer",
-  "Governance, Risk & Compliance (GRC) Analyst",
+  "Governance Risk & Compliance (GRC) Analyst",
   "Chief Information Security Officer (CISO)",
   "Head of Security",
   "Director of Security",

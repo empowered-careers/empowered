@@ -110,7 +110,7 @@ export function DashboardClient({
               Complete your profile to unlock matches
             </span>
             <span className="ml-2 text-muted-foreground">
-              — takes 90 seconds.
+              — takes about 2 minutes.
             </span>
           </div>
           <Button asChild size="sm">
