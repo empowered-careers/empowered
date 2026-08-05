@@ -3,6 +3,15 @@
 > Last updated: June 2026
 > Status: Working document
 
+> [!WARNING]
+> **Partially superseded by the coaching/content pivot (August 2026.)** Features
+> here are still an accurate inventory of what _exists in the code_, but not of
+> what candidates can _reach_: job board, matching, and the Core/Pro
+> subscription tiers are built and unlinked. Coaching delivery, the JD → ATS
+> checker, and the à la carte catalog are the current build and are absent here.
+>
+> For what's next, use `ec-pivot-plan.md` §6, not this list.
+
 ---
 
 ## 1. Marketing Page
@@ -23,7 +32,8 @@
 ## 3. Onboarding Flow
 
 - Resume upload — mandatory before dashboard access ✅
-- Progress indicator
+- Progress indicator ✅ — 15-step preferences wizard with progress bar
+- Multi-role target input (typeahead + chips, free text allowed) ✅
 - No skip option on resume upload ✅
 
 ---

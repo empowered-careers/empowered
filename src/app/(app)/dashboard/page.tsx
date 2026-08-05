@@ -31,7 +31,6 @@ export default async function DashboardPage() {
   const [
     profileResult,
     resumesResult,
-    jobCountResult,
     blueprintResult,
     interviewingResult,
     linkedinResult,
@@ -49,11 +48,6 @@ export default async function DashboardPage() {
       .select("id, uploaded_at, resume_score, file_name")
       .eq("profile_id", user.id)
       .order("uploaded_at", { ascending: false }),
-
-    supabase
-      .from("jobs")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "active"),
 
     supabase
       .from("assessment_responses")
@@ -91,7 +85,6 @@ export default async function DashboardPage() {
     redirect("/resume");
   }
 
-  const activeJobCount = jobCountResult.count ?? 0;
   const linkedinScore = (linkedinResult.data?.profile_score ?? null) as
     | number
     | null;
@@ -124,7 +117,6 @@ export default async function DashboardPage() {
   return (
     <div className="px-10 py-8">
       <DashboardClient
-        activeJobCount={activeJobCount}
         blueprint={blueprint}
         interviewingApplication={interviewingApplication}
         linkedinScore={linkedinScore}

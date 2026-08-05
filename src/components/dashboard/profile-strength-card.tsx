@@ -8,7 +8,6 @@ import {
   Sparkles,
   Star,
   User,
-  UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -63,7 +62,6 @@ const STEP_ICONS: Record<
   "step-resume-score": Star,
   "step-preferences": ClipboardList,
   "step-blueprint": Sparkles,
-  "step-subscription": UserCheck,
 };
 
 const RING_RADIUS = 42;
@@ -187,7 +185,8 @@ export function ProfileStrengthHero({
           <div className="flex flex-col gap-2">
             {nextActions.length === 0 ? (
               <div className="flex h-full items-center text-sm text-muted-foreground">
-                Profile complete. New nudges will appear here as roles unlock.
+                Profile complete. New nudges will appear here as we learn more
+                about your goals.
               </div>
             ) : (
               nextActions.map((step) => {

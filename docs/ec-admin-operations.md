@@ -1,6 +1,6 @@
 # Empowered Careers — Admin & Operations
 
-> Last updated: 2026-05-23
+> Last updated: 2026-07-31
 > Status: Phase 1 admin console shipped. Phase 2 recruiters portal shipped.
 > Authoritative build plans: `docs/done/ec-admin-super-plan.md` (Phase 1 — shipped 2026-05-20), `docs/done/ec-admin-recruiters-plan.md` (Phase 2 — shipped 2026-05-23)
 
@@ -84,19 +84,30 @@ Phase 1 of this doc previously said "no PII until match confirmed." The recruite
 
 ## Loops — Candidate Email Events
 
-Events piped from Supabase to Loops:
+Shipped — fired from code today (wrappers in `src/lib/loops/client.ts`):
 
-| Event                           | Trigger                            |
-| ------------------------------- | ---------------------------------- |
-| `candidate.signup`              | Account created                    |
-| `candidate.resume_uploaded`     | Resume upload complete             |
-| `candidate.payment`             | Any payment made                   |
-| `candidate.assessment_complete` | Each assessment submitted          |
-| `candidate.tier2_unlocked`      | Tier 2 access granted              |
-| `candidate.tier3_unlocked`      | Subscription or payment confirmed  |
-| `candidate.job_interest`        | Express interest clicked on a role |
-| `candidate.inactive_7d`         | No login for 7 days                |
-| `candidate.inactive_30d`        | No login for 30 days               |
+| Event                     | Trigger                                       |
+| ------------------------- | --------------------------------------------- |
+| `lead.registered`         | Event registration via `/api/events/register` |
+| `lead.attended`           | Bulk-attend CSV upload                        |
+| `lead.converted`          | Lead email matched at OAuth signup            |
+| `assessment.started`      | Career Positioning Assessment begun           |
+| `assessment.completed`    | Career Positioning Assessment results reached |
+| `candidate.payment`       | Any payment made (Stripe webhook)             |
+| `candidate.plan_upgraded` | Plan flips upward (Stripe webhook)            |
+
+Planned — not built yet (Sprint F in `ec-sprint-plan.md`):
+
+| Event                       | Trigger                            |
+| --------------------------- | ---------------------------------- |
+| `candidate.signup`          | Account created                    |
+| `candidate.resume_uploaded` | Resume upload complete             |
+| `candidate.tier2_unlocked`  | Tier 2 access granted              |
+| `candidate.tier3_unlocked`  | Subscription or payment confirmed  |
+| `candidate.job_interest`    | Express interest clicked on a role |
+| `candidate.placed`          | Marked as placed by admin          |
+| `candidate.inactive_7d`     | No login for 7 days                |
+| `candidate.inactive_30d`    | No login for 30 days               |
 
 ---
 

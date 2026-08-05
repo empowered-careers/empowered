@@ -4,6 +4,18 @@
 > Derived from: `ec-matching-sprint-plan.md` v3.1 (the spec) + live codebase exploration.
 > Status: saved for discussion — not yet started.
 
+> [!NOTE]
+> **Deferred by the coaching/content pivot (August 2026).** Matching depends on
+> job-board inventory, which is dormant. Moved here from `docs/` — the spec is
+> sound and nothing in it is wrong, it just isn't next.
+>
+> **Unblocks when:** the candidate list reaches critical mass and the job board
+> is reactivated (`ec-pivot-brief.md` §0, rule 1).
+>
+> The scoring approach is not idle in the meantime — the pivot's JD → ATS
+> checker (`ec-pivot-plan.md` §4) reuses it candidate-initiated rather than
+> inventory-driven.
+
 ## Context
 
 Build the retrieval-funnel matching engine specced in `docs/ec-matching-sprint-plan.md` (v3.1): candidates' parsed resumes and admin-curated JDs get embedded, a Stage 0 hard filter + Stage 1 composite score materializes top-K rows into `matches`, and each surfaced match carries a templated one-line `light_reason` — all with zero candidate action. M5 (Deep Dive) is **out of scope** for this effort; nothing here precludes it.

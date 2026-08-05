@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Career Symmetry 360 — Pricing</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg: #0a0a0a;
+    --bg-raised: #131313;
+    --white: #f7f6f3;
+    --grey: #9a9a9a;
+    --grey-dim: #5f5f5f;
+    --line: #262626;
+    --silver: #b9bdc4;
+    --gold: #c9a227;
+    --platinum: #e7d9b8;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding: 96px 32px 72px;
+    text-align:center;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 18% 20%, rgba(255,255,255,0.05), transparent 40%),
+      radial-gradient(circle at 82% 75%, rgba(201,162,39,0.06), transparent 45%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-size:12px; letter-spacing: 0.28em; text-transform:uppercase;
+    color: var(--grey); margin-bottom:20px; font-weight:600;
+  }
+  .hero h1{
+    font-family:'Archivo Black', sans-serif;
+    font-size: clamp(40px, 6vw, 68px);
+    text-transform:uppercase;
+    letter-spacing: -0.01em;
+    line-height:1.02;
+  }
+  .hero h1 span{ color: var(--gold); }
+  .hero p.sub{
+    max-width:560px; margin:22px auto 0;
+    color: var(--grey); font-size:16.5px;
+  }
+
+  /* signature ribbon — echoes the brand's pill+circle mark */
+  .ribbon{
+    display:inline-flex; align-items:center; gap:0;
+    margin-top:36px;
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--bg);
+    overflow:hidden;
+    font-family:'Archivo Black', sans-serif;
+    text-transform:uppercase;
+    font-size: 13px;
+    letter-spacing:0.04em;
+  }
+  .ribbon .dot{
+    width:38px; height:38px;
+    background: var(--bg);
+    border-radius:50%;
+    margin: 4px;
+    flex-shrink:0;
+  }
+  .ribbon .txt{ padding: 12px 26px 12px 6px; white-space:nowrap; }
+
+  /* ---------- TIER SECTION ---------- */
+  .tiers{ padding: 88px 32px 40px; }
+  .section-head{ text-align:center; margin-bottom:56px; }
+  .section-head .eyebrow{ margin-bottom:14px; }
+  .section-head h2{
+    font-family:'Archivo Black', sans-serif;
+    font-size: clamp(28px, 4vw, 40px);
+    text-transform:uppercase;
+  }
+  .section-head p{ color:var(--grey); max-width:520px; margin:14px auto 0; font-size:15px;}
+
+  .tier-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:24px;
+  }
+  @media (max-width: 900px){ .tier-grid{ grid-template-columns:1fr; } }
+
+  .tier{
+    background: var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding: 36px 30px 30px;
+    display:flex; flex-direction:column;
+    position:relative;
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .tier:hover{ transform: translateY(-4px); border-color:#3a3a3a; }
+  .tier.featured{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px rgba(201,162,39,0.15), 0 24px 48px -24px rgba(201,162,39,0.25);
+  }
+  .tier .metal-bar{
+    height:3px; width:44px; border-radius:2px; margin-bottom:22px;
+  }
+  .tier.silver .metal-bar{ background: var(--silver); }
+  .tier.gold .metal-bar{ background: var(--gold); }
+  .tier.platinum .metal-bar{ background: var(--platinum); }
+
+  .tier .badge{
+    font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--grey); font-weight:700; margin-bottom:6px;
+  }
+  .tier.silver .badge{ color: var(--silver); }
+  .tier.gold .badge{ color: var(--gold); }
+  .tier.platinum .badge{ color: var(--platinum); }
+
+  .tier h3{
+    font-family:'Archivo Black', sans-serif;
+    font-size:26px; text-transform:uppercase; margin-bottom:4px;
+  }
+  .tier .tagline{ color:var(--grey); font-size:13.5px; margin-bottom:22px; }
+
+  .tier .price{
+    display:flex; align-items:baseline; gap:8px; margin-bottom:2px;
+  }
+  .tier .price .amt{ font-family:'Archivo Black', sans-serif; font-size:38px; }
+  .tier .price .per{ color:var(--grey); font-size:13px; }
+  .tier .bundle-note{ color:var(--grey-dim); font-size:12.5px; margin-bottom:24px; }
+
+  .tier ul{ list-style:none; flex:1; margin-bottom:28px; }
+  .tier li{
+    font-size:14px; color:#d8d8d5; padding: 9px 0;
+    border-top:1px solid var(--line);
+    display:flex; gap:10px;
+  }
+  .tier li:first-child{ border-top:none; }
+  .tier li::before{ content:"—"; color:var(--grey-dim); flex-shrink:0; }
+
+  .tier .cta{
+    display:block; text-align:center;
+    padding:14px 0; border-radius:999px;
+    font-family:'Archivo Black', sans-serif;
+    font-size:12.5px; letter-spacing:0.06em; text-transform:uppercase;
+    background:var(--white); color:var(--bg);
+    border:none; cursor:pointer;
+  }
+  .tier.gold .cta{ background:var(--gold); color:#1a1400; }
+  .tier .cta:hover{ opacity:0.88; }
+
+  .most-popular{
+    position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    background:var(--gold); color:#1a1400;
+    font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase;
+    font-weight:800; padding:6px 16px; border-radius:999px;
+  }
+
+  /* ---------- SESSION MENU (à la carte) ---------- */
+  .menu{ padding: 88px 32px; border-top:1px solid var(--line); }
+  .menu-table{ width:100%; border-collapse:collapse; margin-top:10px;}
+  .menu-table th{
+    text-align:left; font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--grey); font-weight:700; padding:0 0 14px; border-bottom:1px solid var(--line);
+  }
+  .menu-table td{
+    padding:18px 0; border-bottom:1px solid var(--line); font-size:14.5px; vertical-align:top;
+  }
+  .menu-table td.name{ font-weight:700; color:var(--white); }
+  .menu-table td.desc{ color:var(--grey); max-width:340px; }
+  .menu-table td.price{ font-family:'Archivo Black', sans-serif; font-size:16px; text-align:right; white-space:nowrap;}
+  .menu-table td.tier-tag{ text-align:right; }
+  .tag{
+    display:inline-block; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+    padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--grey);
+  }
+  .tag.silver{ border-color:var(--silver); color:var(--silver); }
+  .tag.gold{ border-color:var(--gold); color:var(--gold); }
+  .tag.platinum{ border-color:var(--platinum); color:var(--platinum); }
+
+  /* ---------- FOOTER CTA ---------- */
+  .footer-cta{
+    padding:96px 32px; text-align:center; border-top:1px solid var(--line);
+  }
+  .footer-cta h2{
+    font-family:'Archivo Black', sans-serif;
+    font-size:clamp(26px,4vw,38px); text-transform:uppercase; margin-bottom:16px;
+  }
+  .footer-cta p{ color:var(--grey); max-width:480px; margin:0 auto 32px; }
+  .logo-mark{
+    display:flex; align-items:center; justify-content:center; gap:10px; margin-top:56px;
+    color:var(--grey-dim); font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+  }
+
+  /* ---------- FULL 360 BREAKDOWN ---------- */
+  .breakdown{ padding: 96px 32px; border-top:1px solid var(--line); }
+  .breakdown-intro{ text-align:center; max-width:640px; margin: 0 auto 20px; }
+  .breakdown-legend{
+    display:flex; justify-content:center; gap:28px; margin: 28px 0 48px;
+    font-size:12.5px; color:var(--grey);
+  }
+  .breakdown-legend .lg-item{ display:flex; align-items:center; gap:8px; }
+  .lg-swatch{ width:10px; height:10px; border-radius:50%; }
+  .lg-swatch.silver{ background:var(--silver); }
+  .lg-swatch.gold{ background:var(--gold); }
+  .lg-swatch.platinum{ background:var(--platinum); }
+
+  .bd-table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:14px; }
+  table.bd{ width:100%; border-collapse:collapse; min-width:760px; }
+  table.bd thead th{
+    position:sticky; top:0; background:#151515;
+    text-align:left; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--grey); font-weight:700; padding:16px 18px; border-bottom:1px solid var(--line);
+  }
+  table.bd thead th.center{ text-align:center; }
+  table.bd tbody tr.group-row td{
+    background: var(--bg-raised);
+    font-family:'Archivo Black', sans-serif;
+    text-transform:uppercase; font-size:12.5px; letter-spacing:0.04em;
+    padding:14px 18px; color:var(--white);
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  table.bd tbody tr.item-row td{
+    padding:14px 18px; border-bottom:1px solid var(--line); font-size:13.5px; vertical-align:top;
+  }
+  table.bd tbody tr.item-row:last-child td{ border-bottom:none; }
+  table.bd td.item-name{ font-weight:700; color:var(--white); width:22%; }
+  table.bd td.item-desc{ color:var(--grey); width:32%; }
+  table.bd td.center{ text-align:center; }
+  table.bd td.price{ font-family:'Archivo Black', sans-serif; font-size:14px; text-align:right; white-space:nowrap; }
+  .chk{ color:var(--white); font-size:15px; }
+  .chk.silver{ color:var(--silver); }
+  .chk.gold{ color:var(--gold); }
+  .chk.platinum{ color:var(--platinum); }
+  .dash{ color:#3a3a3a; }
+
+  .bd-total-row td{
+    padding:20px 18px; font-size:13.5px; border-top:2px solid var(--line);
+  }
+  .bd-total-row td.item-name{ font-family:'Archivo Black', sans-serif; text-transform:uppercase; font-size:13px; }
+  .bd-total-row td.price{ font-family:'Archivo Black', sans-serif; font-size:16px; }
+  .bd-total-row.value td{ color:var(--grey); }
+  .bd-total-row.value td.price{ text-decoration: line-through; color:var(--grey-dim); }
+  .bd-total-row.savings td{ color:var(--gold); }
+
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Empowered Careers</div>
+      <h1>Career Symmetry <span>360</span></h1>
+      <p class="sub">Executive-grade career coaching, unlocked inside the product you already use. Built for professionals five years in through the VP seat.</p>
+      <div class="ribbon">
+        <div class="dot"></div>
+        <div class="txt">Start with one session — no commitment</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tiers">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Choose your level</div>
+        <h2>Three ways in</h2>
+        <p>Start light, go deep, or get the full 360° arc. Every tier upgrades — nothing you pay is wasted.</p>
+      </div>
+
+      <div class="tier-grid">
+
+        <div class="tier silver">
+          <div class="metal-bar"></div>
+          <div class="badge">Silver</div>
+          <h3>Foundation</h3>
+          <div class="tagline">A fast, tangible first win</div>
+          <div class="price"><span class="amt">$450</span><span class="per">/ 3 sessions</span></div>
+          <div class="bundle-note">$150 per session · à la carte value $525</div>
+          <ul>
+            <li><strong>Brand Navigator</strong> — LinkedIn optimized for SEO</li>
+            <li><strong>Brand Navigator</strong> — repackaged resume</li>
+            <li><strong>Distinguished Dialogues</strong> — 1 mock interview session</li>
+          </ul>
+          <button class="cta">Start Foundation</button>
+        </div>
+
+        <div class="tier gold featured">
+          <div class="most-popular">Most Chosen</div>
+          <div class="metal-bar"></div>
+          <div class="badge">Gold</div>
+          <h3>Momentum</h3>
+          <div class="tagline">A real search strategy, built with you</div>
+          <div class="price"><span class="amt">$1,400</span><span class="per">/ 8 sessions</span></div>
+          <div class="bundle-note">$175 per session · à la carte value $2,250</div>
+          <ul>
+            <li>Everything in Foundation</li>
+            <li><strong>NorthStar Discovery</strong> — path, values, worth, how others see you</li>
+            <li><strong>Career Navigator</strong> — LinkedIn backstage pass, target list, live search, hidden opportunities, market trends</li>
+            <li><strong>Distinguished Dialogues</strong> — interview prep & debrief</li>
+          </ul>
+          <button class="cta">Start Momentum</button>
+        </div>
+
+        <div class="tier platinum">
+          <div class="metal-bar"></div>
+          <div class="badge">Platinum</div>
+          <h3>Executive</h3>
+          <div class="tagline">The full 360°, white-glove</div>
+          <div class="price"><span class="amt">$2,400</span><span class="per">/ 13 sessions</span></div>
+          <div class="bundle-note">$185 per session · à la carte value $3,700</div>
+          <ul>
+            <li>Everything in Momentum</li>
+            <li><strong>Mindset Mastery</strong> — market your strengths, remove roadblocks, pinpoint your dream job</li>
+            <li><strong>Distinguished Dialogues</strong> — full mock interview series, executive bio, background & social prep</li>
+            <li><strong>Seamless Start</strong> — offer support + first 90 days check-ins</li>
+          </ul>
+          <button class="cta">Start Executive</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="menu">
+    <div class="wrap">
+      <div class="section-head" style="text-align:left; margin-bottom:32px;">
+        <div class="eyebrow">Prefer to build your own?</div>
+        <h2 style="font-size:28px;">Quick-add sessions</h2>
+        <p style="margin-left:0;">The fastest entry points to try before committing to a tier. For every option across all six modules, see the full breakdown below.</p>
+      </div>
+
+      <table class="menu-table">
+        <thead>
+          <tr><th>Session</th><th>What you get</th><th></th><th style="text-align:right;">Price</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">Resume Refresh</td>
+            <td class="desc">A working session to rebuild your resume around impact, not duties.</td>
+            <td class="tier-tag"><span class="tag silver">Silver</span></td>
+            <td class="price">$125</td>
+          </tr>
+          <tr>
+            <td class="name">LinkedIn Glow-Up</td>
+            <td class="desc">Optimize your profile for search visibility and recruiter attention.</td>
+            <td class="tier-tag"><span class="tag silver">Silver</span></td>
+            <td class="price">$150</td>
+          </tr>
+          <tr>
+            <td class="name">NorthStar Discovery</td>
+            <td class="desc">Define your path, your value, and what you're actually worth.</td>
+            <td class="tier-tag"><span class="tag gold">Gold</span></td>
+            <td class="price">$175</td>
+          </tr>
+          <tr>
+            <td class="name">Market Intel Session</td>
+            <td class="desc">Target company list, hidden opportunities, and current market trends.</td>
+            <td class="tier-tag"><span class="tag gold">Gold</span></td>
+            <td class="price">$175</td>
+          </tr>
+          <tr>
+            <td class="name">Mock Interview</td>
+            <td class="desc">A full live-fire session with structured debrief and feedback.</td>
+            <td class="tier-tag"><span class="tag gold">Gold</span></td>
+            <td class="price">$200</td>
+          </tr>
+          <tr>
+            <td class="name">Executive Bio</td>
+            <td class="desc">A polished, board-ready bio written for you — not a template.</td>
+            <td class="tier-tag"><span class="tag platinum">Platinum</span></td>
+            <td class="price">$250</td>
+          </tr>
+          <tr>
+            <td class="name">Background & Social Prep</td>
+            <td class="desc">Clean up your public footprint before it's reviewed by anyone else.</td>
+            <td class="tier-tag"><span class="tag platinum">Platinum</span></td>
+            <td class="price">$200</td>
+          </tr>
+          <tr>
+            <td class="name">90-Day Check-In</td>
+            <td class="desc">A single session after you start, to navigate the first 90 days.</td>
+            <td class="tier-tag"><span class="tag platinum">Platinum</span></td>
+            <td class="price">$150</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="breakdown">
+    <div class="wrap">
+      <div class="breakdown-intro">
+        <div class="eyebrow" style="text-align:center;">Every option, side by side</div>
+        <h2 style="font-family:'Archivo Black', sans-serif; text-transform:uppercase; font-size:clamp(26px,4vw,36px);">The Complete 360° Breakdown</h2>
+        <p style="color:var(--grey); margin-top:14px; font-size:15px;">All 22 deliverables across all six modules, mapped to what's included at each tier — and what each one costs on its own.</p>
+      </div>
+
+      <div class="breakdown-legend">
+        <div class="lg-item"><span class="lg-swatch silver"></span> Silver — Foundation</div>
+        <div class="lg-item"><span class="lg-swatch gold"></span> Gold — Momentum</div>
+        <div class="lg-item"><span class="lg-swatch platinum"></span> Platinum — Executive</div>
+      </div>
+
+      <div class="bd-table-wrap">
+        <table class="bd">
+          <thead>
+            <tr>
+              <th>Deliverable</th>
+              <th>What it is</th>
+              <th class="center">Silver</th>
+              <th class="center">Gold</th>
+              <th class="center">Platinum</th>
+              <th style="text-align:right;">À la carte</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="group-row"><td colspan="6">01 — NorthStar Discovery</td></tr>
+            <tr class="item-row">
+              <td class="item-name">Define your career path</td>
+              <td class="item-desc">Clarify the direction you're actually aiming for, not just the next open role.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Align your value cornerstones</td>
+              <td class="item-desc">Name the non-negotiables that should be steering your decisions.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$125</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Overcome past challenges</td>
+              <td class="item-desc">Work through what's been holding a prior search or role back.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Learn how others see you</td>
+              <td class="item-desc">Outside perspective on your reputation and presence, gathered on your behalf.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$175</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Know your worth</td>
+              <td class="item-desc">Compensation and title benchmarking for your level and target market.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+
+            <tr class="group-row"><td colspan="6">02 — Mindset Mastery</td></tr>
+            <tr class="item-row">
+              <td class="item-name">Market your personality strengths</td>
+              <td class="item-desc">Identify strengths worth featuring in your LinkedIn, resume, and interview answers.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Remove current roadblocks</td>
+              <td class="item-desc">Clear the specific thing that's actually slowing your search down.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Engagement analysis</td>
+              <td class="item-desc">Pinpoint the dream job you're actually optimizing for.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$175</td>
+            </tr>
+
+            <tr class="group-row"><td colspan="6">03 — Brand Navigator</td></tr>
+            <tr class="item-row">
+              <td class="item-name">LinkedIn brand build</td>
+              <td class="item-desc">Optimize your profile to boost SEO and recruiter visibility.</td>
+              <td class="center"><span class="chk silver">●</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$175</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Repackaged resume</td>
+              <td class="item-desc">Rebuilt around impact and outcomes, not job duties.</td>
+              <td class="center"><span class="chk silver">●</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+
+            <tr class="group-row"><td colspan="6">04 — Career Navigator</td></tr>
+            <tr class="item-row">
+              <td class="item-name">LinkedIn backstage pass</td>
+              <td class="item-desc">See what's actually working behind the scenes of your search.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Top company target list</td>
+              <td class="item-desc">Secrets to capturing attention against every other candidate.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$175</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Live search session</td>
+              <td class="item-desc">Real-time, hands-on search work done together.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$200</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Hidden opportunities checklist</td>
+              <td class="item-desc">Where unlisted roles actually surface, and how to find them.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$150</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Market trends briefing</td>
+              <td class="item-desc">What's actually moving in your industry and level right now.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$125</td>
+            </tr>
+
+            <tr class="group-row"><td colspan="6">05 — Distinguished Dialogues</td></tr>
+            <tr class="item-row">
+              <td class="item-name">Interview prep checklist</td>
+              <td class="item-desc">How to respond to, and which critical questions to ask.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$125</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Interview prep & debrief</td>
+              <td class="item-desc">A structured walkthrough before, and a real debrief after.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$175</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Mock interview session</td>
+              <td class="item-desc">Live practice under real conditions. Silver includes one; Platinum includes the full series.</td>
+              <td class="center"><span class="chk silver">●</span></td>
+              <td class="center"><span class="chk gold">●</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$200</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Executive bio</td>
+              <td class="item-desc">Written for you — board-ready, not a template.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$250</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">Background check prep</td>
+              <td class="item-desc">Social media clean-up and public footprint review.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$200</td>
+            </tr>
+            <tr class="item-row">
+              <td class="item-name">First 90 days check-ins</td>
+              <td class="item-desc">Three touchpoints to navigate the start of your new role.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$225</td>
+            </tr>
+
+            <tr class="group-row"><td colspan="6">06 — Seamless Start</td></tr>
+            <tr class="item-row">
+              <td class="item-name">Offer & transition support</td>
+              <td class="item-desc">Guidance through the offer, negotiation, and first-day logistics.</td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="dash">—</span></td>
+              <td class="center"><span class="chk platinum">●</span></td>
+              <td class="price">$175</td>
+            </tr>
+
+            <tr class="bd-total-row value">
+              <td class="item-name" colspan="5">Full à la carte value</td>
+              <td class="price">$3,700</td>
+            </tr>
+            <tr class="bd-total-row">
+              <td class="item-name" colspan="5">Platinum bundle price</td>
+              <td class="price" style="color:var(--platinum);">$2,400</td>
+            </tr>
+            <tr class="bd-total-row savings">
+              <td class="item-name" colspan="5">You save</td>
+              <td class="price">$1,300</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="footer-cta">
+    <div class="wrap">
+      <h2>Not sure where to start?</h2>
+      <p>Take a 15-minute Career Capital Assessment. We'll recommend the right tier — no pressure, no obligation.</p>
+      <div class="ribbon">
+        <div class="dot"></div>
+        <div class="txt">Book your free assessment</div>
+      </div>
+      <div class="logo-mark">Empowered Careers · Career Symmetry 360</div>
+    </div>
+  </section>
+
+</body>
+</html>

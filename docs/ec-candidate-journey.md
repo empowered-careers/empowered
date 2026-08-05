@@ -3,9 +3,23 @@
 > Last updated: May 2026
 > Status: Working document
 
+> [!WARNING]
+> **Largely superseded by the coaching/content pivot (August 2026.)** The Core
+> Principle below is inverted from what the product now does: coaching is the
+> product, and the job board is dormant. Every tier-access rule here
+> (plan → job tier) describes frozen code that candidates can no longer reach.
+>
+> Still accurate: the intake spine (signup → resume → Blueprint) and the ICP.
+> Current journey is `ec-pivot-plan.md`; the definition of done is
+> `ec-pivot-brief.md` §10.
+
 ---
 
 ## Core Principle
+
+> [!WARNING]
+> Superseded — see the banner above. The pivot inverts this: coaching **is**
+> the product, not a conversion lever toward job-board access.
 
 The product is one thing: **access to exclusive roles.**
 Everything else — Resume score, LinkedIn grade, assessments, resume tools — are conversion levers pushing candidates toward paying for that access.

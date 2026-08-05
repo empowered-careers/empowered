@@ -28,18 +28,11 @@ export interface ComputeNudgesInput {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
   blueprint: DashboardBlueprint | null;
-  activeJobCount: number;
   interviewingApplication: InterviewingApplication | null;
 }
 
 export function computeNudges(input: ComputeNudgesInput): Nudge[] {
-  const {
-    profile,
-    resumes,
-    blueprint,
-    activeJobCount,
-    interviewingApplication,
-  } = input;
+  const { profile, resumes, blueprint, interviewingApplication } = input;
   const nudges: Nudge[] = [];
 
   if (interviewingApplication) {
@@ -75,26 +68,16 @@ export function computeNudges(input: ComputeNudgesInput): Nudge[] {
     });
   }
 
-  const isFree =
-    !profile ||
-    profile.plan === "free" ||
-    profile.subscription_status !== "active";
-  if (isFree && activeJobCount > 0) {
-    nudges.push({
-      id: "nudge-plan",
-      tag: "Plan",
-      title: `${activeJobCount} curated roles waiting`,
-      body: "Activate membership to view employer details and apply.",
-      cta: { label: "See plans", href: "/pricing" },
-      priority: 60,
-    });
-  } else if (!interviewingApplication) {
+  // `nudge-plan` (free-plan → /pricing upsell, gated on open job count) was
+  // removed with the subscription surfaces. Pivot plan §6 replaces it with the
+  // gap-to-product prescription engine driven by scores, not plan state.
+  if (!interviewingApplication) {
     nudges.push({
       id: "nudge-content",
       tag: "Content",
       title: "What VPs of Eng look for in 2026",
       body: "Fresh from the team — 8 min read tuned to senior tech roles.",
-      cta: { label: "Read", href: "/insights" },
+      cta: { label: "Read", href: "/content" },
       priority: 40,
     });
   }

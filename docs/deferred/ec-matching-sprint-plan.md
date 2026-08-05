@@ -1,11 +1,17 @@
 # Empowered Careers — Matching Engine Sprint Plan (Retrieval Funnel) — v3.1
 
+> [!NOTE]
+> **Deferred by the coaching/content pivot (August 2026).** Matching depends on
+> job-board inventory, which is dormant. Moved here from `docs/`; see
+> `deferred/ec-matching-implementation-plan.md` for the same note in full.
+> **Unblocks when:** the job board is reactivated.
+
 > Last updated: 2026-06-10
 > Supersedes: v2 (live-verified), v1 (doc-derived)
 > **v3 change: Stage 2 redesigned — auto light reasoning + candidate-initiated, quota-gated Deep Dive.**
 > **v3.1 change: 2a one-liner is templated from Stage 1 output (score_breakdown + keyword overlap) — no LLM call.**
 > Verified against live Supabase project `empowered` (wpurdayfjsyiedabmipt, PG 17).
-> Relation to `ec-dev-plan.md`: build-out of **E4 / P2-2**. Phase 1 keyword matching (S4) ships as-is.
+> Relation to `deprecated/ec-dev-plan.md`: build-out of **E4 / P2-2**. Phase 1 keyword matching (S4) ships as-is.
 
 ---
 

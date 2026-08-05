@@ -9,8 +9,7 @@ export type ProfileStepId =
   | "step-resume"
   | "step-resume-score"
   | "step-preferences"
-  | "step-blueprint"
-  | "step-subscription";
+  | "step-blueprint";
 
 export interface ProfileStep {
   id: ProfileStepId;
@@ -34,7 +33,7 @@ export function buildProfileSteps(
       id: "step-name",
       title: "Add your name",
       unlocks: "needed for matches",
-      points: 14,
+      points: 17,
       href: "/profile",
       complete: !!profile?.full_name,
     },
@@ -42,7 +41,7 @@ export function buildProfileSteps(
       id: "step-linkedin",
       title: "Add LinkedIn URL",
       unlocks: "unlocks profile scoring",
-      points: 14,
+      points: 17,
       href: null,
       complete: !!profile?.linkedin_url,
     },
@@ -50,7 +49,7 @@ export function buildProfileSteps(
       id: "step-resume",
       title: "Upload your resume",
       unlocks: "required for matching",
-      points: 14,
+      points: 17,
       href: "/resumes",
       complete: hasResume,
     },
@@ -58,7 +57,7 @@ export function buildProfileSteps(
       id: "step-resume-score",
       title: "Score your resume",
       unlocks: "see how recruiters view it",
-      points: 14,
+      points: 17,
       href: "/resumes",
       complete: hasResumeScore,
     },
@@ -66,7 +65,7 @@ export function buildProfileSteps(
       id: "step-preferences",
       title: "Set job preferences",
       unlocks: "tells us what you want",
-      points: 14,
+      points: 16,
       href: "/onboarding/preferences",
       complete: !!profile?.onboarding_completed_at,
     },
@@ -74,17 +73,9 @@ export function buildProfileSteps(
       id: "step-blueprint",
       title: "Discover your Blueprint",
       unlocks: "30-question identity scan",
-      points: 14,
+      points: 16,
       href: "/assessments/ci-blueprint",
       complete: hasBlueprint,
-    },
-    {
-      id: "step-subscription",
-      title: "Activate membership",
-      unlocks: "unlocks exclusive matches",
-      points: 16,
-      href: "/pricing",
-      complete: profile?.subscription_status === "active",
     },
   ];
 }

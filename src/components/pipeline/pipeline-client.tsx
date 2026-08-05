@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
@@ -72,11 +71,7 @@ export function PipelineClient({ cards }: PipelineClientProps) {
 
       {cards.length === 0 && (
         <div className="border border-border bg-card p-12 text-center text-sm text-muted-foreground">
-          You haven&apos;t expressed interest in any roles yet. Head to the{" "}
-          <Link href="/job-board" className="text-foreground underline">
-            job board
-          </Link>{" "}
-          to start your pipeline.
+          You haven&apos;t expressed interest in any roles yet.
         </div>
       )}
 

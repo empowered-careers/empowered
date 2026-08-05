@@ -4,7 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Empowered Careers is a closed-loop SaaS talent network for mid-to-senior tech professionals. The platform assesses, scores, and matches candidates to exclusive roles that don't appear on public job boards. Revenue comes from candidate coaching/services, Core/Pro subscriptions, and B2B placement fees. A paid subscription unlocks the private job board — Core (plan_2) for Tier 2 curated roles, Pro (plan_3) for Tier 3 exclusive roles. One-time purchases (webinars, à la carte services) monetize the funnel but do not unlock the board.
+Empowered Careers is a coaching/content platform for mid-to-senior tech professionals. The platform assesses and scores candidates, then sells them 1:1 coaching, courses, and à la carte career services. Revenue is **à la carte only** — there are no subscriptions. Courses and content are the qualification and warming layer that feeds the money generator, which is 1:1 coaching.
+
+**The platform pivoted from job-board-first to coaching-first.** See `docs/ec-pivot-brief.md` (direction) and `docs/ec-pivot-plan.md` (implementation). Three rules that override anything older you find in `docs/`:
+
+1. **Dormant ≠ deleted.** The job board, matching, employer portal, and placements/commissions keep their schema, routes, and admin surfaces. They are unlinked from candidate nav, not removed. Don't build on them; don't delete them.
+2. **No subscriptions.** `profiles.plan`, `plan_2`/`plan_3`, `comparePlans()`, and `can_see_job_tier()` are **frozen, not extended**. New entitlements route through `enrollments`. Never add a plan-based gate.
+3. **Intake stays mandatory.** The resume-upload hard gate before dashboard access stays exactly as-is even with no job board behind it — building the candidate list is the point.
 
 ## Working Principles
 
@@ -161,22 +167,23 @@ RLS is enforced at the database level. When writing queries, don't assume the se
 
 ## Key File Locations
 
-| Purpose                                 | Path                                            |
-| --------------------------------------- | ----------------------------------------------- |
-| Root layout + providers                 | `src/app/layout.tsx`                            |
-| Auth state + hook                       | `src/components/providers/auth-provider.tsx`    |
-| Dashboard server component              | `src/app/dashboard/page.tsx`                    |
-| Dashboard client component              | `src/components/dashboard/dashboard-client.tsx` |
-| Server Actions                          | `src/app/actions/`                              |
-| Supabase browser client                 | `src/lib/supabase/client.ts`                    |
-| Supabase server client                  | `src/lib/supabase/server.ts`                    |
-| TanStack Query keys                     | `src/lib/query-keys.ts`                         |
-| DB types (auto-generated)               | `src/types/database.types.ts`                   |
-| Env validation schema                   | `env.ts`                                        |
-| Site metadata/branding                  | `src/config/site.ts`                            |
-| Business/product context                | `docs/context.md`                               |
-| Database schema + enums                 | `docs/db_schema.md`                             |
-| Feature list + build status             | `docs/ec-feature-list.md`                       |
-| Sprint plan (what's built vs. deferred) | `docs/ec-sprint-plan.md`                        |
-| Candidate journey + tier access rules   | `docs/ec-candidate-journey.md`                  |
-| Admin operations + Loops email events   | `docs/ec-admin-operations.md`                   |
+| Purpose                               | Path                                              |
+| ------------------------------------- | ------------------------------------------------- |
+| Root layout + providers               | `src/app/layout.tsx`                              |
+| Auth state + hook                     | `src/components/providers/auth-provider.tsx`      |
+| Dashboard server component            | `src/app/dashboard/page.tsx`                      |
+| Dashboard client component            | `src/components/dashboard/dashboard-client.tsx`   |
+| Server Actions                        | `src/app/actions/`                                |
+| Supabase browser client               | `src/lib/supabase/client.ts`                      |
+| Supabase server client                | `src/lib/supabase/server.ts`                      |
+| TanStack Query keys                   | `src/lib/query-keys.ts`                           |
+| DB types (auto-generated)             | `src/types/database.types.ts`                     |
+| Env validation schema                 | `env.ts`                                          |
+| Site metadata/branding                | `src/config/site.ts`                              |
+| **Current direction + build order**   | `docs/ec-pivot-brief.md`, `docs/ec-pivot-plan.md` |
+| Catalog setup runbook (ops)           | `docs/ec-catalog-setup.md`                        |
+| Database schema + enums               | `docs/db_schema.md`                               |
+| Admin operations + Loops email events | `docs/ec-admin-operations.md`                     |
+| Doc index + what's superseded         | `docs/README.md`                                  |
+
+Older docs (`context.md`, `ec-feature-list.md`, `ec-sprint-plan.md`, `ec-candidate-journey.md`, `ec-ui-plan.md`) carry pivot banners marking which parts still hold. Read the banner before trusting the doc.

@@ -49,6 +49,15 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 
 ## Paywall & Plans / Stripe (S3 — code shipped, `docs/done/ec-paywall-plan.md`)
 
+> [!WARNING]
+> **Subscription items below are dormant** after the coaching/content pivot.
+> The four Core/Pro recurring prices and the Customer Portal stay configured
+> (the code path is frozen, not deleted) but nothing sells them any more.
+>
+> The à la carte line — setting `coaching_products.stripe_price_id` — is the
+> one that still matters, and it has grown into its own runbook:
+> **`docs/ec-catalog-setup.md`**. Do that instead of the line below.
+
 > Everything below runs in a **Stripe sandbox** (or legacy test mode) — test keys, test prices, `4242…` cards, no real charges. The app is env-driven and the API version is unpinned, so you just paste sandbox keys/price IDs into `.env.local`. Going live later = recreate prices in live mode and swap the env values.
 
 ### Blocking (payments won't work without these)

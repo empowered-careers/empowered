@@ -1,10 +1,22 @@
 # Empowered Careers — Sprint Checklist to Finished Product
 
-> Status: **Active** (created 2026-06-05 · last reconciled against code 2026-06-11)
+> [!WARNING]
+> **No longer the source-of-truth backlog.** The coaching/content pivot
+> (August 2026) re-sequenced everything after "Already shipped" — see
+> `ec-pivot-brief.md` (direction) and `ec-pivot-plan.md` §6 (current build
+> order).
+>
+> **Still accurate and worth reading:** the "Already shipped" section. That's
+> the floor the pivot builds on and none of it was ripped out.
+>
+> **Now dormant, do not pick up:** every job-board, matching, employer-portal,
+> and Core/Pro subscription sprint below.
+
+> Status: **Superseded** (created 2026-06-05 · fully reconciled against code 2026-06-11 · Loops-event and nudge-count claims re-checked 2026-07-31 · superseded by the pivot 2026-08-05)
 > Reconciliation note: **Sprint B fully code-complete** (paywall + `usePaymentNotifications` shipped; D1 resolved). Only ops items remain (Stripe catalog/keys).
 > Single source-of-truth backlog from today's verified state to a finished product —
 > Phase 1 launch, Phase 2, and the explicitly-deferred items folded in as real sprints.
-> Supersedes the stale checkboxes in `docs/ec-dev-plan.md` (kept as historical narrative).
+> Supersedes the stale checkboxes in `docs/deprecated/ec-dev-plan.md` (kept as historical narrative).
 > Legend: `[x]` shipped & code-verified · `[ ]` pending · `[~]` partially built (note inline).
 
 ---
@@ -35,7 +47,7 @@ diagram (§3) is the build order; never start a sprint whose prerequisite is lat
 - [x] Realtime notifications provider (resume / linkedin / application hooks in root layout).
 - [x] **Persistent notifications system** — `notifications` table fed by source mutations; bell-popover in top nav with unread badge, history, and mark-read UX; `useNotificationFeed` hook + `NotificationBell` component (`src/components/notifications/`). Distinct from nudges (derived) and realtime toasts (ephemeral).
 - [x] SEO — sitemap, `llms.txt`, robots, JSON-LD, canonicals.
-- [x] In-app nudges **v1** — `computeNudges()` (4 rules: interviewing, profile-completion, free-plan-with-active-jobs, content) feeding the dashboard "For your attention" grid.
+- [x] In-app nudges **v1** — `computeNudges()` (5 rules: interviewing, profile-completion, free-plan-with-active-jobs, content, resume-score) feeding the dashboard "For your attention" grid.
 - [x] **Stripe paywall (Sprint B, shipped 2026-06-05)** — hosted Checkout + Customer Portal + signature-verified webhook; `profiles.plan` flips on subscription events; à-la-carte grants `enrollments` only (no board access); `candidate.payment`/`candidate.plan_upgraded` Loops events. Blocked only on live Stripe keys/catalog (ops) + an optional realtime payment toast. _(Full detail in Sprint B below.)_
 
 ---
@@ -120,7 +132,7 @@ Goal: close the flywheel and make the marketing page tell the truth. (Admin kanb
 
 - [ ] **Real trust factors** — `SocialProof.tsx` hardcodes "100+"/logos. Feed real placement count + active-role-by-tier counts from DB via a server component.
 - [ ] **Referrals** (enum exists, zero UI): candidate referral submit → `referrals` row + Loops invite; stamp `referred_profile_id` on signup and `placement_id` on placement (full attribution).
-- [ ] **Success-story trigger** on `markAsPlaced` → `candidate.placed` Loops event. `markAsPlaced` (`src/app/actions/admin.ts`) fires no Loops event today, and no `fireCandidatePlaced` wrapper exists in `src/lib/loops/client.ts` (only `lead.*` + `candidate.payment` + `candidate.plan_upgraded`).
+- [ ] **Success-story trigger** on `markAsPlaced` → `candidate.placed` Loops event. `markAsPlaced` (`src/app/actions/admin.ts`) fires no Loops event today, and no `fireCandidatePlaced` wrapper exists in `src/lib/loops/client.ts` (only `lead.*` + `assessment.*` + `candidate.payment` + `candidate.plan_upgraded`).
 
 **Exit:** placements are first-class and measurable; the marketing count is live data.
 
@@ -143,11 +155,11 @@ Goal: what's sold can be consumed. Product CRUD + `enrollments` table exist; no 
 
 ## Sprint F — Lifecycle & Nudges (E8)
 
-Goal: Lauren stops manually chasing. Today only `lead.*` Loops events exist; nudges are v1 (3 rules).
+Goal: Lauren stops manually chasing. Today `lead.*`, `assessment.*`, `candidate.payment` and `candidate.plan_upgraded` Loops events exist; nudges are v1 (5 rules).
 
 - [ ] LinkedIn grade card (visibility score + keyword gaps) — extends the Sprint A badge.
 - [ ] Resume-staleness tracking + nudge (60+ days since `parsed_at`).
-- [~] **Full `candidate.*` Loops event pipeline.** `payment` + `plan_upgraded` already fire from the Stripe webhook (`fireCandidatePayment` / `fireCandidatePlanUpgraded` in `src/lib/loops/client.ts`). Still missing — add wrappers + fire from the relevant actions / Inngest fns / OAuth callback: `signup`, `resume_uploaded`, `assessment_complete`, `job_interest`, `application_status_changed`, `placed`, `inactive_7d`, `inactive_30d`.
+- [~] **Full `candidate.*` Loops event pipeline.** `payment` + `plan_upgraded` fire from the Stripe webhook; `assessment.started` / `assessment.completed` fire from the public Career Positioning Assessment; `lead.registered` / `lead.attended` / `lead.converted` from the acquisition layer (all in `src/lib/loops/client.ts`). Still missing — add wrappers + fire from the relevant actions / Inngest fns / OAuth callback: `signup`, `resume_uploaded`, `job_interest`, `application_status_changed`, `placed`, `inactive_7d`, `inactive_30d`.
 - [ ] Inactive 7d/30d detection — scheduled Inngest cron over last sign-in.
 - [ ] Loops email sequences authored in dashboard (ops): welcome, resume nudge, profile completion, new match, upsells (resume<70, interview prep post-Tier-2 apply), weekly digest, inactive re-engagement, success-story.
 - [ ] **Nudge engine v2** when ≥5–6 nudge types (`docs/deferred/ec-nudges-v2.md`): provider registry + `rank()` in `src/lib/dashboard/nudges/`; add `nudge_interactions` table only when dismissal/cooldown is needed.

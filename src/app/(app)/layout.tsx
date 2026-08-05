@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
  *
  * 1. Server-side auth guard — redirects to /login before any UI renders.
  * 2. Fetches the minimum profile data needed to populate the pinned sidebar
- *    chip (name, plan tier, completeness ring).
+ *    chip (name, completeness ring).
  * 3. Wraps every (app)/* route in <AppShell>, which provides the top nav,
  *    contextual sidebar (per pathname), and main canvas slot.
  */
@@ -64,31 +64,11 @@ export default async function AppGroupLayout({
   const userName =
     profile?.full_name?.trim() || user.email?.split("@")[0] || "Member";
 
-  const isActive = profile?.subscription_status === "active";
-  const planLabel = (() => {
-    if (!isActive || !profile || profile.plan === "free") return "Free";
-    const tier =
-      profile.plan === "plan_3"
-        ? "Pro"
-        : profile.plan === "plan_2"
-          ? "Core"
-          : "À la carte";
-    const cadence =
-      profile.billing_cadence === "annual"
-        ? "Annual"
-        : profile.billing_cadence === "quarterly"
-          ? "Quarterly"
-          : profile.billing_cadence === "monthly"
-            ? "Monthly"
-            : null;
-    return cadence ? `${tier} · ${cadence}` : tier;
-  })();
-
   return (
     <AppShell
       completeness={percentage}
       isAdmin={isAdmin}
-      subline={planLabel}
+      subline="Member"
       userEmail={user.email ?? ""}
       userName={userName}
     >

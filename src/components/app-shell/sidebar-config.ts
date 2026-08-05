@@ -129,10 +129,15 @@ export const sidebarConfig: Record<string, SidebarSection[]> = {
 
 export type TabKey = keyof typeof sidebarConfig;
 
+/**
+ * Job Board is deliberately absent: the coaching/content pivot unlinks the
+ * board from candidate nav without deleting it. `sidebarConfig["/job-board"]`
+ * above is kept dormant so re-adding the tab here is the whole pivot-back.
+ * See docs/ec-pivot-plan.md §1a.
+ */
 export const topNavTabs: { key: string; label: string; href: string }[] = [
   { key: "/dashboard", label: "Dashboard", href: "/dashboard" },
   { key: "/pipeline", label: "Pipeline", href: "/pipeline" },
-  { key: "/job-board", label: "Job Board", href: "/job-board" },
   { key: "/content", label: "Content & Courses", href: "/content" },
 ];
 

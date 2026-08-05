@@ -24,7 +24,12 @@
       "Bash(curl -s \"https://ec-kanban.vercel.app/api/cards/5692951a-caec-49a0-9d82-9751d6ede23e\" -H \"Authorization: Bearer 00hClfwXLT89kKcK\")",
       "Bash(curl -s \"https://ec-kanban.vercel.app/api/cards/f4191879-d857-4041-8d7f-8f9331e28548\" -H \"Authorization: Bearer 00hClfwXLT89kKcK\")",
       "Bash(pkill -f \"next dev\")",
-      "Bash(git -C /home/gt/Projects/empowered status --short)"
+      "Bash(git -C /home/gt/Projects/empowered status --short)",
+      "Bash(grep -oE \"#[0-9A-Fa-f]{3,6}\" src/components/assessment/career-positioning/career-positioning.module.css)",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(sed -i '/^ UserCheck,$/d' src/components/dashboard/profile-strength-card.tsx)",
+      "Bash(sed -i '/^import Link from \"next\\\\/link\";$/d' src/components/pipeline/pipeline-client.tsx)",
+      "Bash(git mv *)"
     ]
   }
 }

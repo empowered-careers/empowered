@@ -41,12 +41,15 @@ An extensive tech / tech-adjacent / leadership role list for the "What roles are
 
 These are recommended but are **behavior/feature changes**, so they're GT's call, not part of the cosmetic pull. The intended UX for each is shown in the playground prototype.
 
-1. **Multi-role autocomplete input.** Turn the single role text field into a tag input: type → predictive suggestions from `target-roles.ts` → add as chips (multiple), with "add your own" for anything not covered. _(Prototype: playground → Onboarding, step 1.)_
-2. **Honest time + trim/group.** The dashboard banner promises "90 seconds" but the wizard is 15 one-per-screen questions. Either group related questions per screen or set a truthful estimate ("about 2 minutes"). _(Prototype groups into 4 phases.)_
+> **Update 2026-07-31:** the cosmetic branch was merged, and items 1, 2, and 6 below were
+> built on top of it. Items 3, 4, and 5 remain open.
+
+1. ✅ **Multi-role autocomplete input** — built as `src/components/onboarding/role-tag-input.tsx` (cmdk + `target-roles.ts`, chips, free-text allowed). Roles persist comma-joined in `candidate_preferences.target_role`.
+2. ✅ **Honest time** — dashboard banner now says "about 2 minutes". The 4-phase regrouping was **not** done; still 15 one-per-screen questions.
 3. **Framed resume moment.** `dashboard/page.tsx` silently `redirect("/resume")` for new users — add a short welcome/why instead.
 4. **LinkedIn-first sign-up** on `login/page.tsx` (it auto-fills profile + powers matching).
-5. **Skip / save-and-return**, and **radiogroup accessibility semantics** (options are `<button>`s today).
-6. **Progress bar math**: `pct = step/TOTAL` never reaches 100% before the done screen — minor logic tweak.
+5. **Skip / save-and-return** — still open. (**Radiogroup accessibility** ✅ done: options now use the Radix `RadioGroup` from `src/components/ui/radio-group.tsx`, not `<button>`s.)
+6. ✅ **Progress bar math** — now `(step + 1) / TOTAL`, reaches 100% on the final step.
 
 ---
 

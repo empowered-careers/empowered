@@ -135,7 +135,7 @@ Computed dimension scores per candidate. One row per profile.
 
 Phase 1 uses 5 dimensions: `role_clarity_score`, `values_score`, `strengths_score`,
 `leadership_score`, `impact_score`. `mindset_score` and `communication_score` are
-retained for Phase 2 expanded assessments (see Sprint P2-5 in `ec-dev-plan.md`)
+retained for Phase 2 expanded assessments (see Sprint P2-5 in `deprecated/ec-dev-plan.md`)
 and should be left null by Phase 1 code. `culture_axes` stores normalized 0–100
 preference and trait axes from the Career Identity Blueprint (written on Blueprint
 completion; read by matching and future company-fit queries).
@@ -163,36 +163,36 @@ Job-seeking preferences captured at onboarding (Tier A — required, soft gate)
 and at first Express Interest (Tier B — comp + location). The remaining
 fields are optional, editable from `/profile`. One row per profile.
 
-| column                                                | type                              |
-| ----------------------------------------------------- | --------------------------------- |
-| id                                                    | uuid (PK)                         |
-| profile_id                                            | → profiles (unique)               |
-| target_role                                           | text                              |
-| target_seniority                                      | text — mirrors resume seniority   |
-| expertise_area                                        | text                              |
-| industries                                            | text[]                            |
-| preferred_domains                                     | text[]                            |
-| switch_urgency                                        | enum `switch_urgency`             |
-| notice_period_days                                    | int                               |
-| work_authorization                                    | enum `work_auth`                  |
-| expected_salary_min_cents / expected_salary_max_cents | int                               |
-| expected_salary_currency                              | text — default `'USD'`            |
-| comp_target_min_cents                                 | int                               |
-| current_location                                      | text                              |
-| remote_preference                                     | enum `remote_preference`          |
-| willing_to_relocate                                   | boolean                           |
-| current_salary_cents                                  | int                               |
-| current_salary_currency                               | text — default `'USD'`            |
-| target_companies                                      | text[] — free text, keyed later   |
-| blocklist_companies                                   | text[] — never shown to employers |
-| primary_goal_6mo                                      | text                              |
-| biggest_challenge                                     | text                              |
-| confidence_level                                      | text                              |
-| career_readiness                                      | text                              |
-| role_clarity                                          | text                              |
-| most_valued_benefit                                   | text                              |
-| support_preference                                    | text                              |
-| created_at / updated_at                               | timestamptz                       |
+| column                                                | type                                   |
+| ----------------------------------------------------- | -------------------------------------- |
+| id                                                    | uuid (PK)                              |
+| profile_id                                            | → profiles (unique)                    |
+| target_role                                           | text — one or more roles, comma-joined |
+| target_seniority                                      | text — mirrors resume seniority        |
+| expertise_area                                        | text                                   |
+| industries                                            | text[]                                 |
+| preferred_domains                                     | text[]                                 |
+| switch_urgency                                        | enum `switch_urgency`                  |
+| notice_period_days                                    | int                                    |
+| work_authorization                                    | enum `work_auth`                       |
+| expected_salary_min_cents / expected_salary_max_cents | int                                    |
+| expected_salary_currency                              | text — default `'USD'`                 |
+| comp_target_min_cents                                 | int                                    |
+| current_location                                      | text                                   |
+| remote_preference                                     | enum `remote_preference`               |
+| willing_to_relocate                                   | boolean                                |
+| current_salary_cents                                  | int                                    |
+| current_salary_currency                               | text — default `'USD'`                 |
+| target_companies                                      | text[] — free text, keyed later        |
+| blocklist_companies                                   | text[] — never shown to employers      |
+| primary_goal_6mo                                      | text                                   |
+| biggest_challenge                                     | text                                   |
+| confidence_level                                      | text                                   |
+| career_readiness                                      | text                                   |
+| role_clarity                                          | text                                   |
+| most_valued_benefit                                   | text                                   |
+| support_preference                                    | text                                   |
+| created_at / updated_at                               | timestamptz                            |
 
 RLS: `candidate_preferences_self` (self read/insert/update keyed on
 `profile_id = auth.uid()`); `candidate_preferences_admin` overlay via
@@ -407,9 +407,9 @@ RLS: `events_read_public` (select for anon + authenticated when
 
 ### `leads`
 
-Pre-platform registrants captured from `/events/[slug]` (and other future
-acquisition surfaces). Bridges anonymous event registration → authenticated
-platform signup via email match in the OAuth callback.
+Pre-platform registrants captured from `/events/[slug]` and `/career-assessment`
+(and other future acquisition surfaces). Bridges anonymous registration →
+authenticated platform signup via email match in the OAuth callback.
 
 | column                  | type                                                                             |
 | ----------------------- | -------------------------------------------------------------------------------- |
@@ -423,6 +423,7 @@ platform signup via email match in the OAuth callback.
 | attended_at             | timestamptz — set by bulk-attend CSV upload or future Zoom webhook               |
 | converted_profile_id    | → profiles — stamped at OAuth callback when email matches                        |
 | converted_at            | timestamptz                                                                      |
+| assessment_result       | jsonb — Career Positioning Assessment result; null for event-registration leads  |
 | created_at / updated_at | timestamptz                                                                      |
 
 `UNIQUE (email, event_id)` — one registration per email per event. Service-role

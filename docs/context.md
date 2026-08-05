@@ -3,6 +3,18 @@
 > Last updated: May 2026  
 > Author: GT (Thrilok Abhishek)
 
+> [!WARNING]
+> **Partially superseded by the coaching/content pivot (August 2026.)**
+> The revenue model described below — Core/Pro subscriptions unlocking a
+> private job board — is no longer what the product does. Revenue is now
+> **à la carte only**, the job board is dormant, and 1:1 coaching is the
+> primary product. The ICP, the problem statement, and the competitive
+> positioning are all still accurate.
+>
+> For current direction see `ec-pivot-brief.md`; for implementation see
+> `ec-pivot-plan.md`. This doc has not been rewritten yet — where the two
+> conflict, the pivot docs win.
+
 ---
 
 ## The One-Liner

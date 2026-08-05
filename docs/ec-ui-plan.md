@@ -3,6 +3,15 @@
 > Last updated: 2026-05-15
 > Scope: post-login candidate experience, end state (Phase 2+). Phase 1 builds toward this shell.
 
+> [!WARNING]
+> **The nav spec here is out of date** after the coaching/content pivot
+> (August 2026). The top nav is now **Dashboard · Pipeline · Content & Courses**
+> — the Job Board tab was unlinked, and "Tab 3 — Job Board" plus every
+> plan-gated lock state describes surfaces candidates can no longer reach.
+>
+> The shell itself — sidebar chip, contextual sidebar, completeness ring,
+> canvas layout — is accurate and still what's built.
+
 ---
 
 ## Design Principles
@@ -236,7 +245,7 @@ Dashboard's sidebar items (Resume, Assessments, LinkedIn Grade) are **shortcuts 
 
 ---
 
-## Build Sequence (mapped to `ec-dev-plan.md` sprints)
+## Build Sequence (mapped to `deprecated/ec-dev-plan.md` sprints)
 
 | Sprint | UI delivered                                                                                                            |
 | ------ | ----------------------------------------------------------------------------------------------------------------------- |

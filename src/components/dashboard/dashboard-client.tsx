@@ -8,10 +8,8 @@ import { toast } from "sonner";
 
 import { ManageSubscriptionLink } from "@/components/billing/manage-subscription-link";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { JobBoardTeaser } from "@/components/dashboard/job-board-teaser";
 import { NudgesGrid } from "@/components/dashboard/nudges-grid";
 import { ProfileStrengthHero } from "@/components/dashboard/profile-strength-card";
-import { QuickActions } from "@/components/dashboard/quick-actions";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -29,23 +27,15 @@ import {
 export interface DashboardClientProps {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
-  activeJobCount: number;
   userEmail: string;
   blueprint: DashboardBlueprint | null;
   interviewingApplication: InterviewingApplication | null;
   linkedinScore: number | null;
 }
 
-function scrollToResumeHub() {
-  document
-    .getElementById("resume-hub")
-    ?.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
 export function DashboardClient({
   profile,
   resumes,
-  activeJobCount,
   userEmail,
   blueprint,
   interviewingApplication,
@@ -72,10 +62,9 @@ export function DashboardClient({
         profile,
         resumes,
         blueprint,
-        activeJobCount,
         interviewingApplication,
       }),
-    [profile, resumes, blueprint, activeJobCount, interviewingApplication]
+    [profile, resumes, blueprint, interviewingApplication]
   );
 
   const latestResumeScore = resumes[0]?.resume_score ?? null;
@@ -136,14 +125,8 @@ export function DashboardClient({
         </div>
       )}
 
-      {/* ── Header + Quick CTA ─────────────────────────────────────── */}
+      {/* ── Header ─────────────────────────────────────────────────── */}
       <DashboardHeader profile={profile} userEmail={userEmail} />
-      <QuickActions
-        profile={profile}
-        resumes={resumes}
-        activeJobCount={activeJobCount}
-        onUploadResume={scrollToResumeHub}
-      />
 
       {/* ── Row 1: hero + stats ────────────────────────────────────── */}
       <div className="grid gap-5 lg:grid-cols-3">
@@ -156,11 +139,6 @@ export function DashboardClient({
           />
         </div>
         <div className="flex flex-col gap-5">
-          <StatCard
-            title="Active matches"
-            value={activeJobCount}
-            sub="active this week"
-          />
           {hasResume && (
             <StatCard
               title="Resume score"
@@ -174,10 +152,9 @@ export function DashboardClient({
       {/* ── Row 2: nudges ──────────────────────────────────────────── */}
       <NudgesGrid nudges={nudges} />
 
-      {/* ── Row 3: resume + job board ──────────────────────────────── */}
+      {/* ── Row 3: resume ──────────────────────────────────────────── */}
       <div className="grid gap-5 md:grid-cols-2">
         <ResumeCard resumes={resumes} />
-        <JobBoardTeaser profile={profile} activeJobCount={activeJobCount} />
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
