@@ -9,16 +9,14 @@ import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/types/database.types";
 import type {
   ApplicationStatus,
-  CoachingProductType,
+  CoachingProductInsert,
+  CoachingProductKind,
+  CoachingProductUpdate,
   CommissionStatus,
 } from "@/types/db";
 
 import { env } from "../../../env";
 
-type CoachingProductInsert =
-  Database["public"]["Tables"]["coaching_products"]["Insert"];
-type CoachingProductUpdate =
-  Database["public"]["Tables"]["coaching_products"]["Update"];
 type EmployerInsert = Database["public"]["Tables"]["employers"]["Insert"];
 type EmployerUpdate = Database["public"]["Tables"]["employers"]["Update"];
 
@@ -389,10 +387,16 @@ export async function inviteEmployerContact(
 
 export interface CoachingProductInput {
   name: string;
-  type: CoachingProductType;
+  kind: CoachingProductKind;
   description: string | null;
   price_cents: number | null;
+  // Authorizes checkout — assertAllowedPriceId() reads this column and nothing
+  // else, so a product with no price ID is simply not purchasable.
+  stripe_price_id: string | null;
   external_url: string | null;
+  // Cal.com event-type link, for kind = 'session'.
+  booking_url: string | null;
+  coach_id: string | null;
   is_active: boolean;
 }
 

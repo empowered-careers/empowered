@@ -7,6 +7,7 @@ import type {
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
 import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
+import { fetchMyCoaching } from "@/lib/coaching";
 import type { InterviewingApplication } from "@/lib/dashboard/nudges";
 import { syncLinkedInProfileUrlFromSession } from "@/lib/linkedin-identity-sync";
 import { createClient } from "@/lib/supabase/server";
@@ -85,6 +86,10 @@ export default async function DashboardPage() {
     redirect("/resume");
   }
 
+  // Not in the Promise.all above: fetchMyCoaching runs its own two queries, and
+  // there's no point starting them before the resume gate has let us through.
+  const coaching = await fetchMyCoaching(user.id);
+
   const linkedinScore = (linkedinResult.data?.profile_score ?? null) as
     | number
     | null;
@@ -118,6 +123,7 @@ export default async function DashboardPage() {
     <div className="px-10 py-8">
       <DashboardClient
         blueprint={blueprint}
+        coaching={coaching}
         interviewingApplication={interviewingApplication}
         linkedinScore={linkedinScore}
         profile={profile}

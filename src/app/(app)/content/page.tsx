@@ -1,16 +1,27 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { ContentClient } from "@/components/content/content-client";
+import { MyCoachingClient } from "@/components/coaching/my-coaching-client";
+import { fetchMyCoaching } from "@/lib/coaching";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Content & Courses | Empowered Careers",
+  title: "My Coaching | Empowered Careers",
   robots: "noindex, nofollow",
 };
 
-export default function ContentPage() {
+export default async function ContentPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const coaching = await fetchMyCoaching(user.id);
+
   return (
     <div className="px-10 py-8">
-      <ContentClient />
+      <MyCoachingClient coaching={coaching} />
     </div>
   );
 }

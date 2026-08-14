@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { ManageSubscriptionLink } from "@/components/billing/manage-subscription-link";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { MyCoachingCard } from "@/components/dashboard/my-coaching-card";
 import { NudgesGrid } from "@/components/dashboard/nudges-grid";
 import { ProfileStrengthHero } from "@/components/dashboard/profile-strength-card";
 import { ResumeCard } from "@/components/dashboard/resume-card";
@@ -19,6 +20,7 @@ import type {
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
+import type { MyCoaching } from "@/lib/coaching";
 import {
   computeNudges,
   type InterviewingApplication,
@@ -31,6 +33,7 @@ export interface DashboardClientProps {
   blueprint: DashboardBlueprint | null;
   interviewingApplication: InterviewingApplication | null;
   linkedinScore: number | null;
+  coaching: MyCoaching;
 }
 
 export function DashboardClient({
@@ -40,6 +43,7 @@ export function DashboardClient({
   blueprint,
   interviewingApplication,
   linkedinScore,
+  coaching,
 }: DashboardClientProps) {
   const { signOut } = useAuth();
   const router = useRouter();
@@ -152,9 +156,10 @@ export function DashboardClient({
       {/* ── Row 2: nudges ──────────────────────────────────────────── */}
       <NudgesGrid nudges={nudges} />
 
-      {/* ── Row 3: resume ──────────────────────────────────────────── */}
+      {/* ── Row 3: resume + coaching ───────────────────────────────── */}
       <div className="grid gap-5 md:grid-cols-2">
         <ResumeCard resumes={resumes} />
+        <MyCoachingCard coaching={coaching} />
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────────── */}

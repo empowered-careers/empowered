@@ -1,13 +1,12 @@
 # Big Wins — Implementation Plan
 
-**Status: 🔨 Built 2026-08-14, not yet live.** All seven build steps below are done
-and verified (type-check, lint, production build, `big-wins.check.ts`). Two things
-remain before candidates can use it:
+**Status: 🔨 Built 2026-08-14, not yet walked.** All seven build steps below are done
+and verified (type-check, lint, production build, `big-wins.check.ts`). The seed
+migration **is** applied — the `Big Wins` `assessments` row exists.
 
-1. **`20260814000000_big_wins_assessment_seed.sql` is not applied.** Without that
-   `assessments` row the upsert fails on the foreign key. Nothing else blocks.
-2. **No end-to-end run yet.** Needs the seed row plus a signed-in account with a
-   parsed resume. Everything verified so far is static.
+What remains: **no end-to-end run yet.** `resumes` has 0 rows in this project, so
+there is no parsed resume for the gate to pass. Upload one, then walk the list under
+"Remaining verification". Everything verified so far is static.
 
 Price gating was deliberately left out — see open question 2.
 
@@ -117,7 +116,7 @@ New:
 | `src/components/assessment/big-wins-question.tsx`                 | One question at a time: textarea, Skip, dig-deeper nudge, example-flip-after-first-attempt, reconstruction path in a native `<details>`.                                                                                              |
 | `src/components/assessment/big-wins-recap.tsx`                    | Per-role recap: rewritten bullets, before-state in a `<details>`, inline edit (one bullet per line), "answer more questions for this role".                                                                                           |
 | `src/components/assessment/big-wins-overview.tsx`                 | Role list with per-role status + Rewrite/Redo, opening frame on first visit, orphaned-role section.                                                                                                                                   |
-| `supabase/migrations/20260814000000_big_wins_assessment_seed.sql` | Seed the `assessments` row. **Not yet applied.**                                                                                                                                                                                      |
+| `supabase/migrations/20260814000000_big_wins_assessment_seed.sql` | Seed the `assessments` row. Applied.                                                                                                                                                                                                  |
 
 The plan's separate `big-wins.types.ts` was folded into `big-wins.ts` (~30 lines of
 types, one module), and `big-wins-results.tsx` became `big-wins-overview.tsx` — the
@@ -151,8 +150,7 @@ All seven steps are written. What's verified so far is static only — `npm run 
      default) and always surfaces 4–6 questions; and that `mergeRoleBullets` prefers
      the overlay, falls through to parser bullets, keeps roles dropped from a
      re-uploaded resume, and never blanks originals on an empty rewrite.
-- [x] 2. **Seed migration + constant.** ⚠️ Migration written, **not applied** — the
-     upsert will fail on the FK until it is.
+- [x] 2. **Seed migration + constant.** ✅ Applied; the `Big Wins` assessments row exists.
 - [x] 3. **LLM polish function.** ⏳ Not yet run against a real role — needs an API call.
 - [x] 4. **Server actions.** ✅ Type-checks; upsert path unexercised until step 2 lands.
 - [x] 5. **Runner UI + role loop.** ⏳ Not yet walked in the dev server.
@@ -162,7 +160,7 @@ All seven steps are written. What's verified so far is static only — `npm run 
 
 ### Remaining verification
 
-Once the seed row is applied, walk it once as a real candidate with a parsed resume:
+Upload a resume first (`resumes` is empty), then walk it once as a real candidate:
 
 1. Complete two roles end to end; skip a question; trigger a Section 4 nudge with a
    vague answer; use "answer more questions for this role".

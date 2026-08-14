@@ -1,33 +1,27 @@
 import type { Metadata } from "next";
 
-import { PricingPlans } from "@/components/pricing-plans";
-import { buildPricingPlans } from "@/config/pricing";
-import { isStripeConfigured } from "@/lib/stripe/client";
-import { fetchPriceAmounts } from "@/lib/stripe/prices";
+import { PricingCatalog } from "@/components/catalog/pricing-catalog";
+import { fetchCatalog } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Subscribe to Core or Pro to unlock the private job board — curated and exclusive roles you won't find on public boards.",
+    "Executive-grade career coaching, à la carte. Start with a single session or take a full arc — no subscription.",
 };
 
 export default async function PricingPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const amounts = await fetchPriceAmounts();
-  const plans = buildPricingPlans(amounts);
+  const [
+    {
+      data: { user },
+    },
+    catalog,
+  ] = await Promise.all([supabase.auth.getUser(), fetchCatalog()]);
 
   return (
     <main>
-      <PricingPlans plans={plans} isAuthed={Boolean(user)} />
-      {!isStripeConfigured() && (
-        <p className="pb-16 text-center text-[12.5px] text-muted-foreground">
-          Pricing is being finalized — subscriptions open soon.
-        </p>
-      )}
+      <PricingCatalog catalog={catalog} checkout isAuthed={Boolean(user)} />
     </main>
   );
 }

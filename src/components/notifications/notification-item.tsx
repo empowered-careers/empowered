@@ -3,6 +3,7 @@
 import {
   Award,
   Briefcase,
+  CalendarCheck,
   CreditCard,
   FileText,
   Linkedin,
@@ -21,6 +22,7 @@ const TYPE_ICON: Record<NotificationType, LucideIcon> = {
   linkedin_sync: Linkedin,
   payment_succeeded: CreditCard,
   assessment_complete: Award,
+  session_booked: CalendarCheck,
 };
 
 function relativeTime(iso: string): string {

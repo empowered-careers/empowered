@@ -14,13 +14,42 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [x] Smoke test the candidate loop: sign in as a `plan='free'` test user, visit `/job-board`, bookmark a card, click Express interest, confirm the consent modal, then visit `/pipeline` and see the card in the Interested column
 - [ ] Adversarial RLS check via Supabase Studio with a candidate JWT: `insert into jobs ...` blocked, `select * from applications where profile_id != auth.uid()` blocked, `update applications set status='offer' where id=<own row>` blocked
 
+## Coaching schema — pivot step 2 (applied 2026-08-15, `docs/ec-pivot-plan.md` §4)
+
+- [x] Migrations applied: `20260815000000_pivot_coaching_schema.sql` + `20260815000001_coaching_catalog_seed.sql`. Schema, RLS, anon read, and enrollment idempotency all verified against the live project.
+- [ ] **Blocking for any purchase:** create 11 Stripe Products + one-time Prices (sandbox), then paste each price ID into `/admin/coaching` → Edit. Every row shows "No Stripe price" until you do. Amounts to match: Foundation $450, Momentum $1,400, Executive $2,400, Resume Refresh $125, LinkedIn Glow-Up $150, NorthStar Discovery $175, Market Intel Session $175, Mock Interview $200, Executive Bio $250, Background & Social Prep $200, 90-Day Check-In $150.
+- [ ] Insert `coaches` rows for Whitney + Lauren (name, bio, specialty, avatar_url) via Supabase Studio — there is deliberately no admin CRUD for coaches yet, and the Coach select on session products is empty until rows exist.
+- [ ] Signed in as Lauren, `/admin/coaching`: create a `kind='session'` product and then edit it. This is the proof B1 is fixed — before the migration every write was silently rejected by RLS.
+
+### Coaching delivery — ops inputs (§5 shipped 2026-08-15, surfaces render empty until these land)
+
+- [ ] `CAL_WEBHOOK_SECRET` in `.env.local` + on the deploy host, and a Cal.com webhook subscribed to `BOOKING_CREATED` / `BOOKING_RESCHEDULED` / `BOOKING_CANCELLED` pointing at `https://<domain>/api/cal/webhook`. Until it's set the route 503s and bookings aren't recorded.
+- [ ] Per-session-product Cal.com event-type URLs pasted into `coaching_products.booking_url` via `/admin/coaching`. **Make each event-type slug distinct** — booking→enrollment matching keys on the slug appearing in `booking_url`, and two products whose slugs are substrings of each other resolve to "ambiguous" and get dropped rather than guessed.
+- [ ] Course video URLs into `coaching_products.external_url` for any `kind='course'` row. The player shows "not published yet" without them. There are no course rows in the seeded catalog yet — add them via `/admin/coaching` when the content exists.
+- [ ] `ANTHROPIC_API_KEY` in `.env.local` — still unset, which blocks Big Wins and the §4 ATS checker from actually running.
+
+### Pricing questions for Lauren (from auditing `docs/prototypes/pricing.html`)
+
+None of these block the schema — the seeded rows use the quick-add menu prices, which
+are the right source for purchasable SKUs. They block `/pricing` copy (§1b) and the
+bundle fan-out (§3).
+
+- [ ] **Momentum's advertised à la carte value is wrong.** Summing the deliverables dotted into Gold gives **$2,375**; the card says **$2,250**. Silver ($525) and Platinum ($3,700) both check out exactly, so the method is right and Gold is off by $125. Two candidates, both $125 items: "Market trends briefing" (module 04) and "Interview prep checklist" (module 05). Either one is wrongly dotted into Gold, or the total is stale. Which?
+- [ ] **The quick-add menu and the 22-deliverable table are two different price lists, not a subset relationship.** Same-named items disagree (Resume Refresh $125 vs "Repackaged resume" $150; LinkedIn Glow-Up $150 vs "LinkedIn brand build" $175; 90-Day Check-In $150 for one session vs "First 90 days check-ins" $225 for three), and two quick-adds are coarse repackagings with no single counterpart (NorthStar Discovery $175 covers five module-01 rows worth $750; Market Intel Session $175 covers three module-04 rows worth $450). Which list is real?
+- [ ] **Consequence of the above — the "à la carte value" savings aren't reachable.** Foundation's three deliverables are $525 at table prices but **$475** as quick-adds, so the actual saving vs. what a customer can buy is $25, not $75. Momentum's five mapped quick-adds total **$825** against an advertised $2,250–2,375. Decide whether the comparison copy uses table prices (aspirational) or quick-add prices (honest) before `/pricing` ships.
+- [ ] **Consequence for the §3 fan-out.** A Momentum purchase fanning out to its five `bundle_contents` quick-adds grants ~$825 of SKUs for a $1,400 purchase. The bundle's own enrollment row has to carry the real entitlement — the fan-out can't be the whole story.
+- [ ] **Session counts vs deliverables:** the tiers advertise 3 / 8 / 13 sessions but the dots include 3 / 15 / 22 deliverables, and only 3 / 5 / 8 map to a named quick-add. `bundle_contents` encodes the mapped ones; the unmapped remainder is Mindset Mastery (3 rows) and Seamless Start (1 row). Correct, or should those become SKUs too?
+- [ ] **GT: the marketing homepage still sells a job board and a subscription.** `/pricing` and the homepage pricing block are now coaching-only and DB-driven, but the surrounding landing copy isn't: `Hero.tsx:23` "That Never Hit Job Boards", `Features.tsx:15` "No public job board spam…", `HowItWorks.tsx:15` "**Subscribe** to unlock roles that never hit public job boards", `CTASection.tsx:27` "the job board noise". This is the §1 exit criterion ("a fresh signup never encounters the words Core, Pro, or job board") and it needs your voice, not invented copy. Nothing else in the app or on `/pricing` violates it any more.
+- [ ] Three copy inconsistencies for `/pricing` (§1b): the tier cards file "First 90 days check-ins" under Seamless Start while the table files it under Distinguished Dialogues; the Momentum bullet lists four of module 01's five items; and the footer sells a "15-minute Career Capital Assessment" — a fourth assessment name alongside Career Identity Blueprint and Career Positioning Assessment. Also confirm the "Career Symmetry 360" umbrella stays out of the platform, per the resolved naming decision.
+
 ## Big Wins (code built 2026-08-14, `docs/big-wins-implementation-plan.md`)
 
-### Blocking (the feature is dead until this runs)
+> The seed migration **is applied** — `20260814000000_big_wins_assessment_seed` is in
+> the remote migration list and the `Big Wins` assessments row exists. What's actually
+> blocking the walkthrough is that `resumes` has **0 rows** in this project, so there is
+> no parsed resume for the gate to pass.
 
-- [ ] Apply `supabase/migrations/20260814000000_big_wins_assessment_seed.sql` — one `assessments` row, `on conflict do nothing`. Without it every save fails on the `assessment_id` foreign key.
-
-### Verification (needs a signed-in account with a parsed resume)
+### Verification (needs a signed-in account with a parsed resume — upload one first)
 
 - [ ] `/assessments` shows Big Wins as a **Live** card with the role count; `/resume` shows a "Rewrite with Big Wins" button on the work-experience block
 - [ ] Complete two roles end to end. Skip a question; give one deliberately vague answer ("I helped improve onboarding") and confirm the dig-deeper nudge appears once and a second Next moves past it; use "answer more questions for this role" on the recap

@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle, Clock, Linkedin, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -278,11 +279,8 @@ export function LinkedinClient({
               <p className="mt-1 text-xs text-muted-foreground">
                 A line-by-line rewrite focused on recruiter search and clarity.
               </p>
-              {/* TODO(coaching): wire to coaching booking flow once available */}
               <Button asChild size="sm" className="mt-3 h-7 text-xs">
-                <a href="#" aria-disabled>
-                  Book a LinkedIn audit
-                </a>
+                <Link href="/pricing">Book a LinkedIn audit</Link>
               </Button>
             </div>
           </div>

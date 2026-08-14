@@ -104,6 +104,35 @@ Synced LinkedIn data per profile.
 
 ---
 
+### `jds`
+
+Candidate-uploaded job descriptions for the JD → ATS checker (pivot brief §4).
+Owner-only RLS, mirroring `resumes`. **Nothing reads or writes this yet** — the
+table landed with the step-2 migration so §4 is a pure app-code change.
+
+| column      | type                                                   |
+| ----------- | ------------------------------------------------------ |
+| id          | uuid (PK)                                              |
+| profile_id  | → profiles (on delete cascade)                         |
+| raw_text    | text — pasted JD, or extracted text                    |
+| file_path   | text — storage path when uploaded rather than pasted   |
+| parsed_json | jsonb — structured requirements                        |
+| ats_score   | int                                                    |
+| gap_summary | text — short human-readable "why this scored this way" |
+| source      | text CHECK (`free` \| `paid`) — free is capped 5/month |
+| status      | text CHECK (`processing` \| `complete` \| `failed`)    |
+| parse_error | text                                                   |
+| created_at  | timestamptz                                            |
+
+No `uploading` status variant: a JD can be pasted as `raw_text` with no upload step.
+Index on `(profile_id, created_at desc)` serves the monthly free-tier cap count.
+In the `supabase_realtime` publication, for §4's notification hook.
+
+Side benefit worth remembering: this table is market intel — which roles and
+companies candidates are actually chasing.
+
+---
+
 ### `assessments`
 
 Assessment definitions (question banks). Two rows are seeded with fixed UUIDs so app
@@ -498,27 +527,78 @@ Candidate-invites-candidate. Attribution carries through to placements.
 
 ---
 
+### `coaches`
+
+The coaching bench. Public read where `active`, admin write. No `cal_link`:
+booking is one shared Cal.com account with a link per event type, so the link
+belongs to the product (`coaching_products.booking_url`), not the coach.
+
+| column     | type                                             |
+| ---------- | ------------------------------------------------ |
+| id         | uuid (PK)                                        |
+| name       | text                                             |
+| bio        | text                                             |
+| specialty  | text[] (e.g. `{resume,interview,negotiation}`)   |
+| avatar_url | text                                             |
+| is_mentor  | boolean (true only for graduate-sourced mentors) |
+| active     | boolean                                          |
+| created_at | timestamptz                                      |
+
+No admin CRUD surface yet — rows go in via Supabase Studio until §5 needs one.
+
+---
+
 ### `coaching_products`
 
-Catalog of coaching modules / session packs / 1:1 offerings.
+The à la carte catalog: 3 bundles + 8 quick-add sessions, seeded from
+`docs/prototypes/pricing.html`. Public read where `is_active` (so `/pricing` works
+for anonymous visitors), admin write via `is_admin()`.
 
-| column                  | type                                              |
-| ----------------------- | ------------------------------------------------- |
-| id                      | uuid (PK)                                         |
-| name                    | text                                              |
-| description             | text                                              |
-| type                    | enum (`module` \| `session_pack` \| `one_to_one`) |
-| external_url            | text (Kajabi/Teachable link, etc.)                |
-| stripe_price_id         | text                                              |
-| price_cents             | int                                               |
-| is_active               | boolean                                           |
-| created_at / updated_at | timestamptz                                       |
+| column                  | type                                                        |
+| ----------------------- | ----------------------------------------------------------- |
+| id                      | uuid (PK)                                                   |
+| name                    | text                                                        |
+| description             | text                                                        |
+| kind                    | text CHECK (`course` \| `session` \| `service` \| `bundle`) |
+| coach_id                | → coaches (for `kind='session'`)                            |
+| booking_url             | text (Cal.com event-type link, for `kind='session'`)        |
+| external_url            | text (course video embed, for `kind='course'`)              |
+| stripe_price_id         | text — **not purchasable until set**                        |
+| price_cents             | int                                                         |
+| is_active               | boolean                                                     |
+| created_at / updated_at | timestamptz                                                 |
+
+`kind` replaced the `coaching_product_type` enum (`module`/`session_pack`/
+`one_to_one`), which was dropped — one taxonomy, and it distinguishes bundles.
+The union lives in `src/types/db.ts` as `CoachingProductKind` because it's a CHECK
+constraint, not a Postgres enum. Note `payments.product_type` is a _different_
+enum and is unaffected; `inferProductType()` derives it by keyword-matching the
+product **name**.
+
+---
+
+### `bundle_contents`
+
+What a `kind='bundle'` product grants. One Stripe line item, N enrollment rows.
+Public read, admin write.
+
+| column     | type                                     |
+| ---------- | ---------------------------------------- |
+| bundle_id  | → coaching_products (on delete cascade)  |
+| product_id | → coaching_products (on delete restrict) |
+
+PK `(bundle_id, product_id)`. Seeded with 16 rows: Foundation 3, Momentum 5,
+Executive 8. The tiers _advertise_ 3/8/13 sessions — the remainder are
+deliverables with no standalone SKU, so they're display copy, not rows.
+
+The fan-out that reads this on purchase is not built yet (pivot plan §3).
 
 ---
 
 ### `enrollments`
 
-Candidate ↔ coaching product. Granted by purchase or Plan 3 activation.
+Candidate ↔ coaching product. The **entitlement source of truth** under à la
+carte — never check `profiles.plan`.
 
 | column                    | type                                                      |
 | ------------------------- | --------------------------------------------------------- |
@@ -530,6 +610,10 @@ Candidate ↔ coaching product. Granted by purchase or Plan 3 activation.
 | progress                  | int (0–100, updated by external webhook)                  |
 | granted_at / completed_at | timestamptz                                               |
 | updated_at                | timestamptz                                               |
+
+`UNIQUE (profile_id, product_id)` — a redelivered Stripe webhook no-ops instead of
+duplicating the grant. `handleCheckoutCompleted` swallows `23505` here the same
+way it does on the `payments` insert.
 
 ---
 
@@ -634,7 +718,6 @@ RLS: admin `SELECT` only (debugging). Service-role writes.
 | `application_status`      | `interested`, `submitted`, `screening`, `interviewing`, `offer`, `placed`, `rejected`, `withdrawn` |
 | `placement_status`        | `pending`, `confirmed`, `guarantee_period`, `finalized`, `refunded`                                |
 | `referral_status`         | `invited`, `signed_up`, `placed`                                                                   |
-| `coaching_product_type`   | `module`, `session_pack`, `one_to_one`                                                             |
 | `enrollment_status`       | `active`, `completed`, `expired`, `refunded`                                                       |
 | `coaching_session_status` | `scheduled`, `completed`, `no_show`, `canceled`                                                    |
 | `commission_status`       | `pending`, `invoiced`, `paid`, `written_off`                                                       |

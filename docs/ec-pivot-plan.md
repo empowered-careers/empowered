@@ -12,6 +12,10 @@
 
 ## 0. State of the world, verified
 
+> Snapshot as of 2026-08-05, kept for the record. **Superseded by §4:** step 2 landed
+> on 2026-08-15, so `coaches` / `jds` / `bundle_contents` now exist and the catalog
+> holds the 11 seeded rows.
+
 **No schema drift.** `coaching_products`, `enrollments`, `coaching_sessions`
 match `docs/db_schema.md` exactly. `coaches` and `jds` do not exist, as the
 brief assumes.
@@ -43,6 +47,11 @@ doesn't affect the URL, so both resolve. Not a blocker.
 ## 1. Blockers the brief doesn't account for
 
 These sit underneath §3 and must land in the §2 migration.
+
+> **All four are fixed as of 2026-08-15** (step 2, §4 below). B1/B2 by the RLS
+> re-cut, B3 by the admin form gaining `stripe_price_id`, B4 by
+> `UNIQUE (profile_id, product_id)` plus 23505 handling in the webhook. Kept here
+> as the record of why the schema looks the way it does.
 
 ### B1 — Admin cannot write `coaching_products` (RLS)
 
@@ -114,13 +123,13 @@ coach — two products delivered by the same coach need different links.
 
 ### Still open — not blocking code
 
-| #   | Item                                                                          | Needed for            |
-| --- | ----------------------------------------------------------------------------- | --------------------- |
-| D3  | Content engine: MDX-in-repo vs external CMS                                   | deferred per brief §7 |
-| ops | 11 Stripe Products + one-time Prices, IDs pasted into admin                   | §3 data entry         |
-| ops | Cal.com event-type URLs per session product; API key + webhook signing secret | §5 booking            |
-| ops | Coach rows for Whitney + Lauren (bio, specialty, avatar)                      | §5 coach cards        |
-| ops | Course video URLs                                                             | §5 course delivery    |
+| #   | Item                                                                                                                                                                                                                             | Needed for             |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| D3  | Content engine: MDX-in-repo vs external CMS                                                                                                                                                                                      | deferred per brief §7  |
+| ops | 11 Stripe Products + one-time Prices, IDs pasted into `/admin/coaching`. The 11 catalog rows themselves are seeded — only the price IDs are missing, and `/admin/coaching` flags every row as "No Stripe price" until they're in | nothing is purchasable |
+| ops | Cal.com event-type URLs per session product; API key + webhook signing secret                                                                                                                                                    | §5 booking             |
+| ops | Coach rows for Whitney + Lauren (bio, specialty, avatar)                                                                                                                                                                         | §5 coach cards         |
+| ops | Course video URLs                                                                                                                                                                                                                | §5 course delivery     |
 
 None of these block the build — they are data the surfaces read once it exists.
 
@@ -197,7 +206,30 @@ Original scope:
 **Unrelated bug found:** `nudge-content` (`nudges.ts:92`) CTAs to `/insights`,
 which does not exist in the repo. Fix while retargeting in §6.
 
-### §1b — Pricing rebuild (unblocked; depends on §2 landing first)
+### §1b — Pricing rebuild — ✅ DONE 2026-08-15
+
+Shipped as described below. `src/lib/catalog.ts` (`fetchCatalog()`) reads the
+anon-visible catalog; `src/components/catalog/pricing-catalog.tsx` renders it for
+both `/pricing` (`checkout` → Stripe) and `HomePricing` (link mode). Tier labels
+Silver/Gold/Platinum live in the component keyed on bundle order — there is no
+column for them. Bundle cards list their `bundle_contents` SKU names, which is
+real data; the 22-deliverable comparison table is **not** built, because its
+"à la carte value" figures are one of the open pricing questions in `todo.md`.
+
+Deleted as newly-dead: `src/config/pricing.ts` (the Core/Pro tier definitions,
+whose feature copy sold the job board), `src/components/pricing-plans.tsx`, the
+`Pricing4` shadcn block `src/components/pricing.tsx` (subscription-shaped,
+monthly/quarterly toggle, zero consumers left), and `PricingTeaser.tsx`.
+`src/lib/stripe/prices.ts` and the four `STRIPE_PRICE_CORE/PRO_*` env vars stay —
+frozen subscription path, not deleted.
+
+**Still not met, and outside what §1/§1b listed:** the marketing homepage copy
+positions the product as a private job board and tells visitors to _subscribe_.
+See `Hero.tsx:23`, `Features.tsx:15`, `HowItWorks.tsx:15` ("Subscribe to unlock
+roles that never hit public job boards"), `CTASection.tsx:27`. That is GT's voice
+to write, not something to invent — logged in `todo.md`.
+
+Original scope:
 
 Move `src/app/pricing/page.tsx` into `(public)` so it inherits the marketing
 Navbar/Footer, and drop the `pricing-plans.tsx:26` bounce to
@@ -218,7 +250,29 @@ imports anywhere.
 
 ---
 
-## 4. §2 — the migration
+## 4. §2 — the migration — ✅ DONE 2026-08-15
+
+Applied as two migrations against `wpurdayfjsyiedabmipt`:
+
+- `20260815000000_pivot_coaching_schema.sql` — `coaches`, `jds`,
+  `bundle_contents`, `coaching_products.kind`/`coach_id`/`booking_url`, drops
+  `type` and `coaching_product_type`, re-cuts the `coaching_products` RLS,
+  `enrollments` unique constraint.
+- `20260815000001_coaching_catalog_seed.sql` — the 11 purchasable rows (3 bundles +
+  8 quick-adds) with `stripe_price_id` **null**, plus 16 `bundle_contents` rows.
+
+Verified: `get_advisors security` unchanged from baseline (0 errors, no missing RLS
+on the three new tables); `anon` reads 10 of 11 products and is correctly denied the
+deactivated one and any insert; a duplicate `(profile_id, product_id)` enrollment
+raises 23505; `npm run supabase:types && type-check && lint && build` all clean.
+
+Two additions beyond the DDL below, both to avoid a second migration for §4:
+`jds.status` + `jds.parse_error` (CLAUDE.md's async-job pattern) and `jds` in the
+`supabase_realtime` publication.
+
+Deferred out of this step, still open: no coaches admin CRUD (rows go in via
+Supabase Studio); `enrollments.payment_id` is only populated on first delivery, not
+backfilled on a redelivery that hits 23505.
 
 Brief's DDL is correct as written. Add to the same migration:
 
@@ -267,18 +321,35 @@ Plus `coaches` (public read `active = true`, admin write) and `jds`
 
 ---
 
-## 5. §3 — catalog and fan-out
+## 5. §3 — catalog and fan-out — ✅ DONE 2026-08-15
 
-Unblocked once §2 lands, except for naming.
+`handleCheckoutCompleted` now resolves `kind` alongside `id`/`name`, and for
+`kind = 'bundle'` reads `bundle_contents` and grants one enrollment per contained
+product **plus** one for the bundle itself. It uses `upsert` with
+`onConflict: "profile_id,product_id", ignoreDuplicates: true` rather than a plain
+insert: a plain multi-row insert 23505s the **whole batch** if the buyer already
+owns one contained SKU standalone, silently dropping the rest of the grant.
 
-- Extend `handleCheckoutCompleted` (`webhook-handlers.ts:98`): after resolving
-  the product, if `kind = 'bundle'`, read `bundle_contents` and insert one
-  enrollment per contained product **plus** one for the bundle itself (so
-  "what did they buy" and "what can they access" are both answerable). Ignore
-  `23505` throughout, per B4.
-- Redefine `isPaidUser` against `enrollments`, and update its four consumers.
+Verified against the live DB (in an aborted transaction): Momentum attempts 6 rows,
+lands 5 when Mock Interview was already owned, grants the bundle's own row, and a
+replayed batch is a no-op. Existing rows keep their original `payment_id`.
+
+`isPaidUser` needed no rewrite — it was **deleted** in §1a along with its four
+consumers, and a comment in `use-dashboard-data.ts:92` marks it as intentionally
+gone. An `enrollments`-based entitlement helper lands in §5, where the first
+surface actually needs to gate on one.
+
 - Content/course gating queries `enrollments` only. No plan check anywhere in
   this path — `comparePlans` stays confined to `webhook-handlers.ts:214`.
+
+**Constraint the fan-out has to respect** (from auditing `docs/prototypes/pricing.html`
+— see the pricing questions in `todo.md`): the 8 quick-add SKUs are a **coarser, cheaper
+repackaging** of the 22 deliverables, not a subset of them. A Momentum purchase fanning
+out to its five mapped quick-adds grants ~$825 of SKUs against a $1,400 purchase, and
+four deliverables (Mindset Mastery ×3, Seamless Start ×1) have no SKU at all. So the
+bundle's **own** enrollment row is the load-bearing entitlement; the contained-product
+rows are a convenience for "what can they access", not the grant itself. Don't build
+access checks that only look at `bundle_contents` descendants.
 
 Everything else in the payment path is already code-complete for this exact
 flow: `assertAllowedPriceId` → `mode: 'payment'` → `payments` row +
@@ -293,23 +364,53 @@ Every decision is resolved, so nothing is gated on an answer any more — only o
 ordering. Each step below is buildable the moment the one above it lands.
 
 ```
-1a — Strip/unlink job-board + Core/Pro from candidate UI
-2  — Migration: coaches, jds, kind/coach_id, booking_url,
+1a — Strip/unlink job-board + Core/Pro from candidate UI          ✅ done
+2  — Migration: coaches, jds, kind/coach_id, booking_url,         ✅ done 2026-08-15
      bundle_contents, B1–B4 fixes, db.ts aliases, admin form fields
-3  — Catalog rows + bundle fan-out + enrollment entitlement
-1b — /pricing into (public) + HomePricing, DB-driven
-5  — Coaching delivery: My Coaching, course player, Cal.com webhook,
+3  — Bundle fan-out + enrollment entitlement                     ✅ done 2026-08-15
+1b — /pricing into (public) + HomePricing, DB-driven             ✅ done 2026-08-15
+5  — Coaching delivery: My Coaching, course player, Cal.com webhook,  ✅ done 2026-08-15
      wire the two TODO stubs
-4  — JD → ATS checker, 5/month free cap
+4  — JD → ATS checker, 5/month free cap                          ← next
 6  — Nudges + prescription engine + inactivity cron
 ```
 
-§5 still splits usefully, now by ops readiness rather than by decision: the
-**"My Coaching" card + enrollment list + the two `TODO(coaching)` stubs**
-(`resume-client.tsx:411`, `linkedin-client.tsx:281`) + the admin per-candidate
-enrollment view need only `enrollments`, so they ship first. The course player
-needs video URLs and the Cal.com webhook needs a signing secret — both can be
-built against empty data and lit up when the ops inputs arrive.
+### §5 — coaching delivery — ✅ DONE 2026-08-15
+
+All of it, including the two ops-gated pieces (they render against empty data and
+light up when the inputs arrive).
+
+| Surface           | Where                                                                                                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Entitlement reads | `src/lib/coaching.ts` — `fetchMyCoaching()`, `hasEnrollment()`. Reads `enrollments` only; never `profiles.plan`.           |
+| My Coaching page  | `/content` (route kept, contents replaced) + `src/components/coaching/my-coaching-client.tsx`                              |
+| Dashboard card    | `src/components/dashboard/my-coaching-card.tsx`, in the row beside `ResumeCard`                                            |
+| Course player     | `/content/[id]` + `src/components/coaching/course-player.tsx`, gated on `hasEnrollment` → `/pricing`                       |
+| Progress          | `src/app/actions/coaching.ts` — `setCourseProgress()`; `status`/`completed_at` derived from progress so "done" can't drift |
+| Cal.com webhook   | `/api/cal/webhook` + pure helpers in `src/lib/cal.ts`, tested by `src/lib/cal.check.ts`                                    |
+| Admin             | per-candidate Coaching section on `/admin/candidates/[id]` (enrollments + sessions)                                        |
+
+`src/components/content/content-client.tsx` was **deleted** — it was entirely mock
+data and, worse, badged items "Plan 2" / "Plan 3" on a nav-linked page, which the
+earlier §1a audit missed because it grepped for "Core"/"Pro". The nav tab is now
+"My Coaching". The two `TODO(coaching)` stubs were `<a href="#" aria-disabled>`
+dead buttons; both now link to `/pricing`, where Resume Refresh and LinkedIn
+Glow-Up are real SKUs.
+
+Booking → enrollment resolution is the one genuinely tricky bit, since
+`coaching_sessions.enrollment_id` is NOT NULL and Cal.com only tells us the
+attendee email and event type. `matchEnrollment()` takes a slug match, falls back
+to a single bookable enrollment, and **returns null rather than guessing**
+otherwise — a missing session row beats one filed against the wrong purchase.
+`cal.check.ts` covers that plus HMAC verification (including the length guard that
+keeps `timingSafeEqual` from throwing a 500 on a short signature).
+
+Verified live in aborted transactions: an enrollment joins to its product, a
+session writes against it, the owner sees their row and a different candidate sees
+zero. `cal.check.ts` passes; type-check, lint, build clean.
+
+Course progress is **self-reported** (25/50/75/100 buttons) — D2 chose an unlisted
+video embed, which yields no playback telemetry.
 
 §6 inventory: 7 Loops wrappers exist today (`fireLeadRegistered`,
 `fireLeadAttended`, `fireLeadConverted`, `fireCandidatePayment`,

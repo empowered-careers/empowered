@@ -20,21 +20,27 @@ function formatCurrency(cents: number | null): string {
 export default async function AdminCoachingPage() {
   const supabase = await createClient();
 
-  const [{ data: products }, { data: enrollments }] = await Promise.all([
-    supabase
-      .from("coaching_products")
-      .select(
-        "id, name, type, price_cents, is_active, external_url, description, created_at"
-      )
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("enrollments")
-      .select(
-        "id, status, granted_at, progress, product:coaching_products(name), candidate:profiles!enrollments_profile_id_fkey(id, full_name, email)"
-      )
-      .order("granted_at", { ascending: false })
-      .limit(50),
-  ]);
+  const [{ data: products }, { data: enrollments }, { data: coaches }] =
+    await Promise.all([
+      supabase
+        .from("coaching_products")
+        .select(
+          "id, name, kind, price_cents, is_active, external_url, stripe_price_id, description, created_at"
+        )
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("enrollments")
+        .select(
+          "id, status, granted_at, progress, product:coaching_products(name), candidate:profiles!enrollments_profile_id_fkey(id, full_name, email)"
+        )
+        .order("granted_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("coaches")
+        .select("id, name")
+        .eq("active", true)
+        .order("name"),
+    ]);
 
   return (
     <div className="space-y-10 px-10 py-8">
@@ -51,7 +57,7 @@ export default async function AdminCoachingPage() {
       <section>
         <h2 className="mb-3 font-medium text-sm">New product</h2>
         <div className="border border-border bg-card p-5">
-          <CoachingProductForm />
+          <CoachingProductForm coaches={coaches ?? []} />
         </div>
       </section>
 
@@ -62,8 +68,9 @@ export default async function AdminCoachingPage() {
             <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
               <tr>
                 <th className="px-4 py-2 font-medium">Name</th>
-                <th className="px-4 py-2 font-medium">Type</th>
+                <th className="px-4 py-2 font-medium">Kind</th>
                 <th className="px-4 py-2 font-medium">Price</th>
+                <th className="px-4 py-2 font-medium">Purchasable</th>
                 <th className="px-4 py-2 font-medium">Active</th>
                 <th className="px-4 py-2 font-medium">External</th>
                 <th className="px-4 py-2 font-medium" />
@@ -74,9 +81,18 @@ export default async function AdminCoachingPage() {
                 <tr className="border-t border-border" key={p.id}>
                   <td className="px-4 py-2">{p.name}</td>
                   <td className="px-4 py-2 capitalize text-muted-foreground">
-                    {p.type.replace("_", " ")}
+                    {p.kind}
                   </td>
                   <td className="px-4 py-2">{formatCurrency(p.price_cents)}</td>
+                  <td className="px-4 py-2">
+                    {p.stripe_price_id ? (
+                      <span className="text-muted-foreground">Yes</span>
+                    ) : (
+                      <span className="text-destructive text-xs">
+                        No Stripe price
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-muted-foreground">
                     {p.is_active ? "Yes" : "No"}
                   </td>
@@ -108,7 +124,7 @@ export default async function AdminCoachingPage() {
                 <tr>
                   <td
                     className="px-4 py-6 text-center text-muted-foreground"
-                    colSpan={6}
+                    colSpan={7}
                   >
                     No products yet.
                   </td>

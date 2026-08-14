@@ -53,7 +53,7 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 **Active plans:**
 
 - `todo.md` — manual/ops checklist (env vars, smoke tests). Its Stripe section now defers to `ec-catalog-setup.md`.
-- `big-wins-implementation-plan.md` — 🔨 built 2026-08-14, **not live**: the seed migration `20260814000000_big_wins_assessment_seed.sql` is unapplied and nothing has been walked end to end. Content spec is `big_wins_q&a.md`.
+- `big-wins-implementation-plan.md` — 🔨 built 2026-08-14, seed migration applied, but **nothing walked end to end** (`resumes` is empty — upload one first). Content spec is `big_wins_q&a.md`.
 
 **Superseded but still useful:**
 

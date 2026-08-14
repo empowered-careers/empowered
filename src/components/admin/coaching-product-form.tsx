@@ -14,14 +14,16 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type {
+  CoachingProductKind,
   CoachingProductRow,
-  CoachingProductType as ProductType,
+  CoachRow,
 } from "@/types/db";
 
-const TYPES: { value: ProductType; label: string }[] = [
-  { value: "module", label: "Module" },
-  { value: "session_pack", label: "Session pack" },
-  { value: "one_to_one", label: "One-to-one" },
+const KINDS: { value: CoachingProductKind; label: string }[] = [
+  { value: "session", label: "Session" },
+  { value: "bundle", label: "Bundle" },
+  { value: "course", label: "Course" },
+  { value: "service", label: "Service" },
 ];
 
 const labelCls = "mb-1 block text-[12px] font-medium text-muted-foreground";
@@ -30,23 +32,40 @@ const selectCls = cn(
   "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
 );
 
+const EMPTY = {
+  name: "",
+  kind: "session" as CoachingProductKind,
+  description: "",
+  price_dollars: "",
+  stripe_price_id: "",
+  external_url: "",
+  booking_url: "",
+  coach_id: "",
+  is_active: true,
+};
+
 interface Props {
   product?: CoachingProductRow;
+  coaches: Pick<CoachRow, "id" | "name">[];
 }
 
-export function CoachingProductForm({ product }: Props) {
+export function CoachingProductForm({ product, coaches }: Props) {
   const router = useRouter();
   const editing = !!product;
   const [pending, startTransition] = useTransition();
   const [form, setForm] = useState({
+    ...EMPTY,
     name: product?.name ?? "",
-    type: (product?.type ?? "module") as ProductType,
+    kind: (product?.kind ?? "session") as CoachingProductKind,
     description: product?.description ?? "",
     price_dollars:
       product?.price_cents != null
         ? (product.price_cents / 100).toString()
         : "",
+    stripe_price_id: product?.stripe_price_id ?? "",
     external_url: product?.external_url ?? "",
+    booking_url: product?.booking_url ?? "",
+    coach_id: product?.coach_id ?? "",
     is_active: product?.is_active ?? true,
   });
 
@@ -61,12 +80,15 @@ export function CoachingProductForm({ product }: Props) {
     }
     const payload: CoachingProductInput = {
       name: form.name.trim(),
-      type: form.type,
+      kind: form.kind,
       description: form.description.trim() || null,
       price_cents: form.price_dollars
         ? Math.round(Number(form.price_dollars) * 100)
         : null,
+      stripe_price_id: form.stripe_price_id.trim() || null,
       external_url: form.external_url.trim() || null,
+      booking_url: form.booking_url.trim() || null,
+      coach_id: form.coach_id || null,
       is_active: form.is_active,
     };
 
@@ -85,14 +107,7 @@ export function CoachingProductForm({ product }: Props) {
         return;
       }
       toast.success("Product created.");
-      setForm({
-        name: "",
-        type: "module",
-        description: "",
-        price_dollars: "",
-        external_url: "",
-        is_active: true,
-      });
+      setForm(EMPTY);
       router.refresh();
     });
   };
@@ -112,18 +127,20 @@ export function CoachingProductForm({ product }: Props) {
           />
         </div>
         <div>
-          <label className={labelCls} htmlFor="type">
-            Type
+          <label className={labelCls} htmlFor="kind">
+            Kind
           </label>
           <select
             className={selectCls}
-            id="type"
-            onChange={(e) => update("type", e.target.value as ProductType)}
-            value={form.type}
+            id="kind"
+            onChange={(e) =>
+              update("kind", e.target.value as CoachingProductKind)
+            }
+            value={form.kind}
           >
-            {TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {KINDS.map((k) => (
+              <option key={k.value} value={k.value}>
+                {k.label}
               </option>
             ))}
           </select>
@@ -142,6 +159,20 @@ export function CoachingProductForm({ product }: Props) {
           />
         </div>
         <div>
+          <label className={labelCls} htmlFor="stripe_price_id">
+            Stripe price ID
+          </label>
+          <Input
+            id="stripe_price_id"
+            onChange={(e) => update("stripe_price_id", e.target.value)}
+            placeholder="price_…"
+            value={form.stripe_price_id}
+          />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Not purchasable until this is set.
+          </p>
+        </div>
+        <div>
           <label className={labelCls} htmlFor="external_url">
             External URL
           </label>
@@ -151,7 +182,43 @@ export function CoachingProductForm({ product }: Props) {
             placeholder="https://…"
             value={form.external_url}
           />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Course video embed, for kind = course.
+          </p>
         </div>
+        {form.kind === "session" && (
+          <>
+            <div>
+              <label className={labelCls} htmlFor="booking_url">
+                Booking URL
+              </label>
+              <Input
+                id="booking_url"
+                onChange={(e) => update("booking_url", e.target.value)}
+                placeholder="https://cal.com/…"
+                value={form.booking_url}
+              />
+            </div>
+            <div>
+              <label className={labelCls} htmlFor="coach_id">
+                Coach
+              </label>
+              <select
+                className={selectCls}
+                id="coach_id"
+                onChange={(e) => update("coach_id", e.target.value)}
+                value={form.coach_id}
+              >
+                <option value="">— none —</option>
+                {coaches.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
       </div>
 
       <div>

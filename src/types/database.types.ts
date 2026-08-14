@@ -159,6 +159,36 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_contents: {
+        Row: {
+          bundle_id: string
+          product_id: string
+        }
+        Insert: {
+          bundle_id: string
+          product_id: string
+        }
+        Update: {
+          bundle_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_contents_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "coaching_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_contents_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "coaching_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidate_preferences: {
         Row: {
           biggest_challenge: string | null
@@ -363,44 +393,91 @@ export type Database = {
           },
         ]
       }
+      coaches: {
+        Row: {
+          active: boolean
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          id: string
+          is_mentor: boolean
+          name: string
+          specialty: string[] | null
+        }
+        Insert: {
+          active?: boolean
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          is_mentor?: boolean
+          name: string
+          specialty?: string[] | null
+        }
+        Update: {
+          active?: boolean
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          is_mentor?: boolean
+          name?: string
+          specialty?: string[] | null
+        }
+        Relationships: []
+      }
       coaching_products: {
         Row: {
+          booking_url: string | null
+          coach_id: string | null
           created_at: string
           description: string | null
           external_url: string | null
           id: string
           is_active: boolean
+          kind: string
           name: string
           price_cents: number | null
           stripe_price_id: string | null
-          type: Database["public"]["Enums"]["coaching_product_type"]
           updated_at: string
         }
         Insert: {
+          booking_url?: string | null
+          coach_id?: string | null
           created_at?: string
           description?: string | null
           external_url?: string | null
           id?: string
           is_active?: boolean
+          kind?: string
           name: string
           price_cents?: number | null
           stripe_price_id?: string | null
-          type: Database["public"]["Enums"]["coaching_product_type"]
           updated_at?: string
         }
         Update: {
+          booking_url?: string | null
+          coach_id?: string | null
           created_at?: string
           description?: string | null
           external_url?: string | null
           id?: string
           is_active?: boolean
+          kind?: string
           name?: string
           price_cents?: number | null
           stripe_price_id?: string | null
-          type?: Database["public"]["Enums"]["coaching_product_type"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "coaching_products_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       coaching_sessions: {
         Row: {
@@ -660,6 +737,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      jds: {
+        Row: {
+          ats_score: number | null
+          created_at: string
+          file_path: string | null
+          gap_summary: string | null
+          id: string
+          parse_error: string | null
+          parsed_json: Json | null
+          profile_id: string
+          raw_text: string | null
+          source: string
+          status: string
+        }
+        Insert: {
+          ats_score?: number | null
+          created_at?: string
+          file_path?: string | null
+          gap_summary?: string | null
+          id?: string
+          parse_error?: string | null
+          parsed_json?: Json | null
+          profile_id: string
+          raw_text?: string | null
+          source?: string
+          status?: string
+        }
+        Update: {
+          ats_score?: number | null
+          created_at?: string
+          file_path?: string | null
+          gap_summary?: string | null
+          id?: string
+          parse_error?: string | null
+          parsed_json?: Json | null
+          profile_id?: string
+          raw_text?: string | null
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jds_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_scores: {
         Row: {
@@ -1438,7 +1565,6 @@ export type Database = {
         | "rejected"
         | "withdrawn"
       billing_cadence: "one_time" | "monthly" | "annual" | "quarterly"
-      coaching_product_type: "module" | "session_pack" | "one_to_one"
       coaching_session_status:
         | "scheduled"
         | "completed"
@@ -1620,7 +1746,6 @@ export const Constants = {
         "withdrawn",
       ],
       billing_cadence: ["one_time", "monthly", "annual", "quarterly"],
-      coaching_product_type: ["module", "session_pack", "one_to_one"],
       coaching_session_status: [
         "scheduled",
         "completed",

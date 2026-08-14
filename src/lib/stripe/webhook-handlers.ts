@@ -65,7 +65,7 @@ function mapSubscriptionStatus(status: string): SubscriptionStatus {
 
 /**
  * Derive payments.product_type from a coaching product name. There is no clean
- * column mapping (`coaching_products.type` is module/session_pack/one_to_one),
+ * column mapping (`coaching_products.kind` is course/session/service/bundle),
  * so we keyword-match the named services and fall back to the generic
  * `coaching` value rather than mis-tagging. Revisit if à la carte reporting
  * needs finer categories.
@@ -108,37 +108,69 @@ export async function handleCheckoutCompleted(
 
   let productType: ProductType = "coaching";
   let productId: string | null = null;
+  let productKind: string | null = null;
   if (priceId) {
     const { data: product } = await supabase
       .from("coaching_products")
-      .select("id, name")
+      .select("id, name, kind")
       .eq("stripe_price_id", priceId)
       .maybeSingle();
     if (product) {
       productId = product.id;
+      productKind = product.kind;
       productType = inferProductType(product.name);
     }
   }
 
+  let paymentRowId: string | null = null;
   if (paymentIntentId) {
-    const { error } = await supabase.from("payments").insert({
-      profile_id: profileId,
-      amount: session.amount_total ?? 0,
-      product_type: productType,
-      status: "succeeded",
-      stripe_payment_intent_id: paymentIntentId,
-      stripe_price_id: priceId,
-      billing_reason: "one_time",
-    });
+    const { data, error } = await supabase
+      .from("payments")
+      .insert({
+        profile_id: profileId,
+        amount: session.amount_total ?? 0,
+        product_type: productType,
+        status: "succeeded",
+        stripe_payment_intent_id: paymentIntentId,
+        stripe_price_id: priceId,
+        billing_reason: "one_time",
+      })
+      .select("id")
+      .maybeSingle();
     if (error && !isUniqueViolation(error)) throw error;
+    paymentRowId = data?.id ?? null;
   }
 
   if (productId) {
-    await supabase.from("enrollments").insert({
-      profile_id: profileId,
-      product_id: productId,
-      status: "active",
-    });
+    // A bundle grants its own enrollment PLUS one per contained product, so
+    // "what did they buy" and "what can they access" are both answerable. The
+    // bundle's own row is the load-bearing entitlement — the quick-add SKUs in
+    // bundle_contents are a coarser, cheaper repackaging and don't cover
+    // everything a tier advertises (see ec-pivot-plan.md §5).
+    const productIds = [productId];
+    if (productKind === "bundle") {
+      const { data: contents, error } = await supabase
+        .from("bundle_contents")
+        .select("product_id")
+        .eq("bundle_id", productId);
+      if (error) throw error;
+      productIds.push(...(contents ?? []).map((c) => c.product_id));
+    }
+
+    // ignoreDuplicates → `on conflict do nothing` per row, so a redelivery is a
+    // no-op and a bundle purchase by someone who already owns one of its
+    // quick-adds still grants the rest. A plain insert would 23505 the whole
+    // batch. Existing rows keep their original payment_id.
+    const { error } = await supabase.from("enrollments").upsert(
+      productIds.map((id) => ({
+        profile_id: profileId,
+        product_id: id,
+        payment_id: paymentRowId,
+        status: "active" as const,
+      })),
+      { onConflict: "profile_id,product_id", ignoreDuplicates: true }
+    );
+    if (error) throw error;
   }
 
   const email = await profileEmail(supabase, profileId);

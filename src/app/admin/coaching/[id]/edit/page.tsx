@@ -18,11 +18,18 @@ export default async function AdminCoachingEditPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: product } = await supabase
-    .from("coaching_products")
-    .select("*")
-    .eq("id", id)
-    .single<CoachingProductRow>();
+  const [{ data: product }, { data: coaches }] = await Promise.all([
+    supabase
+      .from("coaching_products")
+      .select("*")
+      .eq("id", id)
+      .single<CoachingProductRow>(),
+    supabase
+      .from("coaches")
+      .select("id, name")
+      .eq("active", true)
+      .order("name"),
+  ]);
 
   if (!product) notFound();
 
@@ -42,7 +49,7 @@ export default async function AdminCoachingEditPage({ params }: PageProps) {
 
       <section>
         <div className="border border-border bg-card p-5">
-          <CoachingProductForm product={product} />
+          <CoachingProductForm coaches={coaches ?? []} product={product} />
         </div>
       </section>
     </div>

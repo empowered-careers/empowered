@@ -22,9 +22,10 @@ export type LinkedinSyncStatus =
 export type BillingCadence = Database["public"]["Enums"]["billing_cadence"];
 export type SubscriptionStatus =
   Database["public"]["Enums"]["subscription_status"];
-export type CoachingProductType =
-  Database["public"]["Enums"]["coaching_product_type"];
 export type CommissionStatus = Database["public"]["Enums"]["commission_status"];
+export type EnrollmentStatus = Database["public"]["Enums"]["enrollment_status"];
+export type CoachingSessionStatus =
+  Database["public"]["Enums"]["coaching_session_status"];
 export type ProductType = Database["public"]["Enums"]["product_type"];
 export type EventType = Database["public"]["Enums"]["event_type"];
 export type SwitchUrgency = Database["public"]["Enums"]["switch_urgency"];
@@ -41,6 +42,19 @@ export type ApplicationRow =
 export type EmployerRow = Database["public"]["Tables"]["employers"]["Row"];
 export type CoachingProductRow =
   Database["public"]["Tables"]["coaching_products"]["Row"];
+export type CoachingProductInsert =
+  Database["public"]["Tables"]["coaching_products"]["Insert"];
+export type CoachingProductUpdate =
+  Database["public"]["Tables"]["coaching_products"]["Update"];
+// `kind` is a text column with a CHECK constraint, not a Postgres enum, so the
+// union lives here as the single source of truth. It supersedes the dropped
+// `coaching_product_type` enum.
+export type CoachingProductKind = "course" | "session" | "service" | "bundle";
+export type CoachRow = Database["public"]["Tables"]["coaches"]["Row"];
+export type EnrollmentRow = Database["public"]["Tables"]["enrollments"]["Row"];
+export type CoachingSessionRow =
+  Database["public"]["Tables"]["coaching_sessions"]["Row"];
+export type JdRow = Database["public"]["Tables"]["jds"]["Row"];
 export type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 export type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
 export type StripeWebhookEventInsert =
@@ -78,7 +92,8 @@ export type NotificationType =
   | "match_created"
   | "linkedin_sync"
   | "payment_succeeded"
-  | "assessment_complete";
+  | "assessment_complete"
+  | "session_booked";
 
 // --- Assessment tables (Career Identity Blueprint + future assessments) ---
 export type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
@@ -147,6 +162,49 @@ export type AdminCandidateListFields = Pick<
   | "subscription_status"
   | "created_at"
   | "linkedin_url"
+>;
+
+// My Coaching — the candidate's own enrollments and booked sessions.
+export type MyCoachingEnrollmentFields = Pick<
+  EnrollmentRow,
+  "id" | "product_id" | "status" | "progress" | "granted_at" | "completed_at"
+>;
+export type MyCoachingProductFields = Pick<
+  CoachingProductRow,
+  | "id"
+  | "name"
+  | "description"
+  | "kind"
+  | "external_url"
+  | "booking_url"
+  | "coach_id"
+>;
+export const MY_COACHING_SESSION_COLUMNS =
+  "id, enrollment_id, scheduled_for, duration_min, status" as const;
+export type MyCoachingSessionFields = Pick<
+  CoachingSessionRow,
+  "id" | "enrollment_id" | "scheduled_for" | "duration_min" | "status"
+>;
+
+// À la carte catalog — what /pricing and the homepage pricing block render.
+export const CATALOG_PRODUCT_COLUMNS =
+  "id, name, description, price_cents, kind, stripe_price_id, coach_id, booking_url" as const;
+export type CatalogProductFields = Pick<
+  CoachingProductRow,
+  | "id"
+  | "name"
+  | "description"
+  | "price_cents"
+  | "kind"
+  | "stripe_price_id"
+  | "coach_id"
+  | "booking_url"
+>;
+
+export const CATALOG_COACH_COLUMNS = "id, name, bio, avatar_url" as const;
+export type CatalogCoachFields = Pick<
+  CoachRow,
+  "id" | "name" | "bio" | "avatar_url"
 >;
 
 // Public events listing — what /events renders.

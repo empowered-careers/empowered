@@ -52,6 +52,8 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
     { data: applications },
     { data: payments },
     { count: assessmentCount },
+    { data: enrollments },
+    { data: sessions },
   ] = await Promise.all([
     supabase
       .from("resumes")
@@ -89,6 +91,18 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
       .from("assessment_responses")
       .select("id", { count: "exact", head: true })
       .eq("profile_id", id),
+    supabase
+      .from("enrollments")
+      .select(
+        "id, status, progress, granted_at, product:coaching_products(name, kind)"
+      )
+      .eq("profile_id", id)
+      .order("granted_at", { ascending: false }),
+    supabase
+      .from("coaching_sessions")
+      .select("id, scheduled_for, duration_min, status, notes")
+      .eq("profile_id", id)
+      .order("scheduled_for", { ascending: false }),
   ]);
 
   return (
@@ -316,6 +330,91 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 font-medium text-sm">
+          Coaching ({enrollments?.length ?? 0} enrolled ·{" "}
+          {sessions?.length ?? 0} sessions)
+        </h2>
+        <div className="overflow-hidden border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
+              <tr>
+                <th className="px-4 py-2 font-medium">Product</th>
+                <th className="px-4 py-2 font-medium">Kind</th>
+                <th className="px-4 py-2 font-medium">Progress</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium">Granted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(enrollments ?? []).map((e) => {
+                const product = Array.isArray(e.product)
+                  ? e.product[0]
+                  : e.product;
+                return (
+                  <tr className="border-t border-border" key={e.id}>
+                    <td className="px-4 py-2">{product?.name ?? "—"}</td>
+                    <td className="px-4 py-2 capitalize text-muted-foreground">
+                      {product?.kind ?? "—"}
+                    </td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      {e.progress}%
+                    </td>
+                    <td className="px-4 py-2 capitalize text-muted-foreground">
+                      {e.status}
+                    </td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      {formatDate(e.granted_at)}
+                    </td>
+                  </tr>
+                );
+              })}
+              {(!enrollments || enrollments.length === 0) && (
+                <tr>
+                  <td
+                    className="px-4 py-6 text-center text-muted-foreground"
+                    colSpan={5}
+                  >
+                    No coaching purchases yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {sessions && sessions.length > 0 && (
+          <div className="mt-4 overflow-hidden border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-[12px] text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Session</th>
+                  <th className="px-4 py-2 font-medium">Duration</th>
+                  <th className="px-4 py-2 font-medium">Status</th>
+                  <th className="px-4 py-2 font-medium">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sessions.map((s) => (
+                  <tr className="border-t border-border" key={s.id}>
+                    <td className="px-4 py-2">{formatDate(s.scheduled_for)}</td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      {s.duration_min ? `${s.duration_min} min` : "—"}
+                    </td>
+                    <td className="px-4 py-2 capitalize text-muted-foreground">
+                      {s.status}
+                    </td>
+                    <td className="px-4 py-2 text-muted-foreground">
+                      {s.notes ?? "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <section>

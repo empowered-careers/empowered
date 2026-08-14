@@ -461,12 +461,11 @@ export function ResumeClient({ resumes, userId, bigWins }: ResumeClientProps) {
               A guided resume review with feedback on positioning, impact
               statements, and ATS keywords.
             </p>
-            {/* TODO(coaching): wire to coaching booking flow once available */}
             <Button asChild size="sm" className="mt-3">
-              <a href="#" aria-disabled>
+              <Link href="/pricing">
                 Book a resume review
                 <CheckCircle2 className="ml-1.5 h-3.5 w-3.5" />
-              </a>
+              </Link>
             </Button>
           </div>
         </div>

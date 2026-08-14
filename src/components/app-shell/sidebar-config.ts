@@ -138,7 +138,7 @@ export type TabKey = keyof typeof sidebarConfig;
 export const topNavTabs: { key: string; label: string; href: string }[] = [
   { key: "/dashboard", label: "Dashboard", href: "/dashboard" },
   { key: "/pipeline", label: "Pipeline", href: "/pipeline" },
-  { key: "/content", label: "Content & Courses", href: "/content" },
+  { key: "/content", label: "My Coaching", href: "/content" },
 ];
 
 export function resolveTabKey(pathname: string): string {
