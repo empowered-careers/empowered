@@ -93,7 +93,8 @@ export type NotificationType =
   | "linkedin_sync"
   | "payment_succeeded"
   | "assessment_complete"
-  | "session_booked";
+  | "session_booked"
+  | "jd_scored";
 
 // --- Assessment tables (Career Identity Blueprint + future assessments) ---
 export type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
@@ -162,6 +163,15 @@ export type AdminCandidateListFields = Pick<
   | "subscription_status"
   | "created_at"
   | "linkedin_url"
+>;
+
+// JD → ATS checker history list. `parsed_json` is deliberately excluded — the
+// list only needs the score and the summary.
+export const JD_LIST_COLUMNS =
+  "id, ats_score, gap_summary, status, source, created_at" as const;
+export type JdListFields = Pick<
+  JdRow,
+  "id" | "ats_score" | "gap_summary" | "status" | "source" | "created_at"
 >;
 
 // My Coaching — the candidate's own enrollments and booked sessions.

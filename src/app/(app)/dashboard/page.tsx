@@ -9,6 +9,7 @@ import type {
 import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
 import { fetchMyCoaching } from "@/lib/coaching";
 import type { InterviewingApplication } from "@/lib/dashboard/nudges";
+import { fetchDashboardSignals } from "@/lib/dashboard/signals";
 import { syncLinkedInProfileUrlFromSession } from "@/lib/linkedin-identity-sync";
 import { createClient } from "@/lib/supabase/server";
 
@@ -95,6 +96,16 @@ export default async function DashboardPage() {
     | null;
   const blueprint = (blueprintResult.data as DashboardBlueprint | null) ?? null;
 
+  // Prescription + re-engagement signals. Needs resumeScore/linkedinScore, so it
+  // can't join the Promise.all above.
+  const resumeScore =
+    resumes.find((r) => r.resume_score !== null)?.resume_score ?? null;
+  const signals = await fetchDashboardSignals(
+    user.id,
+    resumeScore,
+    linkedinScore
+  );
+
   const interviewingRow = interviewingResult.data as {
     id: string;
     updated_at: string;
@@ -124,6 +135,8 @@ export default async function DashboardPage() {
       <DashboardClient
         blueprint={blueprint}
         coaching={coaching}
+        prescription={signals.prescription}
+        staleEnrollment={signals.staleEnrollment}
         interviewingApplication={interviewingApplication}
         linkedinScore={linkedinScore}
         profile={profile}

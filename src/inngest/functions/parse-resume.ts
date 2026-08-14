@@ -8,6 +8,7 @@ import {
 import { parseResume } from "@/lib/llm/parse-resume";
 import type { ParsedResume, Scoring } from "@/lib/llm/schemas";
 import { scoreResume } from "@/lib/llm/score-resume";
+import { fireResumeUploaded } from "@/lib/loops/client";
 import { createNotification } from "@/lib/notifications/create";
 import { createServiceClient } from "@/lib/supabase/service";
 
@@ -144,6 +145,20 @@ export const parseResumeFn = inngest.createFunction(
         },
         supabase
       );
+    });
+
+    await step.run("fire-loops", async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", resume.profile_id)
+        .maybeSingle();
+      if (data?.email) {
+        await fireResumeUploaded({
+          email: data.email,
+          resumeScore: scoring.overall,
+        });
+      }
     });
 
     await step.sendEvent(

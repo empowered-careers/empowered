@@ -24,7 +24,9 @@ import type { MyCoaching } from "@/lib/coaching";
 import {
   computeNudges,
   type InterviewingApplication,
+  type StaleEnrollment,
 } from "@/lib/dashboard/nudges";
+import type { Prescription } from "@/lib/dashboard/prescribe";
 
 export interface DashboardClientProps {
   profile: DashboardProfile | null;
@@ -34,6 +36,8 @@ export interface DashboardClientProps {
   interviewingApplication: InterviewingApplication | null;
   linkedinScore: number | null;
   coaching: MyCoaching;
+  prescription: Prescription | null;
+  staleEnrollment: StaleEnrollment | null;
 }
 
 export function DashboardClient({
@@ -44,6 +48,8 @@ export function DashboardClient({
   interviewingApplication,
   linkedinScore,
   coaching,
+  prescription,
+  staleEnrollment,
 }: DashboardClientProps) {
   const { signOut } = useAuth();
   const router = useRouter();
@@ -67,8 +73,17 @@ export function DashboardClient({
         resumes,
         blueprint,
         interviewingApplication,
+        prescription,
+        staleEnrollment,
       }),
-    [profile, resumes, blueprint, interviewingApplication]
+    [
+      profile,
+      resumes,
+      blueprint,
+      interviewingApplication,
+      prescription,
+      staleEnrollment,
+    ]
   );
 
   const latestResumeScore = resumes[0]?.resume_score ?? null;

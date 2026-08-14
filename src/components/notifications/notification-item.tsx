@@ -8,6 +8,7 @@ import {
   FileText,
   Linkedin,
   type LucideIcon,
+  ScanSearch,
   Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,7 @@ const TYPE_ICON: Record<NotificationType, LucideIcon> = {
   payment_succeeded: CreditCard,
   assessment_complete: Award,
   session_booked: CalendarCheck,
+  jd_scored: ScanSearch,
 };
 
 function relativeTime(iso: string): string {

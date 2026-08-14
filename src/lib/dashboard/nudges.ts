@@ -3,6 +3,7 @@ import type {
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
+import type { Prescription } from "@/lib/dashboard/prescribe";
 import { buildProfileSteps } from "@/lib/dashboard/steps";
 
 export interface InterviewingApplication {
@@ -24,15 +25,33 @@ export interface Nudge {
   priority: number;
 }
 
+/** An active enrollment the candidate has not started. */
+export interface StaleEnrollment {
+  productId: string;
+  productName: string;
+  grantedAt: string;
+}
+
 export interface ComputeNudgesInput {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
   blueprint: DashboardBlueprint | null;
   interviewingApplication: InterviewingApplication | null;
+  /** Best next product from the rules engine — see `prescribe.ts`. */
+  prescription?: Prescription | null;
+  /** Bought but untouched for a week; the highest-value re-engagement we have. */
+  staleEnrollment?: StaleEnrollment | null;
 }
 
 export function computeNudges(input: ComputeNudgesInput): Nudge[] {
-  const { profile, resumes, blueprint, interviewingApplication } = input;
+  const {
+    profile,
+    resumes,
+    blueprint,
+    interviewingApplication,
+    prescription = null,
+    staleEnrollment = null,
+  } = input;
   const nudges: Nudge[] = [];
 
   if (interviewingApplication) {
@@ -68,23 +87,37 @@ export function computeNudges(input: ComputeNudgesInput): Nudge[] {
     });
   }
 
-  // `nudge-plan` (free-plan → /pricing upsell, gated on open job count) was
-  // removed with the subscription surfaces. Pivot plan §6 replaces it with the
-  // gap-to-product prescription engine driven by scores, not plan state.
-  if (!interviewingApplication) {
+  // Paid for it, never opened it. Outranks any upsell — selling more to someone
+  // who hasn't used what they bought is how you earn a refund request.
+  if (staleEnrollment) {
     nudges.push({
-      id: "nudge-content",
-      tag: "Content",
-      title: "What VPs of Eng look for in 2026",
-      body: "Fresh from the team — 8 min read tuned to senior tech roles.",
-      cta: { label: "Read", href: "/content" },
-      priority: 40,
+      id: "nudge-enrollment-stale",
+      tag: "Coaching",
+      title: `You haven't started ${staleEnrollment.productName}`,
+      body: "It's paid for and waiting. Picking it up now is the whole point.",
+      cta: { label: "Open My Coaching", href: "/content" },
+      priority: 95,
     });
   }
 
-  // Resume scoring below the recruiter bar — surface a review CTA.
-  // CTA points at /resume for now; retarget to the dedicated review flow
-  // once Sprint E (coaching delivery) lands.
+  // `nudge-plan` (free-plan → /pricing upsell, gated on open job count) and
+  // `nudge-content` (hardcoded fake article) are both gone. This is their
+  // replacement: a specific product chosen from the candidate's actual scores.
+  // Suppressed mid-interview — a live process outranks an upsell.
+  if (prescription && !interviewingApplication) {
+    nudges.push({
+      id: "nudge-prescription",
+      tag: "Recommended",
+      title: prescription.productName,
+      body: prescription.reason,
+      cta: { label: "See details", href: "/pricing" },
+      priority: 45,
+    });
+  }
+
+  // Resume scoring below the recruiter bar. Big Wins is the self-serve fix and
+  // costs nothing, so it beats sending them straight at the paid catalog — the
+  // prescription nudge above already covers the paid path.
   const scoredResume = resumes.find((r) => r.resume_score !== null);
   const latestResumeScore = scoredResume?.resume_score ?? null;
   if (latestResumeScore !== null && latestResumeScore < 70) {
@@ -93,7 +126,7 @@ export function computeNudges(input: ComputeNudgesInput): Nudge[] {
       tag: "Resume",
       title: "Your resume scores below the bar",
       body: `At ${latestResumeScore}/100, recruiters may pass. A quick review can lift it.`,
-      cta: { label: "Improve resume", href: "/resume" },
+      cta: { label: "Rewrite my bullets", href: "/assessments/big-wins" },
       priority: 75,
     });
   }

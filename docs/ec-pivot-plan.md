@@ -371,8 +371,8 @@ ordering. Each step below is buildable the moment the one above it lands.
 1b — /pricing into (public) + HomePricing, DB-driven             ✅ done 2026-08-15
 5  — Coaching delivery: My Coaching, course player, Cal.com webhook,  ✅ done 2026-08-15
      wire the two TODO stubs
-4  — JD → ATS checker, 5/month free cap                          ← next
-6  — Nudges + prescription engine + inactivity cron
+4  — JD → ATS checker, 5/month free cap                          ✅ done 2026-08-15
+6  — Nudges + prescription engine + inactivity cron               ✅ done 2026-08-15
 ```
 
 ### §5 — coaching delivery — ✅ DONE 2026-08-15
@@ -411,6 +411,70 @@ zero. `cal.check.ts` passes; type-check, lint, build clean.
 
 Course progress is **self-reported** (25/50/75/100 buttons) — D2 chose an unlisted
 video embed, which yields no playback telemetry.
+
+### §4 — JD → ATS checker — ✅ DONE 2026-08-15
+
+| Piece           | Where                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| Prompt + schema | `JD_MATCH_SYSTEM_PROMPT` (v1.0.0) in `prompts.ts`; `JdMatchSchema` in `schemas.ts`               |
+| LLM call        | `src/lib/llm/match-jd.ts` — **one** Sonnet call parses the posting _and_ scores the resume       |
+| Worker          | `src/inngest/functions/match-jd.ts`, triggered by `jd/submitted`, emits `candidate/jd_scored`    |
+| Quota           | `src/lib/jd-quota.ts` + `jd-quota.check.ts`                                                      |
+| Actions         | `src/app/actions/jd.ts` — `submitJd`, `retryJd`, `getJdQuota`                                    |
+| UI              | `/jd-match` (paste + history) and `/jd-match/[id]` (score, requirement-by-requirement, keywords) |
+| Realtime        | `useJdNotifications`, mounted in `RealtimeNotifications`                                         |
+
+One call, not a parse/score pair: it's a single judgement and nothing reuses the
+JD parse independently. `source='paid'` (and therefore unlimited) means **the
+candidate holds an active enrollment** — flagged for Lauren in `todo.md`, since
+"bought anything → unlimited checks" was a judgement call, not a stated rule.
+
+**Paste-only.** The brief also allows PDF/docx upload; that needs a storage
+bucket, MIME validation, a content hash and a download step in the worker, for the
+rarer path. `jds.file_path` exists for when it's added — nothing else changes.
+
+`submitJd` requires a current parsed resume: scoring a JD against nothing produces
+a meaningless number. Verified live that the quota query counts exactly the free
+rows in the current month (a paid row and a prior-month row were both correctly
+excluded), that RLS scopes `jds` to its owner, and that the status CHECK rejects a
+bad value.
+
+### §6 — nudges, prescription engine, inactivity cron — ✅ DONE 2026-08-15
+
+**The prescription engine** is `src/lib/dashboard/prescribe.ts` — a rules table,
+not an LLM, for the reason the matching spec gives: ranking-and-explanation over a
+fixed 11-row catalog is auditable, free and instant. Rules match on product
+**name** so admin can edit the catalog without a code change; a rule whose product
+is renamed or deactivated is skipped rather than rendered as a dead CTA.
+`prescribe.check.ts` pins the thresholds, the priority order, the never-re-sell-
+what-they-own rule, and that catalog drift degrades safely. Returning **null** is a
+real outcome — a candidate with no gaps is not sold at.
+
+`src/lib/dashboard/signals.ts` gathers the inputs (Blueprint dims, resume score,
+LinkedIn score, latest ATS score, owned product names).
+
+**Nudge changes** in `nudges.ts`: `nudge-content` (hardcoded fake article) is gone,
+replaced by `nudge-prescription`. New `nudge-enrollment-stale` at priority 95 —
+above every upsell, because selling more to someone who hasn't opened what they
+bought is how you earn a refund request. `nudge-resume-score` now points at Big
+Wins (free, self-serve) rather than `/resume`; the paid path is the prescription
+nudge's job.
+
+**The cron** is `sweep-inactive` (`0 7 * * *`), the repo's first scheduled Inngest
+function. It fires **once per candidate per milestone with no state column** by
+matching a 24-hour window — a last sign-in inside `[now-8d, now-7d)` is exactly
+7 days idle _today_. A `last_sign_in_at < now-7d` test would re-fire every day
+until they came back. `retries: 0` for the same reason: a retry re-sends.
+
+**Loops**: 7 new wrappers (`candidate.signup`, `resume_uploaded`,
+`course_purchased`, `session_booked`, `enrollment_completed`, `inactive_7d`,
+`inactive_30d`), all wired to real call sites — auth callback, parse-resume,
+Stripe webhook, Cal.com webhook, `setCourseProgress` at 100%, and the cron. The
+job-board wrappers are left in place and simply not called.
+
+`candidate.signup` fires on first sign-in only, gated on the profile row being
+under two minutes old (the `handle_new_user` trigger creates it at signup). The
+only false positive is signing in twice inside that window.
 
 §6 inventory: 7 Loops wrappers exist today (`fireLeadRegistered`,
 `fireLeadAttended`, `fireLeadConverted`, `fireCandidatePayment`,

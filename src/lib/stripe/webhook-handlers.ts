@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   fireCandidatePayment,
   fireCandidatePlanUpgraded,
+  fireCoursePurchased,
 } from "@/lib/loops/client";
 import { createNotification } from "@/lib/notifications/create";
 import { comparePlans } from "@/lib/plan";
@@ -109,6 +110,7 @@ export async function handleCheckoutCompleted(
   let productType: ProductType = "coaching";
   let productId: string | null = null;
   let productKind: string | null = null;
+  let productName: string | null = null;
   if (priceId) {
     const { data: product } = await supabase
       .from("coaching_products")
@@ -118,6 +120,7 @@ export async function handleCheckoutCompleted(
     if (product) {
       productId = product.id;
       productKind = product.kind;
+      productName = product.name;
       productType = inferProductType(product.name);
     }
   }
@@ -182,6 +185,14 @@ export async function handleCheckoutCompleted(
       productType,
       billingReason: "one_time",
     });
+    if (productName) {
+      await fireCoursePurchased({
+        email,
+        productName,
+        productKind: productKind ?? "service",
+        amountCents: session.amount_total ?? 0,
+      });
+    }
   }
 
   await createNotification(

@@ -106,3 +106,35 @@ export const LinkedInScoringSchema = z.object({
   reasoning: z.string(),
 });
 export type LinkedInScoring = z.infer<typeof LinkedInScoringSchema>;
+
+// ── JD → ATS match (pivot brief §4) ──────────────────────────
+// One Claude call parses the posting AND scores the candidate's current resume
+// against it, so these live in one schema rather than a parse/score pair.
+
+export const JdRequirementsSchema = z.object({
+  title: z.string().nullable(),
+  company: z.string().nullable(),
+  seniority: z.string().nullable(),
+  location: z.string().nullable(),
+  must_have: z.array(z.string()).default([]),
+  nice_to_have: z.array(z.string()).default([]),
+  /** ATS keywords worth mirroring in the resume, verbatim from the posting. */
+  keywords: z.array(z.string()).default([]),
+});
+export type JdRequirements = z.infer<typeof JdRequirementsSchema>;
+
+export const JdGapSchema = z.object({
+  requirement: z.string(),
+  status: z.enum(["met", "partial", "missing"]),
+  /** Why, citing the resume. Empty when there's nothing honest to say. */
+  note: z.string(),
+});
+
+export const JdMatchSchema = z.object({
+  requirements: JdRequirementsSchema,
+  ats_score: z.number().int().min(0).max(100),
+  /** 2–3 sentences, plain language, shown verbatim to the candidate. */
+  gap_summary: z.string().min(1),
+  gaps: z.array(JdGapSchema).max(12).default([]),
+});
+export type JdMatch = z.infer<typeof JdMatchSchema>;

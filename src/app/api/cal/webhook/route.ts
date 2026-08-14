@@ -7,6 +7,7 @@ import {
   signatureMatches,
   statusForTrigger,
 } from "@/lib/cal";
+import { fireSessionBooked } from "@/lib/loops/client";
 import { createNotification } from "@/lib/notifications/create";
 import { createServiceClient } from "@/lib/supabase/service";
 
@@ -125,6 +126,8 @@ export async function POST(request: Request) {
   });
   if (error) return new Response("handler error", { status: 500 });
 
+  await fireBookedEvent(supabase, matched.id, scheduledFor);
+
   await createNotification(
     {
       profileId: profile.id,
@@ -137,4 +140,30 @@ export async function POST(request: Request) {
   );
 
   return new Response("ok", { status: 200 });
+}
+
+/**
+ * Loops `candidate.session_booked`. Split out so the handler above reads as the
+ * write path; a Loops failure is already swallowed inside the wrapper.
+ */
+async function fireBookedEvent(
+  supabase: ReturnType<typeof createServiceClient>,
+  enrollmentId: string,
+  scheduledFor: string
+): Promise<void> {
+  const { data } = await supabase
+    .from("enrollments")
+    .select("profile:profiles(email), product:coaching_products(name)")
+    .eq("id", enrollmentId)
+    .maybeSingle();
+  const p = Array.isArray(data?.profile) ? data.profile[0] : data?.profile;
+  const product = Array.isArray(data?.product)
+    ? data.product[0]
+    : data?.product;
+  if (!p?.email) return;
+  await fireSessionBooked({
+    email: p.email,
+    productName: product?.name ?? "Coaching session",
+    scheduledFor,
+  });
 }

@@ -14,6 +14,7 @@ import {
   List,
   Lock,
   Play,
+  ScanSearch,
   Search,
   Send,
   Star,
@@ -48,6 +49,7 @@ export const sidebarConfig: Record<string, SidebarSection[]> = {
       items: [
         { icon: User, label: "My Profile", href: "/profile" },
         { icon: FileText, label: "Resume", href: "/resume" },
+        { icon: ScanSearch, label: "JD Match", href: "/jd-match" },
         {
           icon: List,
           label: "Assessments",
@@ -149,7 +151,8 @@ export function resolveTabKey(pathname: string): string {
     pathname.startsWith("/linkedin") ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/assessment")
+    pathname.startsWith("/assessment") ||
+    pathname.startsWith("/jd-match")
   ) {
     return "/dashboard";
   }

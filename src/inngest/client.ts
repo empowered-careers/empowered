@@ -37,6 +37,21 @@ export const CandidateLinkedinParsedEvent = eventType(
   }
 );
 
+export const JdSubmittedEvent = eventType("jd/submitted", {
+  schema: z.object({
+    jdId: z.string().uuid(),
+    profileId: z.string().uuid(),
+  }),
+});
+
+export const CandidateJdScoredEvent = eventType("candidate/jd_scored", {
+  schema: z.object({
+    jdId: z.string().uuid(),
+    profileId: z.string().uuid(),
+    atsScore: z.number().int().min(0).max(100),
+  }),
+});
+
 export const inngest = new Inngest({
   id: "empowered-careers",
 });

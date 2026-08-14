@@ -28,6 +28,13 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [ ] Course video URLs into `coaching_products.external_url` for any `kind='course'` row. The player shows "not published yet" without them. There are no course rows in the seeded catalog yet — add them via `/admin/coaching` when the content exists.
 - [ ] `ANTHROPIC_API_KEY` in `.env.local` — still unset, which blocks Big Wins and the §4 ATS checker from actually running.
 
+### JD checker + nudges — ops inputs and one open decision (§4/§6 shipped 2026-08-15)
+
+- [ ] Register the Inngest endpoint for the new functions — `match-jd` and the `sweep-inactive` cron both need `https://<domain>/api/inngest` synced. The cron will not fire locally without `npm run inngest:dev`.
+- [ ] **Lauren to decide:** "unlimited JD checks" currently means _holds any active enrollment_. That was my judgement call, not a stated rule — buying a $125 Resume Refresh today grants unlimited ATS checks forever. Should it instead be a specific SKU, or time-boxed? One line in `getJdQuota` either way.
+- [ ] Loops: create the 7 new sequences — `candidate.signup`, `candidate.resume_uploaded`, `candidate.course_purchased`, `candidate.session_booked`, `candidate.enrollment_completed`, `candidate.inactive_7d`, `candidate.inactive_30d`. The events fire already; nothing sends until the sequences exist.
+- [ ] Sanity-check the prescription rule copy in `src/lib/dashboard/prescribe.ts` — those `reason` strings are shown to candidates verbatim on the dashboard.
+
 ### Pricing questions for Lauren (from auditing `docs/prototypes/pricing.html`)
 
 None of these block the schema — the seeded rows use the quick-add menu prices, which

@@ -265,3 +265,124 @@ export async function fireLeadConverted(p: LeadConvertedProps): Promise<void> {
     },
   });
 }
+
+// ── Coaching/content pivot events (brief §6) ─────────────────
+// The job-board-dependent wrappers above stay in place but are no longer called
+// from anywhere live — dormant, not deleted, same as the board itself.
+
+export interface CandidateSignupProps {
+  email: string;
+  firstName?: string | null;
+  source?: string | null;
+}
+
+/** Fires once, at OAuth callback, the first time a profile row appears. */
+export async function fireCandidateSignup(
+  p: CandidateSignupProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.signup",
+    contactProperties: {
+      firstName: p.firstName ?? undefined,
+      acquisitionSource: p.source ?? undefined,
+    },
+  });
+}
+
+export interface ResumeUploadedProps {
+  email: string;
+  resumeScore?: number | null;
+}
+
+/** Fires when the resume parse completes — the intake spine's key milestone. */
+export async function fireResumeUploaded(
+  p: ResumeUploadedProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.resume_uploaded",
+    contactProperties: { resumeScore: p.resumeScore ?? undefined },
+    eventProperties: { resumeScore: p.resumeScore ?? undefined },
+  });
+}
+
+export interface CoursePurchasedProps {
+  email: string;
+  productName: string;
+  productKind: string;
+  amountCents: number;
+}
+
+/** Fires on any à la carte purchase — course, session, service or bundle. */
+export async function fireCoursePurchased(
+  p: CoursePurchasedProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.course_purchased",
+    contactProperties: { lastPurchase: p.productName },
+    eventProperties: {
+      productName: p.productName,
+      productKind: p.productKind,
+      amountCents: p.amountCents,
+    },
+  });
+}
+
+export interface SessionBookedProps {
+  email: string;
+  productName: string;
+  scheduledFor: string;
+}
+
+/** Fires from the Cal.com webhook once a booking is attached to an enrollment. */
+export async function fireSessionBooked(p: SessionBookedProps): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.session_booked",
+    eventProperties: {
+      productName: p.productName,
+      scheduledFor: p.scheduledFor,
+    },
+  });
+}
+
+export interface EnrollmentCompletedProps {
+  email: string;
+  productName: string;
+}
+
+/**
+ * Fires when a course hits 100%. This is the single highest-value trigger in the
+ * new model: course finished → book the related coach (brief §6).
+ */
+export async function fireEnrollmentCompleted(
+  p: EnrollmentCompletedProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName: "candidate.enrollment_completed",
+    contactProperties: { lastCompletedCourse: p.productName },
+    eventProperties: { productName: p.productName },
+  });
+}
+
+export interface CandidateInactiveProps {
+  email: string;
+  firstName?: string | null;
+  days: 7 | 30;
+}
+
+/** Fires from the daily `sweep-inactive` cron. */
+export async function fireCandidateInactive(
+  p: CandidateInactiveProps
+): Promise<void> {
+  await sendLoopsEvent({
+    email: p.email,
+    eventName:
+      p.days === 7 ? "candidate.inactive_7d" : "candidate.inactive_30d",
+    contactProperties: { firstName: p.firstName ?? undefined },
+    eventProperties: { days: p.days },
+  });
+}
