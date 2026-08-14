@@ -31,7 +31,13 @@
       "Bash(sed -i '/^import Link from \"next\\\\/link\";$/d' src/components/pipeline/pipeline-client.tsx)",
       "Bash(git mv *)",
       "Bash(cd *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(INNGEST_DEV=1 PORT=3001 npm run dev)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/api/inngest)",
+      "Bash(curl -s http://localhost:8288/dev)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('count:',len\\(d['functions']\\)\\); [print\\(' -',f.get\\('slug'\\) or f.get\\('name'\\)\\) for f in d['functions']]\")",
+      "Bash(npx inngest-cli@latest *)",
+      "Bash(python3 -)"
     ]
   }
 }

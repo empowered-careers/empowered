@@ -4,7 +4,7 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 
 ## Blocking (pipelines won't work without these)
 
-- [ ] Add `ANTHROPIC_API_KEY=...` to `.env.local`
+- [x] Add `ANTHROPIC_API_KEY=...` to `.env.local` (verified present 2026-08-15 — but see the Vercel note below; the host needs it too)
 - [x] Sign up at inngest.com, create app `empowered-careers`. Local dev needs nothing else; prod needs `INNGEST_EVENT_KEY` + `INNGEST_SIGNING_KEY` in `.env.local` and on the deploy host
 
 ## Admin substrate + job board (post-S2)
@@ -26,11 +26,14 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [ ] `CAL_WEBHOOK_SECRET` in `.env.local` + on the deploy host, and a Cal.com webhook subscribed to `BOOKING_CREATED` / `BOOKING_RESCHEDULED` / `BOOKING_CANCELLED` pointing at `https://<domain>/api/cal/webhook`. Until it's set the route 503s and bookings aren't recorded.
 - [ ] Per-session-product Cal.com event-type URLs pasted into `coaching_products.booking_url` via `/admin/coaching`. **Make each event-type slug distinct** — booking→enrollment matching keys on the slug appearing in `booking_url`, and two products whose slugs are substrings of each other resolve to "ambiguous" and get dropped rather than guessed.
 - [ ] Course video URLs into `coaching_products.external_url` for any `kind='course'` row. The player shows "not published yet" without them. There are no course rows in the seeded catalog yet — add them via `/admin/coaching` when the content exists.
-- [ ] `ANTHROPIC_API_KEY` in `.env.local` — still unset, which blocks Big Wins and the §4 ATS checker from actually running.
 
 ### JD checker + nudges — ops inputs and one open decision (§4/§6 shipped 2026-08-15)
 
-- [ ] Register the Inngest endpoint for the new functions — `match-jd` and the `sweep-inactive` cron both need `https://<domain>/api/inngest` synced. The cron will not fire locally without `npm run inngest:dev`.
+- [x] Inngest Cloud synced 2026-08-15 — `curl -X PUT https://empowered-orcin.vercel.app/api/inngest` returned `{"message":"Successfully registered","modified":true}`. Re-run that one command after any deploy that adds or changes a function.
+- [ ] **Confirm `ANTHROPIC_API_KEY` and `SUPABASE_SECRET_KEY` are set in Vercel's env**, not only `.env.local`. Inngest Cloud runs the workers by calling the Vercel function, so a local-only key means every production `match-jd` / `parse-resume` run fails at `getAnthropic()`.
+- [ ] Confirm `INNGEST_EVENT_KEY` is set in Vercel. The sync proves `INNGEST_SIGNING_KEY` is set; sending is a separate key. Without it `inngest.send()` throws and `submitJd` records `inngest_send_failed` (surfaces as a retry button, not a silent hang).
+- [ ] Set `NEXT_PUBLIC_SITE_URL=https://empowered-orcin.vercel.app` in Vercel — it is `http://localhost:3000` locally, and Stripe Checkout builds its success/cancel URLs from it.
+- [ ] Watch the first `sweep-inactive` run (07:00 UTC). It no-ops until someone's last sign-in falls in the 7- or 30-day window.
 - [ ] **Lauren to decide:** "unlimited JD checks" currently means _holds any active enrollment_. That was my judgement call, not a stated rule — buying a $125 Resume Refresh today grants unlimited ATS checks forever. Should it instead be a specific SKU, or time-boxed? One line in `getJdQuota` either way.
 - [ ] Loops: create the 7 new sequences — `candidate.signup`, `candidate.resume_uploaded`, `candidate.course_purchased`, `candidate.session_booked`, `candidate.enrollment_completed`, `candidate.inactive_7d`, `candidate.inactive_30d`. The events fire already; nothing sends until the sequences exist.
 - [ ] Sanity-check the prescription rule copy in `src/lib/dashboard/prescribe.ts` — those `reason` strings are shown to candidates verbatim on the dashboard.
