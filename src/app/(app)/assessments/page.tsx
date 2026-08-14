@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AssessmentsIndex } from "@/components/assessment/assessments-index";
-import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
+import { type BigWinsResult, rolesFromParsed } from "@/lib/assessment/big-wins";
+import {
+  BIG_WINS_ASSESSMENT_ID,
+  BLUEPRINT_ASSESSMENT_ID,
+} from "@/lib/assessment/constants";
 import type { BlueprintResult } from "@/lib/assessment/types";
+import type { ParsedResume } from "@/lib/llm/schemas";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -18,12 +23,27 @@ export default async function AssessmentsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data } = await supabase
-    .from("assessment_responses")
-    .select("result, archetype, completed_at")
-    .eq("profile_id", user.id)
-    .eq("assessment_id", BLUEPRINT_ASSESSMENT_ID)
-    .maybeSingle();
+  const [{ data }, { data: winsRow }, { data: resume }] = await Promise.all([
+    supabase
+      .from("assessment_responses")
+      .select("result, archetype, completed_at")
+      .eq("profile_id", user.id)
+      .eq("assessment_id", BLUEPRINT_ASSESSMENT_ID)
+      .maybeSingle(),
+    supabase
+      .from("assessment_responses")
+      .select("result, completed_at")
+      .eq("profile_id", user.id)
+      .eq("assessment_id", BIG_WINS_ASSESSMENT_ID)
+      .maybeSingle(),
+    supabase
+      .from("resumes")
+      .select("parsed_json")
+      .eq("profile_id", user.id)
+      .eq("is_current", true)
+      .eq("status", "complete")
+      .maybeSingle(),
+  ]);
 
   const blueprint = data
     ? {
@@ -32,6 +52,19 @@ export default async function AssessmentsPage() {
         result: (data.result as BlueprintResult | null) ?? null,
       }
     : null;
+
+  // Big Wins progress is "how many of the current resume's roles have a rewrite",
+  // so roles from a superseded resume don't inflate the count.
+  const roles = rolesFromParsed(
+    (resume?.parsed_json as ParsedResume | null)?.work_experience ?? []
+  );
+  const overlay = (winsRow?.result as BigWinsResult | null)?.roles ?? {};
+  const bigWins = {
+    rewritten: roles.filter((r) => (overlay[r.key]?.bullets.length ?? 0) > 0)
+      .length,
+    total: roles.length,
+    completed_at: winsRow?.completed_at ?? null,
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
@@ -45,7 +78,7 @@ export default async function AssessmentsPage() {
           rest unlock over Phase 2.
         </p>
       </header>
-      <AssessmentsIndex blueprint={blueprint} />
+      <AssessmentsIndex blueprint={blueprint} bigWins={bigWins} />
     </div>
   );
 }

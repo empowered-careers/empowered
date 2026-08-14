@@ -185,7 +185,7 @@ Goal: real content surface (currently `/blog` + Content Hub are placeholders). *
 - [ ] **P2-2 Full matching** — weighted `job_scores` × `candidate_scores` dimensions; replace keyword overlap; A/B reasoning quality.
 - [ ] **P2-3 AI tools** — AI resume rewrite, LinkedIn optimization, conversational assessments; wires the existing upsell CTAs.
 - [ ] **P2-4 Pipedrive CRM** — migrate Google Sheets; bidirectional sync of employers / applications / placements.
-- [ ] **P2-5 Expanded assessments** — the granular five (Role Clarity, Values, Strengths, Leadership, Big Wins) + Mindset/Saboteur + Communication; re-add `mindset_score` / `communication_score` to `candidate_scores`.
+- [ ] **P2-5 Expanded assessments** — the granular four (Role Clarity, Values, Strengths, Leadership) + Mindset/Saboteur + Communication; re-add `mindset_score` / `communication_score` to `candidate_scores`. **Big Wins came out of this bundle early** — built 2026-08-14 as a resume-rewrite surface, not a score-producing assessment (`docs/big-wins-implementation-plan.md`).
 - [ ] **Public Career Blueprint lead-magnet** (`docs/deferred/career-blueprint-lead-magnet.md`) — anonymous funnel feeding `leads`.
 
 ---

@@ -22,6 +22,13 @@ interface AssessmentsIndexProps {
     completed_at: string | null;
     result: BlueprintResult | null;
   } | null;
+  bigWins: {
+    /** Roles rewritten so far. */
+    rewritten: number;
+    /** Roles on the current resume. 0 = no parsed resume yet. */
+    total: number;
+    completed_at: string | null;
+  };
 }
 
 interface ComingSoonAssessment {
@@ -60,13 +67,6 @@ const COMING_SOON: ComingSoonAssessment[] = [
     description:
       "Granular leadership signal — team-shape, decision-speed, and the orgs you'll thrive in.",
   },
-  {
-    id: "big-wins",
-    icon: Trophy,
-    title: "Big Wins",
-    description:
-      "Story-format scan of your highest-impact moments — fuels resume bullets and interview prep.",
-  },
 ];
 
 function formatTakenDate(iso: string | null): string | null {
@@ -80,9 +80,13 @@ function formatTakenDate(iso: string | null): string | null {
   });
 }
 
-export function AssessmentsIndex({ blueprint }: AssessmentsIndexProps) {
+export function AssessmentsIndex({
+  blueprint,
+  bigWins,
+}: AssessmentsIndexProps) {
   const taken = formatTakenDate(blueprint?.completed_at ?? null);
   const hasResult = !!blueprint?.result;
+  const winsUpdated = formatTakenDate(bigWins.completed_at);
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -142,6 +146,79 @@ export function AssessmentsIndex({ blueprint }: AssessmentsIndexProps) {
             </Button>
           </div>
         )}
+      </article>
+
+      {/* Big Wins card (live) */}
+      <article className="flex flex-col gap-4 border border-border bg-card p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center bg-accent text-accent-foreground">
+            <Trophy className="h-5 w-5" />
+          </div>
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <h2 className="font-display text-base font-semibold text-foreground">
+                Big Wins
+              </h2>
+              <span className="bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                Live
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Role-by-role Q&amp;A that pulls out your quantified impact, then
+              rewrites the bullets on your resume.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t border-border pt-4">
+          {bigWins.total === 0 ? (
+            <>
+              <p className="text-xs text-muted-foreground">
+                Needs a parsed resume first — that&apos;s where the roles come
+                from.
+              </p>
+              <Button asChild size="sm">
+                <Link href="/resume">Upload your resume</Link>
+              </Button>
+            </>
+          ) : bigWins.rewritten > 0 ? (
+            <>
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  Progress
+                </p>
+                <p className="font-display text-xl text-foreground">
+                  {bigWins.rewritten} of {bigWins.total} roles rewritten
+                </p>
+                {winsUpdated ? (
+                  <p className="text-xs text-muted-foreground">
+                    Updated {winsUpdated}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button asChild size="sm">
+                  <Link href="/assessments/big-wins">
+                    {bigWins.rewritten < bigWins.total ? "Continue" : "Review"}
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link href="/resume">See my resume</Link>
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground">
+                {bigWins.total} {bigWins.total === 1 ? "role" : "roles"} on your
+                resume. Roughly 3–4 minutes each — do one, or all of them.
+              </p>
+              <Button asChild size="sm">
+                <Link href="/assessments/big-wins">Start Big Wins</Link>
+              </Button>
+            </>
+          )}
+        </div>
       </article>
 
       {/* Coming-soon cards */}

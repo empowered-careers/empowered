@@ -18,6 +18,7 @@ export const WorkExperienceSchema = z.object({
   end: z.string().nullable(),
   bullets: z.array(z.string()).default([]),
 });
+export type WorkExperience = z.infer<typeof WorkExperienceSchema>;
 
 export const EducationSchema = z.object({
   school: z.string(),

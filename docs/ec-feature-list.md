@@ -62,19 +62,24 @@
 ## 6. Assessments
 
 > **Status:** The **Career Identity Blueprint™** ✅ — a 30-question scan populating all five
-> `candidate_scores` dimensions — shipped 2026-06-02. The five granular per-dimension
-> assessments (Role Clarity, Values + Environment, Strengths, Leadership Style, Big Wins)
-> are deferred to Phase 2. See [`docs/done/career-blueprint-integration.md`](./done/career-blueprint-integration.md).
+> `candidate_scores` dimensions — shipped 2026-06-02. See
+> [`docs/done/career-blueprint-integration.md`](./done/career-blueprint-integration.md).
+> **Big Wins** was built 2026-08-14 and is pending a seed migration —
+> [`docs/big-wins-implementation-plan.md`](./big-wins-implementation-plan.md). It is not
+> one of the "granular five": it writes no `candidate_scores` dimension and produces
+> rewritten resume bullets rather than a score. The remaining four (Role Clarity,
+> Values + Environment, Strengths, Leadership Style) are still deferred to Phase 2.
 
 Phase 1 — shipped:
 
 - Career Identity Blueprint™ (30 questions → 6 `candidate_scores` dimensions) ✅
 - Assessment runner UI (multi-step form) ✅
 - Dimension scores written to `candidate_scores` ✅
+- **Big Wins** — resume-mapped, role-by-role Q&A that rewrites each role's bullets as quantified achievements; output overlays `resumes.parsed_json` and renders on `/resume`. 🔨 built, pending seed migration
 
 Phase 2 — deferred (see Phase 2 section below):
 
-- Role Clarity, Values + Environment, Strengths, Leadership Style, Big Wins (granular assessments)
+- Role Clarity, Values + Environment, Strengths, Leadership Style (granular assessments)
 - Progressive unlock — each improves match score visibly
 - Results displayed as profile cards
 - Coaching upsell embedded per result
@@ -174,15 +179,15 @@ Triggered by candidate events piped from Supabase:
 
 ## Phase 2 Features (Deferred)
 
-| Feature                                                                      | Reason Deferred                        |
-| ---------------------------------------------------------------------------- | -------------------------------------- |
-| Full matching algorithm                                                      | Need candidate + job volume first      |
-| ~~Agency portal~~                                                            | Shipped 2026-05-23 (Sprint P2-1)       |
-| Granular assessments (Role Clarity, Values, Strengths, Leadership, Big Wins) | Career Blueprint covers Phase 1 needs  |
-| AI resume rewriting                                                          | Conversion lever, not core             |
-| Conversational AI assessments                                                | Complexity without proven demand       |
-| Public job scraping                                                          | Manual curation sufficient for Phase 1 |
-| Referral system                                                              | Need placements first                  |
-| Pipedrive CRM                                                                | After 10 agencies onboarded            |
-| Mobile app                                                                   | Phase 3                                |
-| AI coach                                                                     | Phase 3                                |
+| Feature                                                            | Reason Deferred                                                                                           |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Full matching algorithm                                            | Need candidate + job volume first                                                                         |
+| ~~Agency portal~~                                                  | Shipped 2026-05-23 (Sprint P2-1)                                                                          |
+| Granular assessments (Role Clarity, Values, Strengths, Leadership) | Career Blueprint covers Phase 1 needs                                                                     |
+| ~~AI resume rewriting~~                                            | Partly built 2026-08-14 as Big Wins — per-role bullet rewrite. Full-resume rewrite/export still deferred. |
+| Conversational AI assessments                                      | Complexity without proven demand                                                                          |
+| Public job scraping                                                | Manual curation sufficient for Phase 1                                                                    |
+| Referral system                                                    | Need placements first                                                                                     |
+| Pipedrive CRM                                                      | After 10 agencies onboarded                                                                               |
+| Mobile app                                                         | Phase 3                                                                                                   |
+| AI coach                                                           | Phase 3                                                                                                   |

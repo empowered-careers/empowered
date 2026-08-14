@@ -44,6 +44,7 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 - `db_schema.md` — database schema + enums
 - `design.md` — design system (tokens, fonts, conventions)
 - `design-handoff-onboarding.md` — onboarding restyle handoff from design (merged 2026-07-31; items 1/2/6 since built)
+- `big_wins_q&a.md` — Big Wins content spec: the question bank, role→category mapping, and conversation UX rules. Implementation lives in `big-wins-implementation-plan.md`.
 - `ec-admin-operations.md` — admin ops + Loops email events
 - `ec-candidate-journey.md` — ⚠️ largely superseded; intake spine + ICP still accurate
 - `ec-feature-list.md` — ⚠️ accurate for what exists in code, not for what candidates can reach
@@ -52,6 +53,7 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 **Active plans:**
 
 - `todo.md` — manual/ops checklist (env vars, smoke tests). Its Stripe section now defers to `ec-catalog-setup.md`.
+- `big-wins-implementation-plan.md` — 🔨 built 2026-08-14, **not live**: the seed migration `20260814000000_big_wins_assessment_seed.sql` is unapplied and nothing has been walked end to end. Content spec is `big_wins_q&a.md`.
 
 **Superseded but still useful:**
 

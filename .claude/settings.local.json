@@ -29,7 +29,9 @@
       "mcp__claude_ai_Supabase__execute_sql",
       "Bash(sed -i '/^ UserCheck,$/d' src/components/dashboard/profile-strength-card.tsx)",
       "Bash(sed -i '/^import Link from \"next\\\\/link\";$/d' src/components/pipeline/pipeline-client.tsx)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(cd *)",
+      "Bash(npx tsx *)"
     ]
   }
 }

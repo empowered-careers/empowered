@@ -167,23 +167,24 @@ RLS is enforced at the database level. When writing queries, don't assume the se
 
 ## Key File Locations
 
-| Purpose                               | Path                                              |
-| ------------------------------------- | ------------------------------------------------- |
-| Root layout + providers               | `src/app/layout.tsx`                              |
-| Auth state + hook                     | `src/components/providers/auth-provider.tsx`      |
-| Dashboard server component            | `src/app/dashboard/page.tsx`                      |
-| Dashboard client component            | `src/components/dashboard/dashboard-client.tsx`   |
-| Server Actions                        | `src/app/actions/`                                |
-| Supabase browser client               | `src/lib/supabase/client.ts`                      |
-| Supabase server client                | `src/lib/supabase/server.ts`                      |
-| TanStack Query keys                   | `src/lib/query-keys.ts`                           |
-| DB types (auto-generated)             | `src/types/database.types.ts`                     |
-| Env validation schema                 | `env.ts`                                          |
-| Site metadata/branding                | `src/config/site.ts`                              |
-| **Current direction + build order**   | `docs/ec-pivot-brief.md`, `docs/ec-pivot-plan.md` |
-| Catalog setup runbook (ops)           | `docs/ec-catalog-setup.md`                        |
-| Database schema + enums               | `docs/db_schema.md`                               |
-| Admin operations + Loops email events | `docs/ec-admin-operations.md`                     |
-| Doc index + what's superseded         | `docs/README.md`                                  |
+| Purpose                               | Path                                                                   |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| Root layout + providers               | `src/app/layout.tsx`                                                   |
+| Auth state + hook                     | `src/components/providers/auth-provider.tsx`                           |
+| Dashboard server component            | `src/app/dashboard/page.tsx`                                           |
+| Dashboard client component            | `src/components/dashboard/dashboard-client.tsx`                        |
+| Server Actions                        | `src/app/actions/`                                                     |
+| Supabase browser client               | `src/lib/supabase/client.ts`                                           |
+| Supabase server client                | `src/lib/supabase/server.ts`                                           |
+| TanStack Query keys                   | `src/lib/query-keys.ts`                                                |
+| DB types (auto-generated)             | `src/types/database.types.ts`                                          |
+| Env validation schema                 | `env.ts`                                                               |
+| Site metadata/branding                | `src/config/site.ts`                                                   |
+| **Current direction + build order**   | `docs/ec-pivot-brief.md`, `docs/ec-pivot-plan.md`                      |
+| Big Wins (resume rewrite)             | `docs/big-wins-implementation-plan.md`, spec in `docs/big_wins_q&a.md` |
+| Catalog setup runbook (ops)           | `docs/ec-catalog-setup.md`                                             |
+| Database schema + enums               | `docs/db_schema.md`                                                    |
+| Admin operations + Loops email events | `docs/ec-admin-operations.md`                                          |
+| Doc index + what's superseded         | `docs/README.md`                                                       |
 
 Older docs (`context.md`, `ec-feature-list.md`, `ec-sprint-plan.md`, `ec-candidate-journey.md`, `ec-ui-plan.md`) carry pivot banners marking which parts still hold. Read the banner before trusting the doc.

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 
 import type { ResumeFullRow } from "@/components/resume/resume-client";
 import { ResumeClient } from "@/components/resume/resume-client";
+import type { BigWinsResult } from "@/lib/assessment/big-wins";
+import { BIG_WINS_ASSESSMENT_ID } from "@/lib/assessment/constants";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -21,13 +23,21 @@ export default async function ResumePage() {
     redirect("/login");
   }
 
-  const { data, error } = await supabase
-    .from("resumes")
-    .select(
-      "id, file_name, raw_file_url, resume_score, parsed_json, status, uploaded_at, parsed_at, parse_error, is_current, seniority_level, total_years_exp"
-    )
-    .eq("profile_id", user.id)
-    .order("uploaded_at", { ascending: false });
+  const [{ data, error }, { data: winsRow }] = await Promise.all([
+    supabase
+      .from("resumes")
+      .select(
+        "id, file_name, raw_file_url, resume_score, parsed_json, status, uploaded_at, parsed_at, parse_error, is_current, seniority_level, total_years_exp"
+      )
+      .eq("profile_id", user.id)
+      .order("uploaded_at", { ascending: false }),
+    supabase
+      .from("assessment_responses")
+      .select("result")
+      .eq("profile_id", user.id)
+      .eq("assessment_id", BIG_WINS_ASSESSMENT_ID)
+      .maybeSingle(),
+  ]);
 
   if (error) {
     console.error("[resume page] fetch error:", error);
@@ -37,7 +47,11 @@ export default async function ResumePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-10 py-8">
-      <ResumeClient resumes={resumes} userId={user.id} />
+      <ResumeClient
+        resumes={resumes}
+        userId={user.id}
+        bigWins={(winsRow?.result as BigWinsResult | null) ?? null}
+      />
     </div>
   );
 }

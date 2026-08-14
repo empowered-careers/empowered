@@ -6,7 +6,9 @@ import {
   Clock,
   FileText,
   Sparkles,
+  Trophy,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -15,7 +17,13 @@ import { ResumeUploader } from "@/components/resume/resume-uploader";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  type BigWinsResult,
+  mergeRoleBullets,
+  rolesFromParsed,
+} from "@/lib/assessment/big-wins";
 import type { ParsedResume, Scoring, SeniorityLevel } from "@/lib/llm/schemas";
+import { cn } from "@/lib/utils";
 import type { ResumeStatus } from "@/types/db";
 
 export interface ResumeFullRow {
@@ -36,6 +44,8 @@ export interface ResumeFullRow {
 interface ResumeClientProps {
   resumes: ResumeFullRow[];
   userId: string;
+  /** Big Wins rewrite, overlaid on the parsed roles. Never written into parsed_json. */
+  bigWins: BigWinsResult | null;
 }
 
 const DIMENSION_LABELS: Record<keyof Scoring["dimensions"], string> = {
@@ -112,12 +122,20 @@ function StatusBadge({ status }: { status: ResumeStatus }) {
   );
 }
 
-export function ResumeClient({ resumes, userId }: ResumeClientProps) {
+export function ResumeClient({ resumes, userId, bigWins }: ResumeClientProps) {
   const [showUploader, setShowUploader] = useState(false);
   const [uploaderKey, setUploaderKey] = useState(0);
 
   const current = resumes.find((r) => r.is_current) ?? resumes[0] ?? null;
   const scoring = current?.parsed_json?.scoring ?? null;
+  // Bullets shown here are the Big Wins rewrite where one exists, the parser's
+  // originals everywhere else. Orphaned overlay roles belong to a superseded
+  // resume and are surfaced on /assessments/big-wins, not here.
+  const roles = mergeRoleBullets(
+    rolesFromParsed(current?.parsed_json?.work_experience ?? []),
+    bigWins
+  ).filter((r) => !r.orphaned);
+  const rewrittenCount = roles.filter((r) => r.rewritten).length;
 
   if (resumes.length === 0) {
     return (
@@ -303,23 +321,58 @@ export function ResumeClient({ resumes, userId }: ResumeClientProps) {
             </div>
           )}
 
-          {cur.parsed_json.work_experience.length > 0 && (
+          {roles.length > 0 && (
             <div className="mb-6">
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Work experience
-              </h3>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Work experience
+                </h3>
+                <Button asChild size="sm" variant="outline">
+                  <Link href="/assessments/big-wins">
+                    <Trophy className="mr-1.5 h-3.5 w-3.5" />
+                    {rewrittenCount === 0
+                      ? "Rewrite with Big Wins"
+                      : `Big Wins · ${rewrittenCount} of ${roles.length}`}
+                  </Link>
+                </Button>
+              </div>
               <div className="space-y-4">
-                {cur.parsed_json.work_experience.map((w, i) => (
-                  <div key={i} className="border-l-2 border-border pl-4">
-                    <p className="text-sm font-medium text-foreground">
-                      {w.title} · {w.company}
-                    </p>
+                {roles.map((role) => (
+                  <div
+                    key={role.key}
+                    className={cn(
+                      "border-l-2 pl-4",
+                      role.rewritten ? "border-accent" : "border-border"
+                    )}
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground">
+                        {role.title} · {role.company}
+                      </p>
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto px-2 py-0.5 text-xs"
+                      >
+                        <Link
+                          href={`/assessments/big-wins?role=${encodeURIComponent(role.key)}`}
+                        >
+                          {role.rewritten ? "Redo" : "Rewrite these bullets"}
+                        </Link>
+                      </Button>
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      {w.start ?? "?"} — {w.end ?? "present"}
+                      {role.start ?? "?"} — {role.end ?? "present"}
+                      {role.rewritten && (
+                        <span className="ml-2 text-accent">
+                          · Rewritten with Big Wins
+                        </span>
+                      )}
                     </p>
-                    {w.bullets.length > 0 && (
+                    {role.bullets.length > 0 && (
                       <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-muted-foreground">
-                        {w.bullets.map((b, j) => (
+                        {role.bullets.map((b, j) => (
                           <li key={j}>{b}</li>
                         ))}
                       </ul>

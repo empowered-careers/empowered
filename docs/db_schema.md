@@ -52,6 +52,12 @@ Core user table, keyed by Supabase auth `id`.
 
 One or more resumes per profile.
 
+`parsed_json` is parser output and is **write-once per upload** — nothing downstream
+edits it. The Big Wins rewrite lives in `assessment_responses.result` and is merged
+over `work_experience[].bullets` at read time, which is what lets a re-upload replace
+the resume without destroying the candidate's rewritten bullets (and what gives the
+before/after view its "before").
+
 | column                         | type                                                         |
 | ------------------------------ | ------------------------------------------------------------ |
 | id                             | uuid (PK)                                                    |
@@ -100,7 +106,14 @@ Synced LinkedIn data per profile.
 
 ### `assessments`
 
-Assessment definitions (question banks).
+Assessment definitions (question banks). Two rows are seeded with fixed UUIDs so app
+code references them as constants (`src/lib/assessment/constants.ts`) rather than
+looking them up at runtime:
+
+| assessment                | constant                  | seeded by                                      |
+| ------------------------- | ------------------------- | ---------------------------------------------- |
+| Career Identity Blueprint | `BLUEPRINT_ASSESSMENT_ID` | `20260602000000_blueprint_assessment_seed.sql` |
+| Big Wins                  | `BIG_WINS_ASSESSMENT_ID`  | `20260814000000_big_wins_assessment_seed.sql`  |
 
 | column         | type        |
 | -------------- | ----------- |
@@ -114,18 +127,31 @@ Assessment definitions (question banks).
 
 ### `assessment_responses`
 
-Candidate responses to an assessment.
+Candidate responses to an assessment. One row per `(profile_id, assessment_id)` —
+the UNIQUE constraint is what every upsert conflicts on.
 
-| column        | type                                                         |
-| ------------- | ------------------------------------------------------------ |
-| id            | uuid (PK)                                                    |
-| profile_id    | → profiles                                                   |
-| assessment_id | → assessments                                                |
-| responses     | jsonb                                                        |
-| score         | int                                                          |
-| archetype     | text — denormalized archetype name for display / admin lists |
-| result        | jsonb — full computed Blueprint display blob                 |
-| completed_at  | timestamptz                                                  |
+| column        | type                                                          |
+| ------------- | ------------------------------------------------------------- |
+| id            | uuid (PK)                                                     |
+| profile_id    | → profiles                                                    |
+| assessment_id | → assessments                                                 |
+| responses     | jsonb — shape depends on the assessment, see below            |
+| score         | int — Blueprint only; null for Big Wins                       |
+| archetype     | text — denormalized archetype name for display / admin lists  |
+| result        | jsonb — computed output blob, shape depends on the assessment |
+| completed_at  | timestamptz                                                   |
+
+`responses` / `result` are per-assessment shapes, not one schema:
+
+- **Blueprint** — `responses` is `{ questionIndex: optionIndex }`; `result` is the full
+  `BlueprintResult` display blob; `score` and `archetype` are populated.
+- **Big Wins** — `responses` is `{ "<company>|<title>": { <categoryKey>: answer } }`;
+  `result` is `{ roles: { "<company>|<title>": { bullets, polished_at } } }`. Written
+  incrementally, one role per save, so `completed_at` reads as "last updated". The
+  result is an **overlay** on `resumes.parsed_json.work_experience[].bullets`, merged
+  at read time by `mergeRoleBullets()` — `parsed_json` itself is never mutated, so a
+  re-uploaded resume can't clobber the rewrite. See
+  `docs/big-wins-implementation-plan.md`.
 
 ---
 

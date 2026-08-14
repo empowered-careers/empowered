@@ -14,6 +14,22 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [x] Smoke test the candidate loop: sign in as a `plan='free'` test user, visit `/job-board`, bookmark a card, click Express interest, confirm the consent modal, then visit `/pipeline` and see the card in the Interested column
 - [ ] Adversarial RLS check via Supabase Studio with a candidate JWT: `insert into jobs ...` blocked, `select * from applications where profile_id != auth.uid()` blocked, `update applications set status='offer' where id=<own row>` blocked
 
+## Big Wins (code built 2026-08-14, `docs/big-wins-implementation-plan.md`)
+
+### Blocking (the feature is dead until this runs)
+
+- [ ] Apply `supabase/migrations/20260814000000_big_wins_assessment_seed.sql` — one `assessments` row, `on conflict do nothing`. Without it every save fails on the `assessment_id` foreign key.
+
+### Verification (needs a signed-in account with a parsed resume)
+
+- [ ] `/assessments` shows Big Wins as a **Live** card with the role count; `/resume` shows a "Rewrite with Big Wins" button on the work-experience block
+- [ ] Complete two roles end to end. Skip a question; give one deliberately vague answer ("I helped improve onboarding") and confirm the dig-deeper nudge appears once and a second Next moves past it; use "answer more questions for this role" on the recap
+- [ ] Check the written bullets invented **no** numbers the answers didn't contain, and kept hedges ("roughly 15%" stays "roughly")
+- [ ] Reload `/assessments/big-wins` — stored bullets render with no new Claude call
+- [ ] `/resume` shows rewritten bullets for the rewritten roles and the parser's originals for the rest
+- [ ] **The one that matters:** re-upload the same resume and confirm the rewrite survives (bullets are keyed on `company|title`, not row order, and `parsed_json` is never written to)
+- [ ] Edit a role's bullets in the recap, save, confirm `/resume` reflects the edit; then clear the box entirely and confirm the role reverts to its original resume bullets rather than rendering empty
+
 ## Local smoke test
 
 - [ ] Terminal 1: `npm run inngest:dev` (Inngest dev server on `localhost:8288`)

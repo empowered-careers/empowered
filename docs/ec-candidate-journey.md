@@ -107,7 +107,13 @@ Each action is self-motivated — improves match quality and shows real signal t
 | Values + Environment | Culture fit card                      | Core upsell          |
 | Strengths            | Zone of genius summary                | Coaching upsell      |
 | Leadership Style     | Style card + blind spots              | Coaching upsell      |
-| Big Wins             | Impact statement draft                | Resume review upsell |
+| Big Wins ✅ built    | Rewritten, quantified resume bullets  | Resume review upsell |
+
+> **Big Wins is the exception to everything below.** Built 2026-08-14
+> (`docs/big-wins-implementation-plan.md`), it writes no `candidate_scores` dimension
+> and gates nothing — it rewrites the bullets on the candidate's parsed resume, and its
+> payoff is visible on `/resume`, not in a match score. Pricing was deliberately
+> deferred; it currently has no entitlement check.
 
 Each completed assessment:
 
