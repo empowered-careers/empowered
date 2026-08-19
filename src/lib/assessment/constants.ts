@@ -14,3 +14,12 @@ export const BLUEPRINT_QUESTION_COUNT = 30;
  * supabase/migrations/20260814000000_big_wins_assessment_seed.sql.
  */
 export const BIG_WINS_ASSESSMENT_ID = "b1965a2c-9d34-4f7e-8c11-6ad2e0f45b73";
+
+/**
+ * Role Clarity — matches the row seeded by
+ * supabase/migrations/20260819120000_role_clarity_assessment_seed.sql.
+ */
+export const ROLE_CLARITY_ASSESSMENT_ID =
+  "d3f0a71b-2e64-4c95-9a08-5b7c1e2d8f40";
+
+export const ROLE_CLARITY_QUESTION_COUNT = 18;

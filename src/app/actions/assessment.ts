@@ -10,6 +10,7 @@ import {
 import {
   BLUEPRINT_ASSESSMENT_ID,
   BLUEPRINT_QUESTION_COUNT,
+  ROLE_CLARITY_ASSESSMENT_ID,
 } from "@/lib/assessment/constants";
 import type { Answers, BlueprintResult } from "@/lib/assessment/types";
 import { createNotification } from "@/lib/notifications/create";
@@ -79,10 +80,22 @@ export async function submitBlueprint(
     return { ok: false, error: respErr.message };
   }
 
+  // The Blueprint only *derives* role clarity from driver concentration. Once
+  // the dedicated 18-question Role Clarity assessment has been taken, that is
+  // the better signal — so a Blueprint retake must not overwrite it.
+  const { data: roleClarityRow } = await supabase
+    .from("assessment_responses")
+    .select("assessment_id")
+    .eq("profile_id", user.id)
+    .eq("assessment_id", ROLE_CLARITY_ASSESSMENT_ID)
+    .maybeSingle();
+
   const scoresPayload: CandidateScoresInsert = {
     profile_id: user.id,
     culture_axes: axes as unknown as CandidateScoresInsert["culture_axes"],
-    role_clarity_score: derived.role_clarity_score,
+    ...(roleClarityRow
+      ? {}
+      : { role_clarity_score: derived.role_clarity_score }),
     values_score: derived.values_score,
     strengths_score: derived.strengths_score,
     leadership_score: derived.leadership_score,

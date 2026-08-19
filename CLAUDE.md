@@ -182,6 +182,7 @@ RLS is enforced at the database level. When writing queries, don't assume the se
 | Site metadata/branding                | `src/config/site.ts`                                                   |
 | **Current direction + build order**   | `docs/ec-pivot-brief.md`, `docs/ec-pivot-plan.md`                      |
 | Big Wins (resume rewrite)             | `docs/big-wins-implementation-plan.md`, spec in `docs/big_wins_q&a.md` |
+| Role Clarity assessment               | `docs/role-clarity-spec.md`                                            |
 | Catalog setup runbook (ops)           | `docs/ec-catalog-setup.md`                                             |
 | Database schema + enums               | `docs/db_schema.md`                                                    |
 | Admin operations + Loops email events | `docs/ec-admin-operations.md`                                          |

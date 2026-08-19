@@ -13,6 +13,11 @@ import {
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import type {
+  RoleClarityResult,
+  SectionKey,
+} from "@/lib/assessment/role-clarity";
+import { ROLE_CLARITY_MAX, SECTIONS } from "@/lib/assessment/role-clarity";
 import type { BlueprintResult } from "@/lib/assessment/types";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +34,10 @@ interface AssessmentsIndexProps {
     total: number;
     completed_at: string | null;
   };
+  roleClarity: {
+    completed_at: string | null;
+    result: RoleClarityResult | null;
+  } | null;
 }
 
 interface ComingSoonAssessment {
@@ -39,13 +48,6 @@ interface ComingSoonAssessment {
 }
 
 const COMING_SOON: ComingSoonAssessment[] = [
-  {
-    id: "role-clarity",
-    icon: Target,
-    title: "Role Clarity",
-    description:
-      "Pin down the target role, seniority, and location where your strengths actually land.",
-  },
   {
     id: "values-environment",
     icon: Heart,
@@ -83,10 +85,13 @@ function formatTakenDate(iso: string | null): string | null {
 export function AssessmentsIndex({
   blueprint,
   bigWins,
+  roleClarity,
 }: AssessmentsIndexProps) {
   const taken = formatTakenDate(blueprint?.completed_at ?? null);
   const hasResult = !!blueprint?.result;
   const winsUpdated = formatTakenDate(bigWins.completed_at);
+  const clarityResult = roleClarity?.result ?? null;
+  const clarityTaken = formatTakenDate(roleClarity?.completed_at ?? null);
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -219,6 +224,65 @@ export function AssessmentsIndex({
             </>
           )}
         </div>
+      </article>
+
+      {/* Role Clarity card (live) */}
+      <article className="flex flex-col gap-4 border border-border bg-card p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center bg-accent text-accent-foreground">
+            <Target className="h-5 w-5" />
+          </div>
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <h2 className="font-display text-base font-semibold text-foreground">
+                Role Clarity
+              </h2>
+              <span className="bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                Live
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              18 questions on scope, impact, and market direction that pin down
+              the titles you should actually be targeting.
+            </p>
+          </div>
+        </div>
+
+        {clarityResult ? (
+          <div className="space-y-3 border-t border-border pt-4">
+            <div className="space-y-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Your result
+              </p>
+              <p className="font-display text-xl text-foreground">
+                {clarityResult.band.label}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {clarityResult.overall}/{ROLE_CLARITY_MAX} · Weakest:{" "}
+                {SECTIONS[clarityResult.weakest as SectionKey].title}
+                {clarityTaken ? ` · Taken ${clarityTaken}` : null}
+              </p>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button asChild size="sm">
+                <Link href="/assessments/role-clarity">View results</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/assessments/role-clarity">Retake</Link>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3 border-t border-border pt-4">
+            <p className="text-xs text-muted-foreground">
+              About 5 minutes. Sharpens the target role behind your matches and
+              your dashboard nudges.
+            </p>
+            <Button asChild size="sm">
+              <Link href="/assessments/role-clarity">Start Role Clarity</Link>
+            </Button>
+          </div>
+        )}
       </article>
 
       {/* Coming-soon cards */}

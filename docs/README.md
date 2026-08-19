@@ -45,6 +45,7 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 - `design.md` — design system (tokens, fonts, conventions)
 - `design-handoff-onboarding.md` — onboarding restyle handoff from design (merged 2026-07-31; items 1/2/6 since built)
 - `big_wins_q&a.md` — Big Wins content spec: the question bank, role→category mapping, and conversation UX rules. Implementation lives in `big-wins-implementation-plan.md`.
+- `role-clarity-spec.md` — Role Clarity content + scoring spec: 18 questions, the option-index scoring model, and the three result bands. Reverse-engineered from the prototype artifact, not exported — provenance and the two source defects are documented in it.
 - `ec-admin-operations.md` — admin ops + Loops email events
 - `ec-candidate-journey.md` — ⚠️ largely superseded; intake spine + ICP still accurate
 - `ec-feature-list.md` — ⚠️ accurate for what exists in code, not for what candidates can reach
