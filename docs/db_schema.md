@@ -530,8 +530,8 @@ Candidate-invites-candidate. Attribution carries through to placements.
 ### `coaches`
 
 The coaching bench. Public read where `active`, admin write. No `cal_link`:
-booking is one shared Cal.com account with a link per event type, so the link
-belongs to the product (`coaching_products.booking_url`), not the coach.
+booking is one shared account with a link per event type, so the link belongs to
+the product (`coaching_products.booking_url`), not the coach.
 
 | column     | type                                             |
 | ---------- | ------------------------------------------------ |
@@ -554,19 +554,19 @@ The à la carte catalog: 3 bundles + 8 quick-add sessions, seeded from
 `docs/prototypes/pricing.html`. Public read where `is_active` (so `/pricing` works
 for anonymous visitors), admin write via `is_admin()`.
 
-| column                  | type                                                        |
-| ----------------------- | ----------------------------------------------------------- |
-| id                      | uuid (PK)                                                   |
-| name                    | text                                                        |
-| description             | text                                                        |
-| kind                    | text CHECK (`course` \| `session` \| `service` \| `bundle`) |
-| coach_id                | → coaches (for `kind='session'`)                            |
-| booking_url             | text (Cal.com event-type link, for `kind='session'`)        |
-| external_url            | text (course video embed, for `kind='course'`)              |
-| stripe_price_id         | text — **not purchasable until set**                        |
-| price_cents             | int                                                         |
-| is_active               | boolean                                                     |
-| created_at / updated_at | timestamptz                                                 |
+| column                  | type                                                         |
+| ----------------------- | ------------------------------------------------------------ |
+| id                      | uuid (PK)                                                    |
+| name                    | text                                                         |
+| description             | text                                                         |
+| kind                    | text CHECK (`course` \| `session` \| `service` \| `bundle`)  |
+| coach_id                | → coaches (for `kind='session'`)                             |
+| booking_url             | text (Cal.com or Calendly event-type link, `kind='session'`) |
+| external_url            | text (course video embed, for `kind='course'`)               |
+| stripe_price_id         | text — **not purchasable until set**                         |
+| price_cents             | int                                                          |
+| is_active               | boolean                                                      |
+| created_at / updated_at | timestamptz                                                  |
 
 `kind` replaced the `coaching_product_type` enum (`module`/`session_pack`/
 `one_to_one`), which was dropped — one taxonomy, and it distinguishes bundles.
@@ -619,7 +619,8 @@ way it does on the `payments` insert.
 
 ### `coaching_sessions`
 
-1:1 booking records. Cal.com webhook is the writer.
+1:1 booking records. The booking webhooks are the writers — Cal.com
+(`/api/cal/webhook`) and Calendly (`/api/calendly/webhook`).
 
 | column                  | type                                                         |
 | ----------------------- | ------------------------------------------------------------ |
@@ -628,7 +629,7 @@ way it does on the `payments` insert.
 | profile_id              | → profiles                                                   |
 | scheduled_for           | timestamptz                                                  |
 | duration_min            | int                                                          |
-| cal_event_id            | text                                                         |
+| cal_event_id            | text, UNIQUE where not null — provider booking id            |
 | status                  | enum (`scheduled` \| `completed` \| `no_show` \| `canceled`) |
 | notes                   | text                                                         |
 | created_at / updated_at | timestamptz                                                  |

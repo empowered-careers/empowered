@@ -31,9 +31,11 @@ const envSchema = z.object({
   // unset, lead.* event firing is a no-op so local registration still works.
   LOOPS_API_KEY: z.string().optional(),
 
-  // Cal.com booking webhook signing secret. When unset the webhook route 503s,
-  // so bookings simply aren't recorded — same posture as Stripe below.
+  // Booking webhook signing secrets, one per provider. When unset the matching
+  // webhook route 503s, so bookings simply aren't recorded — same posture as
+  // Stripe below.
   CAL_WEBHOOK_SECRET: z.string().optional(),
+  CALENDLY_WEBHOOK_SECRET: z.string().optional(),
 
   // Stripe (server-side billing). All optional until the Stripe Dashboard is
   // provisioned — when unset, the app boots normally; Checkout/portal/webhook

@@ -22,6 +22,20 @@ function formatSession(iso: string): string {
   });
 }
 
+/**
+ * Tag the booking link with the enrollment id.
+ *
+ * Every session product shares one Calendly event type, so the URL alone can't
+ * say which purchase a booking belongs to — a bundle grants several session
+ * enrollments and `/api/calendly/webhook` would have to drop all of them.
+ * Calendly echoes `utm_content` back in the webhook payload, which resolves it.
+ */
+function bookingHref(bookingUrl: string, enrollmentId: string): string {
+  const url = new URL(bookingUrl);
+  url.searchParams.set("utm_content", enrollmentId);
+  return url.toString();
+}
+
 /** A bundle is a container — its parts are the things you actually do. */
 function isBundle(item: MyCoachingItem): boolean {
   return item.product.kind === "bundle";
@@ -90,7 +104,11 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
             </Button>
           ) : product.booking_url ? (
             <Button asChild className="w-full" size="sm" variant="outline">
-              <a href={product.booking_url} rel="noreferrer" target="_blank">
+              <a
+                href={bookingHref(product.booking_url, enrollment.id)}
+                rel="noreferrer"
+                target="_blank"
+              >
                 {next ? "Reschedule" : "Book your session"}
               </a>
             </Button>
