@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { ProfileClient } from "@/components/profile/profile-client";
-import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
+import {
+  BLUEPRINT_ASSESSMENT_ID,
+  ROLE_CLARITY_ASSESSMENT_ID,
+} from "@/lib/assessment/constants";
+import type { RoleClarityResult } from "@/lib/assessment/role-clarity";
 import type { BlueprintResult } from "@/lib/assessment/types";
 import { createClient } from "@/lib/supabase/server";
 import type { CandidatePreferencesRow } from "@/types/db";
@@ -19,24 +23,31 @@ export default async function ProfilePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [profileResult, prefsResult, blueprintResult] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, full_name, email, phone, linkedin_url")
-      .eq("id", user.id)
-      .single(),
-    supabase
-      .from("candidate_preferences")
-      .select("*")
-      .eq("profile_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("assessment_responses")
-      .select("archetype, completed_at, result")
-      .eq("profile_id", user.id)
-      .eq("assessment_id", BLUEPRINT_ASSESSMENT_ID)
-      .maybeSingle(),
-  ]);
+  const [profileResult, prefsResult, blueprintResult, clarityResult] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, full_name, email, phone, linkedin_url")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("candidate_preferences")
+        .select("*")
+        .eq("profile_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("assessment_responses")
+        .select("archetype, completed_at, result")
+        .eq("profile_id", user.id)
+        .eq("assessment_id", BLUEPRINT_ASSESSMENT_ID)
+        .maybeSingle(),
+      supabase
+        .from("assessment_responses")
+        .select("completed_at, result")
+        .eq("profile_id", user.id)
+        .eq("assessment_id", ROLE_CLARITY_ASSESSMENT_ID)
+        .maybeSingle(),
+    ]);
 
   const profile = profileResult.data;
   const preferences = (prefsResult.data ??
@@ -46,6 +57,12 @@ export default async function ProfilePage() {
         archetype: blueprintResult.data.archetype,
         completed_at: blueprintResult.data.completed_at,
         result: (blueprintResult.data.result as BlueprintResult | null) ?? null,
+      }
+    : null;
+  const roleClarity = clarityResult.data
+    ? {
+        completed_at: clarityResult.data.completed_at,
+        result: (clarityResult.data.result as RoleClarityResult | null) ?? null,
       }
     : null;
 
@@ -70,6 +87,7 @@ export default async function ProfilePage() {
         }}
         preferences={preferences}
         blueprint={blueprint}
+        roleClarity={roleClarity}
       />
     </div>
   );

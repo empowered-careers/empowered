@@ -97,9 +97,10 @@ export function useDashboardData() {
 export function getProfileStrength(
   profile: DashboardProfile | null,
   resumes: DashboardResume[],
-  hasBlueprint = false
+  hasBlueprint = false,
+  hasRoleClarity = false
 ): { completed: number; total: number; percentage: number } {
-  const total = 6;
+  const total = 7;
   let completed = 0;
 
   if (profile?.full_name) completed++; // 1. name filled
@@ -108,6 +109,7 @@ export function getProfileStrength(
   if (resumes.some((r) => r.resume_score !== null)) completed++; // 4. Resume scored
   if (profile?.onboarding_completed_at) completed++; // 5. job preferences
   if (hasBlueprint) completed++; // 6. Career Identity Blueprint
+  if (hasRoleClarity) completed++; // 7. Role Clarity
 
   return {
     completed,

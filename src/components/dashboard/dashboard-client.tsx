@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Sparkles } from "lucide-react";
+import { AlertCircle, Sparkles, Target } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -20,6 +20,10 @@ import type {
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
+import {
+  type RoleClarityResult,
+  SECTIONS,
+} from "@/lib/assessment/role-clarity";
 import type { MyCoaching } from "@/lib/coaching";
 import {
   computeNudges,
@@ -33,6 +37,7 @@ export interface DashboardClientProps {
   resumes: DashboardResume[];
   userEmail: string;
   blueprint: DashboardBlueprint | null;
+  roleClarity: RoleClarityResult | null;
   interviewingApplication: InterviewingApplication | null;
   linkedinScore: number | null;
   coaching: MyCoaching;
@@ -45,6 +50,7 @@ export function DashboardClient({
   resumes,
   userEmail,
   blueprint,
+  roleClarity,
   interviewingApplication,
   linkedinScore,
   coaching,
@@ -72,6 +78,7 @@ export function DashboardClient({
         profile,
         resumes,
         blueprint,
+        hasRoleClarity: !!roleClarity,
         interviewingApplication,
         prescription,
         staleEnrollment,
@@ -80,6 +87,7 @@ export function DashboardClient({
       profile,
       resumes,
       blueprint,
+      roleClarity,
       interviewingApplication,
       prescription,
       staleEnrollment,
@@ -132,7 +140,7 @@ export function DashboardClient({
           <Sparkles className="h-4 w-4 shrink-0 text-accent" />
           <div className="flex-1 text-sm">
             <span className="font-medium text-foreground">
-              You're {blueprint.archetype}
+              You&apos;re {blueprint.archetype}
             </span>
             <span className="ml-2 text-muted-foreground">
               — your Blueprint is shaping your matches.
@@ -140,6 +148,26 @@ export function DashboardClient({
           </div>
           <Button asChild size="sm" variant="outline">
             <Link href="/assessments/ci-blueprint">View results</Link>
+          </Button>
+        </div>
+      )}
+
+      {/* Separate banner from the Blueprint's: the archetype says who you are,
+          this says how sharp your target is. Different questions, so stacking
+          beats cramming both into one line. */}
+      {roleClarity && (
+        <div className="flex items-center gap-3 border border-accent/40 bg-accent/10 px-4 py-3">
+          <Target className="h-4 w-4 shrink-0 text-accent" />
+          <div className="flex-1 text-sm">
+            <span className="font-medium text-foreground">
+              {roleClarity.band.label}
+            </span>
+            <span className="ml-2 text-muted-foreground">
+              — weakest area: {SECTIONS[roleClarity.weakest].title}.
+            </span>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <Link href="/assessments/role-clarity">View results</Link>
           </Button>
         </div>
       )}
@@ -154,6 +182,7 @@ export function DashboardClient({
             profile={profile}
             resumes={resumes}
             blueprint={blueprint}
+            hasRoleClarity={!!roleClarity}
             linkedinScore={linkedinScore}
           />
         </div>

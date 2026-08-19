@@ -9,7 +9,8 @@ export type ProfileStepId =
   | "step-resume"
   | "step-resume-score"
   | "step-preferences"
-  | "step-blueprint";
+  | "step-blueprint"
+  | "step-role-clarity";
 
 export interface ProfileStep {
   id: ProfileStepId;
@@ -20,10 +21,16 @@ export interface ProfileStep {
   complete: boolean;
 }
 
+/**
+ * The seven steps that make up profile strength. `points` sum to exactly 100 —
+ * keep it that way when adding a step, or the "+N" figures stop adding up to
+ * the ring the card draws next to them.
+ */
 export function buildProfileSteps(
   profile: DashboardProfile | null,
   resumes: DashboardResume[],
-  hasBlueprint: boolean
+  hasBlueprint: boolean,
+  hasRoleClarity: boolean
 ): ProfileStep[] {
   const hasResume = resumes.length > 0;
   const hasResumeScore = resumes.some((r) => r.resume_score !== null);
@@ -33,7 +40,7 @@ export function buildProfileSteps(
       id: "step-name",
       title: "Add your name",
       unlocks: "needed for matches",
-      points: 17,
+      points: 15,
       href: "/profile",
       complete: !!profile?.full_name,
     },
@@ -41,7 +48,7 @@ export function buildProfileSteps(
       id: "step-linkedin",
       title: "Add LinkedIn URL",
       unlocks: "unlocks profile scoring",
-      points: 17,
+      points: 15,
       href: null,
       complete: !!profile?.linkedin_url,
     },
@@ -49,7 +56,7 @@ export function buildProfileSteps(
       id: "step-resume",
       title: "Upload your resume",
       unlocks: "required for matching",
-      points: 17,
+      points: 14,
       href: "/resumes",
       complete: hasResume,
     },
@@ -57,7 +64,7 @@ export function buildProfileSteps(
       id: "step-resume-score",
       title: "Score your resume",
       unlocks: "see how recruiters view it",
-      points: 17,
+      points: 14,
       href: "/resumes",
       complete: hasResumeScore,
     },
@@ -65,7 +72,7 @@ export function buildProfileSteps(
       id: "step-preferences",
       title: "Set job preferences",
       unlocks: "tells us what you want",
-      points: 16,
+      points: 14,
       href: "/onboarding/preferences",
       complete: !!profile?.onboarding_completed_at,
     },
@@ -73,9 +80,17 @@ export function buildProfileSteps(
       id: "step-blueprint",
       title: "Discover your Blueprint",
       unlocks: "30-question identity scan",
-      points: 16,
+      points: 14,
       href: "/assessments/ci-blueprint",
       complete: hasBlueprint,
+    },
+    {
+      id: "step-role-clarity",
+      title: "Pin down your target role",
+      unlocks: "18-question role clarity scan",
+      points: 14,
+      href: "/assessments/role-clarity",
+      complete: hasRoleClarity,
     },
   ];
 }

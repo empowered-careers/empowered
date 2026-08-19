@@ -7,6 +7,7 @@ import {
   Linkedin,
   Sparkles,
   Star,
+  Target,
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -49,6 +50,8 @@ interface ProfileStrengthHeroProps {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
   blueprint?: DashboardBlueprint | null;
+  /** Whether the Role Clarity assessment has been completed. */
+  hasRoleClarity?: boolean;
   linkedinScore?: number | null;
 }
 
@@ -62,6 +65,7 @@ const STEP_ICONS: Record<
   "step-resume-score": Star,
   "step-preferences": ClipboardList,
   "step-blueprint": Sparkles,
+  "step-role-clarity": Target,
 };
 
 const RING_RADIUS = 42;
@@ -71,6 +75,7 @@ export function ProfileStrengthHero({
   profile,
   resumes,
   blueprint,
+  hasRoleClarity = false,
   linkedinScore,
 }: ProfileStrengthHeroProps) {
   const router = useRouter();
@@ -84,8 +89,18 @@ export function ProfileStrengthHero({
   const [isSavingLinkedin, startLinkedinTransition] = useTransition();
 
   const hasBlueprint = !!blueprint;
-  const { percentage } = getProfileStrength(profile, resumes, hasBlueprint);
-  const steps = buildProfileSteps(profile, resumes, hasBlueprint);
+  const { percentage } = getProfileStrength(
+    profile,
+    resumes,
+    hasBlueprint,
+    hasRoleClarity
+  );
+  const steps = buildProfileSteps(
+    profile,
+    resumes,
+    hasBlueprint,
+    hasRoleClarity
+  );
   const nextActions = steps.filter((s) => !s.complete).slice(0, 3);
 
   const strokeDashoffset =

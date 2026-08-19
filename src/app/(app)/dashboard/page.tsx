@@ -6,7 +6,11 @@ import type {
   DashboardProfile,
   DashboardResume,
 } from "@/hooks/use-dashboard-data";
-import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
+import {
+  BLUEPRINT_ASSESSMENT_ID,
+  ROLE_CLARITY_ASSESSMENT_ID,
+} from "@/lib/assessment/constants";
+import type { RoleClarityResult } from "@/lib/assessment/role-clarity";
 import { fetchMyCoaching } from "@/lib/coaching";
 import type { InterviewingApplication } from "@/lib/dashboard/nudges";
 import { fetchDashboardSignals } from "@/lib/dashboard/signals";
@@ -34,6 +38,7 @@ export default async function DashboardPage() {
     profileResult,
     resumesResult,
     blueprintResult,
+    clarityResult,
     interviewingResult,
     linkedinResult,
   ] = await Promise.all([
@@ -56,6 +61,13 @@ export default async function DashboardPage() {
       .select("archetype, completed_at")
       .eq("profile_id", user.id)
       .eq("assessment_id", BLUEPRINT_ASSESSMENT_ID)
+      .maybeSingle(),
+
+    supabase
+      .from("assessment_responses")
+      .select("result")
+      .eq("profile_id", user.id)
+      .eq("assessment_id", ROLE_CLARITY_ASSESSMENT_ID)
       .maybeSingle(),
 
     supabase
@@ -95,6 +107,8 @@ export default async function DashboardPage() {
     | number
     | null;
   const blueprint = (blueprintResult.data as DashboardBlueprint | null) ?? null;
+  const roleClarity =
+    (clarityResult.data?.result as RoleClarityResult | null) ?? null;
 
   // Prescription + re-engagement signals. Needs resumeScore/linkedinScore, so it
   // can't join the Promise.all above.
@@ -134,6 +148,7 @@ export default async function DashboardPage() {
     <div className="px-10 py-8">
       <DashboardClient
         blueprint={blueprint}
+        roleClarity={roleClarity}
         coaching={coaching}
         prescription={signals.prescription}
         staleEnrollment={signals.staleEnrollment}

@@ -36,6 +36,8 @@ export interface ComputeNudgesInput {
   profile: DashboardProfile | null;
   resumes: DashboardResume[];
   blueprint: DashboardBlueprint | null;
+  /** Whether the Role Clarity assessment has been completed. */
+  hasRoleClarity?: boolean;
   interviewingApplication: InterviewingApplication | null;
   /** Best next product from the rules engine — see `prescribe.ts`. */
   prescription?: Prescription | null;
@@ -48,6 +50,7 @@ export function computeNudges(input: ComputeNudgesInput): Nudge[] {
     profile,
     resumes,
     blueprint,
+    hasRoleClarity = false,
     interviewingApplication,
     prescription = null,
     staleEnrollment = null,
@@ -67,7 +70,12 @@ export function computeNudges(input: ComputeNudgesInput): Nudge[] {
     });
   }
 
-  const steps = buildProfileSteps(profile, resumes, !!blueprint);
+  const steps = buildProfileSteps(
+    profile,
+    resumes,
+    !!blueprint,
+    hasRoleClarity
+  );
   const incomplete = steps.filter((s) => !s.complete);
   if (incomplete.length > 0) {
     const next = incomplete[0]!;
