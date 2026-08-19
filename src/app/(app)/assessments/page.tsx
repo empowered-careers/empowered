@@ -90,8 +90,7 @@ export default async function AssessmentsPage() {
         </h1>
         <p className="text-sm text-muted-foreground">
           A progressive suite of scans that sharpen your matches and the voice
-          we use in your resume and LinkedIn. Start with the Blueprint — the
-          rest unlock over Phase 2.
+          we use in your resume and LinkedIn. Start with the Blueprint.
         </p>
       </header>
       <AssessmentsIndex

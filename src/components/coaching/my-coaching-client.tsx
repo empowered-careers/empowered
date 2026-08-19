@@ -3,7 +3,9 @@
 import { Calendar, GraduationCap, Play, Video } from "lucide-react";
 import Link from "next/link";
 
+import { PricingCatalog } from "@/components/catalog/pricing-catalog";
 import { Button } from "@/components/ui/button";
+import type { Catalog } from "@/lib/catalog";
 import type { MyCoaching, MyCoachingItem } from "@/lib/coaching";
 import { cn } from "@/lib/utils";
 
@@ -125,7 +127,13 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
   );
 }
 
-export function MyCoachingClient({ coaching }: { coaching: MyCoaching }) {
+export function MyCoachingClient({
+  catalog,
+  coaching,
+}: {
+  catalog: Catalog;
+  coaching: MyCoaching;
+}) {
   const { items, upcoming } = coaching;
 
   return (
@@ -140,7 +148,7 @@ export function MyCoachingClient({ coaching }: { coaching: MyCoaching }) {
       </div>
 
       {items.length === 0 ? (
-        <div className="border border-border bg-card px-6 py-14 text-center">
+        <div className="border border-border bg-card px-6 pt-14 pb-4 text-center">
           <GraduationCap className="mx-auto size-6 text-muted-foreground" />
           <h2 className="mt-4 font-display font-medium text-xl">
             Nothing here yet
@@ -149,9 +157,7 @@ export function MyCoachingClient({ coaching }: { coaching: MyCoaching }) {
             Coaching is à la carte — start with a single session, or take a full
             arc. No subscription.
           </p>
-          <Button asChild className="mt-6" size="sm">
-            <Link href="/pricing">See what&apos;s available</Link>
-          </Button>
+          <PricingCatalog catalog={catalog} checkout isAuthed />
         </div>
       ) : (
         <>
@@ -191,10 +197,8 @@ export function MyCoachingClient({ coaching }: { coaching: MyCoaching }) {
             ))}
           </div>
 
-          <div className="border-t border-border pt-5">
-            <Button asChild size="sm" variant="ghost">
-              <Link href="/pricing">Add another session →</Link>
-            </Button>
+          <div className="border-t border-border">
+            <PricingCatalog catalog={catalog} checkout isAuthed />
           </div>
         </>
       )}

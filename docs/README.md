@@ -45,6 +45,7 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 - `design.md` — design system (tokens, fonts, conventions)
 - `design-handoff-onboarding.md` — onboarding restyle handoff from design (merged 2026-07-31; items 1/2/6 since built)
 - `big_wins_q&a.md` — Big Wins content spec: the question bank, role→category mapping, and conversation UX rules. Implementation lives in `big-wins-implementation-plan.md`.
+- `career-positioning-assessment.pdf` — the Career Positioning Assessment spec (18 questions, 6 categories, scoring, tier copy, follow-up email). The source of truth for the public `/career-assessment` quiz; the implementation is `src/lib/assessment/career-positioning.ts`.
 - `role-clarity-spec.md` — Role Clarity content + scoring spec: 18 questions, the option-index scoring model, and the three result bands. Reverse-engineered from the prototype artifact, not exported — provenance and the two source defects are documented in it.
 - `ec-admin-operations.md` — admin ops + Loops email events
 - `ec-candidate-journey.md` — ⚠️ largely superseded; intake spine + ICP still accurate
@@ -70,6 +71,29 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 
 **Deprecated:** `ec-dev-plan.md`, `ec-sprint-checklist.md`, `ec-sprint-plan.md`, `resume-parsing.md`
 
-## Known gap
+## Known gaps
 
-The **Career Positioning Assessment** (public `/career-assessment`, 18 questions, shipped 2026-07-21) has no reference or plan doc. Its relationship to `deferred/career-blueprint-lead-magnet.md` — which specs a public funnel over a _Blueprint_ question subset, still marked "DO NOT implement yet" — is unresolved. The pivot defers the public lead-magnet funnel again (`ec-pivot-brief.md` §7), so this stays open.
+**Career Positioning Assessment** (public `/career-assessment`, 18 questions, shipped 2026-07-21).
+The spec now lives here as `career-positioning-assessment.pdf`. Code verified against it 2026-08-19
+— all 18 questions, 6 categories, and the three tier headlines/copy/CTAs match verbatim. Four
+deliberate deviations, two of which are open decisions:
+
+- **Scoring was changed on purpose and the PDF is the one that's wrong.** It specifies "max 12 per
+  category, 72 total", but 1–5 scales max at 5 and MC at 4, so any category holding a scale question
+  maxes at 13 and the real total is 79. `computeResults` normalises to percentages instead.
+- **Open:** the tier cutoffs were then loosely converted — 30/72 (41.7%) became `<= 45`, and 51/72
+  (70.8%) became `<= 72`. A candidate a hair into PDF-Tier-2 lands in code-Tier-1. These two numbers
+  decide which service tier the follow-up call pitches, so confirm they're intentional.
+- **Open:** the PDF asks to A/B the lead-capture placement (after Q2 vs. right before results). Code
+  fixes it after Q2 (`career-positioning-quiz.tsx:31`). Not built either: the optional per-category
+  breakdown gated behind the booking.
+- Cosmetic: section 3 is "Mindset & Momentum" in code, "Mindset & Motivation" in the PDF. Q6's
+  "Not sure how to tell the difference" scores 2, not the PDF's positional 4.
+
+Its relationship to `deferred/career-blueprint-lead-magnet.md` — which specs a public funnel over a
+_Blueprint_ question subset, still marked "DO NOT implement yet" — is unresolved. The pivot defers
+the public lead-magnet funnel again (`ec-pivot-brief.md` §7), so this stays open.
+
+**Two docs share the name `ec-sprint-plan.md`** — the June 2026 reconciled copy in `docs/` (marked
+Superseded) and an older May 2026 generation in `deprecated/`. They are different documents, not a
+stale duplicate. The `docs/` one is the one to read.

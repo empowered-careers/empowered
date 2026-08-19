@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { MyCoachingClient } from "@/components/coaching/my-coaching-client";
+import { fetchCatalog } from "@/lib/catalog";
 import { fetchMyCoaching } from "@/lib/coaching";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,11 +18,14 @@ export default async function ContentPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const coaching = await fetchMyCoaching(user.id);
+  const [coaching, catalog] = await Promise.all([
+    fetchMyCoaching(user.id),
+    fetchCatalog(),
+  ]);
 
   return (
     <div className="px-10 py-8">
-      <MyCoachingClient coaching={coaching} />
+      <MyCoachingClient catalog={catalog} coaching={coaching} />
     </div>
   );
 }
