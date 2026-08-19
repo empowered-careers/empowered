@@ -9,6 +9,17 @@
 Once this is done, every product on the platform is purchasable and a candidate
 can pay for it. Nothing here needs an engineer.
 
+> **Status, 2026-08-19.** §1 and §2 are done in the **sandbox** account
+> (`acct_1TZ924EGUAd5NiUm`), which is what `STRIPE_SECRET_KEY` in `.env.local`
+> points at. All 11 products exist with one-time USD prices, every
+> `coaching_products.stripe_price_id` is filled in, and `bundle_contents` is
+> mapped — so §5a is closed and the bundles are live too.
+>
+> **Going live is a second pass.** Price IDs are per-account-per-mode, so the
+> live account (`acct_1TZ8yRE5B4ZVxh4l`) needs its own 11 products and a
+> re-run of the §2 price IDs against live keys. An identical set was created in
+> that account's _test_ mode by mistake and archived — ignore it.
+
 ---
 
 ## 0. Ground rules
@@ -33,24 +44,24 @@ ID** (starts with `price_`, _not_ the product ID `prod_`) into the last column.
 
 ### Bundles
 
-| Name       | Tier     | Price  | Sessions | Price ID (paste here) |
-| ---------- | -------- | ------ | -------- | --------------------- |
-| Foundation | Silver   | $450   | 3        |                       |
-| Momentum   | Gold     | $1,400 | 8        |                       |
-| Executive  | Platinum | $2,400 | 13       |                       |
+| Name       | Tier     | Price  | Sessions | Price ID (sandbox)               |
+| ---------- | -------- | ------ | -------- | -------------------------------- |
+| Foundation | Silver   | $450   | 3        | `price_1U6APQEGUAd5NiUmppyfQZNg` |
+| Momentum   | Gold     | $1,400 | 8        | `price_1U6AR9EGUAd5NiUmjTwHZjXo` |
+| Executive  | Platinum | $2,400 | 13       | `price_1U6ARLEGUAd5NiUmQEeFP4rv` |
 
 ### Individual sessions and services
 
-| Name                     | Tier     | Price | Price ID (paste here) |
-| ------------------------ | -------- | ----- | --------------------- |
-| Resume Refresh           | Silver   | $125  |                       |
-| LinkedIn Glow-Up         | Silver   | $150  |                       |
-| NorthStar Discovery      | Gold     | $175  |                       |
-| Market Intel Session     | Gold     | $175  |                       |
-| Mock Interview           | Gold     | $200  |                       |
-| Executive Bio            | Platinum | $250  |                       |
-| Background & Social Prep | Platinum | $200  |                       |
-| 90-Day Check-In          | Platinum | $150  |                       |
+| Name                     | Tier     | Price | Price ID (sandbox)               |
+| ------------------------ | -------- | ----- | -------------------------------- |
+| Resume Refresh           | Silver   | $125  | `price_1U6AN2EGUAd5NiUmg2DN4x4M` |
+| LinkedIn Glow-Up         | Silver   | $150  | `price_1U6ANfEGUAd5NiUm1ptmWoGa` |
+| NorthStar Discovery      | Gold     | $175  | `price_1U6AO1EGUAd5NiUmGe4fGqsd` |
+| Market Intel Session     | Gold     | $175  | `price_1U6AOXEGUAd5NiUmdSnOIWSv` |
+| Mock Interview           | Gold     | $200  | `price_1U6AOeEGUAd5NiUmd9sN0ZrI` |
+| Executive Bio            | Platinum | $250  | `price_1U6AOrEGUAd5NiUmrmlQO7VK` |
+| Background & Social Prep | Platinum | $200  | `price_1U6AP6EGUAd5NiUm1Y3uRbMK` |
+| 90-Day Check-In          | Platinum | $150  | `price_1U6APHEGUAd5NiUmCvdcBZp9` |
 
 > The 22-deliverable breakdown table on the pricing page is **display copy
 > only**. Those individual à-la-carte prices ($125–$250 per deliverable) are
@@ -84,7 +95,8 @@ renders on the pricing page with a disabled button.
 or Whitney produces a deliverable with no live booking. This determines whether
 a booking link is shown after purchase.
 
-Proposed classification — **Lauren to confirm the two marked ⚠️**:
+As built — both ⚠️ rows were set to `session` in the DB, so every product shows
+a booking link. Flip either to `service` if it really has no live call:
 
 | Product                  | Kind                                                                   |
 | ------------------------ | ---------------------------------------------------------------------- |
@@ -94,11 +106,8 @@ Proposed classification — **Lauren to confirm the two marked ⚠️**:
 | Market Intel Session     | `session`                                                              |
 | Mock Interview           | `session`                                                              |
 | 90-Day Check-In          | `session`                                                              |
-| Executive Bio            | `service` ⚠️ — written for the candidate; is there a live intake call? |
-| Background & Social Prep | `service` ⚠️ — is this a review you deliver, or a working session?     |
-
-If either ⚠️ is actually a booked call, set it to `session` and give it a
-booking URL in §4.
+| Executive Bio            | `session` ⚠️ — written for the candidate; is there a live intake call? |
+| Background & Social Prep | `session` ⚠️ — is this a review you deliver, or a working session?     |
 
 ---
 
@@ -115,6 +124,10 @@ the same coach delivers several of them.
 For each `session` product: create the Cal.com event type (name it after the
 product, set the duration), then paste its booking URL into the product's
 Booking URL field.
+
+All six currently share the one Calendly 30-min link, which is why
+`bookingHref()` tags the URL with the enrollment id — the URL alone can't say
+which purchase a booking belongs to. Replace with per-product links:
 
 | Product              | Duration | Coach | Cal.com booking URL |
 | -------------------- | -------- | ----- | ------------------- |
@@ -160,8 +173,13 @@ Two ways to resolve it:
    bundle enrollment. Zero setup now, but nothing in the product knows how many
    of the 8 or 13 sessions have been used.
 
-Until this is decided, **sell the eight individual products and leave the three
-bundles inactive** — everything else in this runbook works without it.
+**Resolved (option 1, partially): bundles grant the existing products.**
+`bundle_contents` maps Foundation → 3, Momentum → 5, Executive → 8 of the
+individual products. The module deliverables that have no product row
+(Career Navigator, Mindset Mastery, Seamless Start) are _not_ granted — the
+session counts on the pricing page still exceed what a buyer gets an
+enrollment for, and Lauren schedules the remainder by hand. Add product rows
+for those modules when you want them tracked.
 
 ### 5b. Course content
 
@@ -173,7 +191,8 @@ unlisted Vimeo/YouTube URL in the External URL field.
 
 ## 6. Check it works
 
-Do this once, with a real card, on the first product you set up:
+Do this once on the first product you set up. In the sandbox use test card
+`4242 4242 4242 4242`; in live mode use a real card and refund it after.
 
 1. Log in as a candidate (not your admin account) and open `/pricing`. The
    product should be listed with an enabled buy button.
@@ -190,10 +209,15 @@ Then refund yourself in Stripe.
 
 ## 7. Checklist
 
-- [ ] 11 Stripe products created, all one-time prices, price IDs copied
-- [ ] Two ⚠️ session/service classifications confirmed (§3)
-- [ ] 8 individual products created in `/admin/coaching`, active, with price IDs
-- [ ] Coach rows added for Whitney and Lauren
-- [ ] Cal.com event types created, booking URLs pasted for every `session`
-- [ ] Bundle contents decided (§5a) — then the 3 bundles activated
+- [x] 11 Stripe products created, all one-time prices, price IDs copied (sandbox)
+- [x] Two ⚠️ classifications: both are `session` in the DB, not `service` (§3)
+- [x] All 11 products in `/admin/coaching`, active, with price IDs
+- [x] Bundle contents mapped (§5a) — all 3 bundles active
+- [ ] Coach rows: one coach is set on every session; confirm Whitney's row exists
+- [ ] Per-product booking links — every `session` currently shares the one
+      Calendly 30-min link, so a booking can't be told apart by URL (§4)
+- [ ] `STRIPE_WEBHOOK_SECRET` verified against a real endpoint — without a match,
+      checkout succeeds and no enrollment is created
 - [ ] End-to-end test purchase passed (§6)
+- [ ] Live-mode pass: 11 products in `acct_1TZ8yRE5B4ZVxh4l`, price IDs swapped,
+      live keys deployed

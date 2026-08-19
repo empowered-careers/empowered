@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import type { Catalog } from "@/lib/catalog";
+import { startCheckout } from "@/lib/checkout";
 import { cn } from "@/lib/utils";
 import type { CatalogProductFields } from "@/types/db";
 
@@ -46,7 +47,8 @@ export function PricingCatalog({
   const { bundles, sessions, coaches } = catalog;
 
   async function buy(product: CatalogProductFields) {
-    // Not purchasable until Lauren attaches a Stripe price in /admin/coaching.
+    // Checked before the redirects below so an unpriced product says so on the
+    // homepage too, rather than bouncing the visitor to /pricing.
     if (!product.stripe_price_id) {
       toast.error("This one isn't open for purchase yet.");
       return;
@@ -59,21 +61,7 @@ export function PricingCatalog({
       window.location.assign("/login?next=/pricing");
       return;
     }
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: product.stripe_price_id }),
-      });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok || !data.url) {
-        toast.error(data.error ?? "Could not start checkout.");
-        return;
-      }
-      window.location.assign(data.url);
-    } catch {
-      toast.error("Could not start checkout.");
-    }
+    await startCheckout(product);
   }
 
   if (bundles.length === 0 && sessions.length === 0) {

@@ -3,15 +3,18 @@
 import { Calendar, GraduationCap, Play, Video } from "lucide-react";
 import Link from "next/link";
 
-import { PricingCatalog } from "@/components/catalog/pricing-catalog";
+import { CoachingMenu } from "@/components/coaching/coaching-menu";
 import { Button } from "@/components/ui/button";
 import type { Catalog } from "@/lib/catalog";
 import type { MyCoaching, MyCoachingItem } from "@/lib/coaching";
-import { cn } from "@/lib/utils";
 
 /**
- * The candidate's coaching: what they've bought and what's booked. Driven
- * entirely by `enrollments` — no plan badges, no mock content.
+ * The candidate's coaching: what they've bought, what's on the calendar, and
+ * what they can add. Driven entirely by `enrollments` — no plan badges, no mock
+ * content.
+ *
+ * Layout is owned-on-top, purchasable-at-the-bottom, packages before sessions.
+ * The add-more menu is `CoachingMenu`, not the marketing `PricingCatalog`.
  */
 
 function formatSession(iso: string): string {
@@ -48,6 +51,21 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
   const next = sessions.find((s) => s.status === "scheduled");
   const isCourse = product.kind === "course";
   const done = enrollment.status === "completed";
+  const bookable = Boolean(product.booking_url) && !isCourse;
+
+  // The status word carries the thing the candidate scans for: is this one on
+  // the calendar or not? Bundles have no calendar of their own — their parts do.
+  const status = done
+    ? "Completed"
+    : isCourse
+      ? `${enrollment.progress}% complete`
+      : next
+        ? "Scheduled"
+        : bookable
+          ? "Not scheduled"
+          : isBundle(item)
+            ? "Book the parts below"
+            : "Booking opens soon";
 
   return (
     <div className="flex flex-col border border-border bg-card">
@@ -61,7 +79,15 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
         )}
         <span className="text-[10px] text-muted-foreground uppercase tracking-[0.08em]">
           {isBundle(item) ? "Bundle" : isCourse ? "Course" : "Session"}
-          {done && " · Completed"}
+        </span>
+        <span
+          className={
+            next || done
+              ? "ml-auto text-[10px] text-accent uppercase tracking-[0.08em]"
+              : "ml-auto text-[10px] text-muted-foreground uppercase tracking-[0.08em]"
+          }
+        >
+          {status}
         </span>
       </div>
 
@@ -83,9 +109,6 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
                 style={{ width: `${enrollment.progress}%` }}
               />
             </div>
-            <p className="mt-1.5 text-[11.5px] text-muted-foreground">
-              {enrollment.progress}% complete
-            </p>
           </div>
         )}
 
@@ -114,16 +137,30 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
                 {next ? "Reschedule" : "Book your session"}
               </a>
             </Button>
-          ) : (
-            <p className="text-[12px] text-muted-foreground">
-              {isBundle(item)
-                ? "Book the sessions below."
-                : "Booking opens shortly — we'll email you."}
-            </p>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
+  );
+}
+
+function Grid({
+  heading,
+  items,
+}: {
+  heading: string;
+  items: MyCoachingItem[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <section>
+      <h2 className="font-medium text-[13px] text-foreground">{heading}</h2>
+      <div className="mt-3 grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <ItemCard item={item} key={item.enrollment.id} />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -134,74 +171,34 @@ export function MyCoachingClient({
   catalog: Catalog;
   coaching: MyCoaching;
 }) {
-  const { items, upcoming } = coaching;
+  const { items } = coaching;
+  const owned = new Set(items.map((i) => i.enrollment.product_id));
+
+  // Unscheduled first inside each group: the open to-do outranks the booked one.
+  const byUrgency = (a: MyCoachingItem, b: MyCoachingItem) =>
+    Number(a.sessions.some((s) => s.status === "scheduled")) -
+    Number(b.sessions.some((s) => s.status === "scheduled"));
+
+  const packages = items.filter(isBundle).sort(byUrgency);
+  const rest = items.filter((i) => !isBundle(i)).sort(byUrgency);
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="space-y-9">
+      <div>
         <h1 className="font-display font-medium text-3xl tracking-tight">
           My Coaching
         </h1>
         <p className="mt-1 text-muted-foreground text-sm">
-          Everything you&apos;ve bought, and what&apos;s on the calendar.
+          {items.length === 0
+            ? "Coaching is à la carte — start with a single session, or take a full arc. No subscription."
+            : "Everything you've bought, and what's on the calendar."}
         </p>
       </div>
 
-      {items.length === 0 ? (
-        <div className="border border-border bg-card px-6 pt-14 pb-4 text-center">
-          <GraduationCap className="mx-auto size-6 text-muted-foreground" />
-          <h2 className="mt-4 font-display font-medium text-xl">
-            Nothing here yet
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-muted-foreground text-sm">
-            Coaching is à la carte — start with a single session, or take a full
-            arc. No subscription.
-          </p>
-          <PricingCatalog catalog={catalog} checkout isAuthed />
-        </div>
-      ) : (
-        <>
-          {upcoming.length > 0 && (
-            <div className="mb-9 border border-border bg-card">
-              <h2 className="border-border border-b px-4 py-2.5 font-medium text-[13px]">
-                Upcoming
-              </h2>
-              <ul>
-                {upcoming.map((s) => {
-                  const owner = items.find((i) =>
-                    i.sessions.some((x) => x.id === s.id)
-                  );
-                  return (
-                    <li
-                      className="flex items-center justify-between border-border border-b px-4 py-3 last:border-b-0"
-                      key={s.id}
-                    >
-                      <span className="text-[13.5px] text-foreground">
-                        {owner?.product.name ?? "Coaching session"}
-                      </span>
-                      <span className="text-[12.5px] text-muted-foreground">
-                        {formatSession(s.scheduled_for)}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
+      <Grid heading="Your packages" items={packages} />
+      <Grid heading="Your sessions" items={rest} />
 
-          <div
-            className={cn("grid gap-3.5 md:grid-cols-2 lg:grid-cols-3", "mb-9")}
-          >
-            {items.map((item) => (
-              <ItemCard item={item} key={item.enrollment.id} />
-            ))}
-          </div>
-
-          <div className="border-t border-border">
-            <PricingCatalog catalog={catalog} checkout isAuthed />
-          </div>
-        </>
-      )}
+      <CoachingMenu catalog={catalog} ownedProductIds={owned} />
     </div>
   );
 }

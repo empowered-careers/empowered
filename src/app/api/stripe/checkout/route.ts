@@ -72,6 +72,9 @@ export async function POST(request: Request) {
     mode: kind === "subscription" ? "subscription" : "payment",
     customer: customerId,
     line_items: [{ price: priceId, quantity: 1 }],
+    // ponytail: promo-code field always on rather than a test-only flag. Codes
+    // are per-mode, so live sees none until one is created there.
+    allow_promotion_codes: true,
     success_url: `${siteUrl}/checkout/success`,
     cancel_url: `${siteUrl}/checkout/cancel?price=${encodeURIComponent(priceId)}`,
     metadata: { profile_id: userId, kind, price_id: priceId },
