@@ -1,0 +1,75 @@
+{
+  "id": "buzzword-about",
+  "synthetic": true,
+  "note": "Complete sections but a cliché-only About and a generic headline — completeness high, quality low.",
+  "input": {
+    "profile": {
+      "about": "Passionate technologist and lifelong learner dedicated to delivering value and driving results. Team player with a proven track record of leveraging synergies to move the needle. Always excited about new challenges and opportunities to grow.",
+      "experience": [
+        {
+          "company": "Meridian Insurance",
+          "title": "Senior Software Engineer",
+          "start": "2018-04",
+          "end": null,
+          "location": "Newark, NJ",
+          "bullets": [
+            "Responsible for maintenance of the policy administration system",
+            "Participated in code reviews and release planning"
+          ]
+        },
+        {
+          "company": "Atlas Federal",
+          "title": "Senior Software Engineer",
+          "start": "2013-08",
+          "end": "2018-03",
+          "location": "Trenton, NJ",
+          "bullets": ["Responsible for the claims intake module"]
+        }
+      ],
+      "education": [
+        {
+          "school": "Rutgers University",
+          "degree": "BS",
+          "field": "Computer Engineering",
+          "start": "2009-09",
+          "end": "2013-05"
+        }
+      ],
+      "skills": [
+        "Java",
+        "Spring",
+        "Oracle",
+        "Jenkins",
+        "JIRA",
+        "Maven",
+        "SOAP",
+        "JSP",
+        "SQL",
+        "Agile",
+        "Scrum",
+        "Git",
+        "Linux",
+        "Tomcat",
+        "Hibernate",
+        "REST"
+      ],
+      "certifications": [
+        {
+          "name": "Oracle Certified Professional, Java SE",
+          "issuer": "Oracle",
+          "issued_at": "2015-03",
+          "expires_at": null
+        }
+      ],
+      "languages": ["English"],
+      "honors_awards": [],
+      "publications": [],
+      "recommendations_received_count": 2
+    },
+    "oauth_headline": "Software Engineer at Meridian Insurance"
+  },
+  "label": {
+    "overall": 58,
+    "provenance": "reference-frozen-v1"
+  }
+}

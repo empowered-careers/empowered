@@ -1,0 +1,36 @@
+{
+  "id": "thin-junior",
+  "synthetic": true,
+  "note": "One short role, three skills, no numbers. Floor case for skill_density and impact_signals. Label re-frozen from 28 to the scorer's own 18 on the first record run \u2014 the rubric is harsher at the floor than the hand estimate was.",
+  "input": {
+    "seniority_level": "ic",
+    "total_years_exp": 1,
+    "skills": ["HTML", "CSS", "JavaScript"],
+    "education": [
+      {
+        "school": "Georgia State University",
+        "degree": "BA",
+        "field": "Communications",
+        "start": "2020-08",
+        "end": "2024-05"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "Sable Digital",
+        "title": "Web Developer",
+        "start": "2024-07",
+        "end": null,
+        "bullets": [
+          "Built landing pages for clients",
+          "Helped with site updates"
+        ]
+      }
+    ],
+    "raw_text": "thin-junior\n\nWeb Developer, Sable Digital  2024-07 \u2013 Present\n  \u2022 Built landing pages for clients\n  \u2022 Helped with site updates"
+  },
+  "label": {
+    "overall": 18,
+    "provenance": "reference-frozen-v1"
+  }
+}

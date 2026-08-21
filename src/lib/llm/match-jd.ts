@@ -1,4 +1,4 @@
-import { getAnthropic, SCORER_MODEL } from "./anthropic";
+import { extractJson, getAnthropic, SCORER_MODEL } from "./anthropic";
 import { JD_MATCH_SYSTEM_PROMPT } from "./prompts";
 import { type JdMatch, JdMatchSchema, type ParsedResume } from "./schemas";
 
@@ -26,17 +26,21 @@ export async function matchJd(input: MatchJdInput): Promise<JdMatch> {
   const resume = input.resume ? { ...input.resume } : null;
   if (resume) delete (resume as Partial<ParsedResume>).raw_text;
 
+  // Delimited blocks, not markdown headers: the JD is pasted third-party text,
+  // and a `## Candidate's parsed resume` line inside it would otherwise read as
+  // the start of the next section.
   const sections = [
-    "## Job description\n\n",
+    "<job_description>\n",
     input.jdText.trim(),
-    "\n\n## Candidate's parsed resume\n\n",
+    "\n</job_description>\n\n<resume_json>\n",
     resume ? JSON.stringify(resume, null, 2) : "(no parsed resume on file)",
+    "\n</resume_json>",
   ];
   if (input.blueprintSummary) {
     sections.push(
-      "\n\n## Candidate's Career Identity Blueprint\n\n",
+      "\n\n<blueprint>\n",
       input.blueprintSummary,
-      "\n\nContext only — do not let it move the score. Evidence comes from the resume."
+      "\n</blueprint>\n\nContext only — do not let it move the score. Evidence comes from the resume."
     );
   }
 
@@ -68,15 +72,5 @@ export async function matchJd(input: MatchJdInput): Promise<JdMatch> {
     throw new Error("JD match: no text block in Claude response");
   }
 
-  return JdMatchSchema.parse(extractJson(textBlock.text));
-}
-
-function extractJson(text: string): unknown {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start === -1 || end === -1) {
-    throw new Error("JD match: no JSON object in response");
-  }
-  return JSON.parse(trimmed.slice(start, end + 1));
+  return JdMatchSchema.parse(extractJson(textBlock.text, "JD match"));
 }

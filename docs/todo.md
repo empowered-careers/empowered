@@ -17,14 +17,16 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 ## Coaching schema — pivot step 2 (applied 2026-08-15, `docs/ec-pivot-plan.md` §4)
 
 - [x] Migrations applied: `20260815000000_pivot_coaching_schema.sql` + `20260815000001_coaching_catalog_seed.sql`. Schema, RLS, anon read, and enrollment idempotency all verified against the live project.
-- [ ] **Blocking for any purchase:** create 11 Stripe Products + one-time Prices (sandbox), then paste each price ID into `/admin/coaching` → Edit. Every row shows "No Stripe price" until you do. Amounts to match: Foundation $450, Momentum $1,400, Executive $2,400, Resume Refresh $125, LinkedIn Glow-Up $150, NorthStar Discovery $175, Market Intel Session $175, Mock Interview $200, Executive Bio $250, Background & Social Prep $200, 90-Day Check-In $150.
-- [ ] Insert `coaches` rows for Whitney + Lauren (name, bio, specialty, avatar_url) via Supabase Studio — there is deliberately no admin CRUD for coaches yet, and the Coach select on session products is empty until rows exist.
+- [x] 11 Stripe Products + one-time Prices created and pasted into `/admin/coaching` (verified 2026-08-19: all 11 active rows have `stripe_price_id`, amounts match).
+- [ ] `coaches`: Lauren's row exists (2026-08-19) but `specialty` and `avatar_url` are null, and **Whitney has no row**. Insert via Supabase Studio — there is deliberately no admin CRUD for coaches yet.
 - [ ] Signed in as Lauren, `/admin/coaching`: create a `kind='session'` product and then edit it. This is the proof B1 is fixed — before the migration every write was silently rejected by RLS.
+
+- [ ] **The one untested money path:** `payments` and `enrollments` are both 0 rows as of 2026-08-19 — no à la carte checkout has ever completed end to end. Run one with `4242…` before trusting the flow.
 
 ### Coaching delivery — ops inputs (§5 shipped 2026-08-15, surfaces render empty until these land)
 
-- [ ] `CAL_WEBHOOK_SECRET` in `.env.local` + on the deploy host, and a Cal.com webhook subscribed to `BOOKING_CREATED` / `BOOKING_RESCHEDULED` / `BOOKING_CANCELLED` pointing at `https://<domain>/api/cal/webhook`. Until it's set the route 503s and bookings aren't recorded.
-- [ ] Per-session-product Cal.com event-type URLs pasted into `coaching_products.booking_url` via `/admin/coaching`. **Make each event-type slug distinct** — booking→enrollment matching keys on the slug appearing in `booking_url`, and two products whose slugs are substrings of each other resolve to "ambiguous" and get dropped rather than guessed.
+- [ ] `CALENDLY_WEBHOOK_SECRET` in `.env.local` + on the deploy host, and a Calendly webhook subscribed to invitee created/rescheduled/cancelled pointing at `https://<domain>/api/calendly/webhook`. **Missing from `.env.local` as of 2026-08-19** — until it's set the route 503s and bookings aren't recorded. (`/api/cal/webhook` + `CAL_WEBHOOK_SECRET` are the unused Cal.com twin.)
+- [x] Booking URLs set on all 8 session products (verified 2026-08-19). They deliberately share one Calendly event type — matching keys on `utm_content` (the enrollment id, appended in `my-coaching-client.tsx:40`), not on the slug, so duplicate URLs are fine.
 - [ ] Course video URLs into `coaching_products.external_url` for any `kind='course'` row. The player shows "not published yet" without them. There are no course rows in the seeded catalog yet — add them via `/admin/coaching` when the content exists.
 
 ### JD checker + nudges — ops inputs and one open decision (§4/§6 shipped 2026-08-15)
@@ -35,6 +37,7 @@ Post-it. Tell Claude when each is done; Claude verifies and removes the line.
 - [ ] Set `NEXT_PUBLIC_SITE_URL=https://empowered-orcin.vercel.app` in Vercel — it is `http://localhost:3000` locally, and Stripe Checkout builds its success/cancel URLs from it.
 - [ ] Watch the first `sweep-inactive` run (07:00 UTC). It no-ops until someone's last sign-in falls in the 7- or 30-day window.
 - [ ] **Lauren to decide:** "unlimited JD checks" currently means _holds any active enrollment_. That was my judgement call, not a stated rule — buying a $125 Resume Refresh today grants unlimited ATS checks forever. Should it instead be a specific SKU, or time-boxed? One line in `getJdQuota` either way.
+- [ ] `LOOPS_API_KEY` is missing from `.env.local` (2026-08-19) — no candidate events reach Loops locally.
 - [ ] Loops: create the 7 new sequences — `candidate.signup`, `candidate.resume_uploaded`, `candidate.course_purchased`, `candidate.session_booked`, `candidate.enrollment_completed`, `candidate.inactive_7d`, `candidate.inactive_30d`. The events fire already; nothing sends until the sequences exist.
 - [ ] Sanity-check the prescription rule copy in `src/lib/dashboard/prescribe.ts` — those `reason` strings are shown to candidates verbatim on the dashboard.
 
@@ -54,10 +57,8 @@ bundle fan-out (§3).
 
 ## Big Wins (code built 2026-08-14, `docs/big-wins-implementation-plan.md`)
 
-> The seed migration **is applied** — `20260814000000_big_wins_assessment_seed` is in
-> the remote migration list and the `Big Wins` assessments row exists. What's actually
-> blocking the walkthrough is that `resumes` has **0 rows** in this project, so there is
-> no parsed resume for the gate to pass.
+> Unblocked as of 2026-08-19: the seed migration is applied, the `Big Wins` assessments
+> row exists, and `resumes` now has 2 rows — so the walkthrough below can actually run.
 
 ### Verification (needs a signed-in account with a parsed resume — upload one first)
 
@@ -120,7 +121,7 @@ bundle fan-out (§3).
 - [x] Stripe Dashboard: create 4 prices — Core monthly, Core quarterly, Pro monthly, Pro quarterly (verified: $19/mo, $49/qtr Core · $49/mo, $135/qtr Pro, all recurring)
 - [x] Stripe Dashboard: create a webhook endpoint → `https://<prod-domain>/api/stripe/webhook`; subscribe to `checkout.session.completed`, `customer.subscription.created` / `.updated` / `.deleted`, `invoice.payment_succeeded`, `invoice.payment_failed`
 - [x] Add to `.env.local` (+ deploy host): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_CORE_MONTHLY`, `STRIPE_PRICE_CORE_QUARTERLY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_QUARTERLY`
-- [ ] À la carte: set `coaching_products.stripe_price_id` (sandbox price IDs) for each active product via `/admin/coaching` — required for the one-time path (`assertAllowedPriceId` rejects unknown prices)
+- [x] À la carte: `coaching_products.stripe_price_id` set for every active product (verified 2026-08-19)
 - [x] Stripe Dashboard → Settings → Billing → **Customer Portal**: activate/configure it in the same sandbox/test environment — `/api/stripe/portal` (the `/billing` "Manage subscription" + dashboard "Update card" buttons) errors until it's configured
 - [x] Local dev: `stripe listen --forward-to localhost:3000/api/stripe/webhook`, copy the printed signing secret into `STRIPE_WEBHOOK_SECRET`
 

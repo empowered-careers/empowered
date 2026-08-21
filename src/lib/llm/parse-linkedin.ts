@@ -1,4 +1,4 @@
-import { getAnthropic, PARSER_MODEL } from "./anthropic";
+import { extractJson, getAnthropic, PARSER_MODEL } from "./anthropic";
 import { LINKEDIN_PARSER_SYSTEM_PROMPT } from "./prompts";
 import { type ParsedLinkedIn, ParsedLinkedInSchema } from "./schemas";
 
@@ -48,15 +48,7 @@ export async function parseLinkedIn(
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("LinkedIn parser: no text block in Claude response");
   }
-  return ParsedLinkedInSchema.parse(extractJson(textBlock.text));
-}
-
-function extractJson(text: string): unknown {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start === -1 || end === -1) {
-    throw new Error("LinkedIn parser: no JSON object in response");
-  }
-  return JSON.parse(trimmed.slice(start, end + 1));
+  return ParsedLinkedInSchema.parse(
+    extractJson(textBlock.text, "LinkedIn parser")
+  );
 }

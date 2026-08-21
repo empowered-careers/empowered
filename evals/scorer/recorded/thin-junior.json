@@ -1,0 +1,11 @@
+{
+  "overall": 18,
+  "dimensions": {
+    "tenure": 50,
+    "role_progression": 20,
+    "skill_density": 20,
+    "impact_signals": 10,
+    "formatting": 60
+  },
+  "reasoning": "The candidate's strongest signal is tenure stability — a single current role held since July 2024 with no prior job-hopping, which is appropriate for someone just entering the workforce after completing their BA in May 2024. However, the resume's most significant weakness is a near-total absence of quantified impact: both bullets are pure responsibility statements with no numbers, outcomes, scale, or scope, making it impossible for ATS systems or screeners to gauge actual contribution. Skill density is also critically thin at only three foundational front-end skills (HTML, CSS, JavaScript), far below the threshold expected even for a junior IC role, and no frameworks, tools, or additional technologies are mentioned. Role progression cannot be assessed with a single entry, and there is no upward trajectory to speak of yet. The single most actionable improvement is to rewrite both bullets with concrete outcomes — e.g., number of landing pages delivered, client names or industry, performance metrics, or tools used — and expand the skills section to reflect any additional technologies, frameworks, or tools used on the job."
+}

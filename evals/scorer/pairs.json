@@ -1,7 +1,22 @@
 [
   {
-    "stronger": "REPLACE_WITH_FIXTURE_ID",
-    "weaker": "REPLACE_WITH_FIXTURE_ID",
-    "reason": "Strong candidate: 10yr Staff Engineer at top-tier companies, quantified bullets. Weak: 2yr IC, no metrics."
+    "stronger": "quantified-staff-engineer",
+    "weaker": "thin-junior",
+    "reason": "11yr Staff Engineer, every bullet quantified, 14 skills vs. 1yr web developer, 3 skills, no numbers."
+  },
+  {
+    "stronger": "quantified-staff-engineer",
+    "weaker": "job-hopper-mid",
+    "reason": "Long tenure with clear progression vs. four consecutive sub-year roles."
+  },
+  {
+    "stronger": "director-scope",
+    "weaker": "flat-trajectory-senior",
+    "reason": "Both long-tenured; the director shows title progression and org-scale numbers, the senior has 9 years at one title and responsibility statements."
+  },
+  {
+    "stronger": "career-pivot-bootcamp",
+    "weaker": "thin-junior",
+    "reason": "Short career but upward titles and half the bullets quantified, vs. a bare first role."
   }
 ]

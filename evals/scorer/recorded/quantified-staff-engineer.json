@@ -1,0 +1,11 @@
+{
+  "overall": 87,
+  "dimensions": {
+    "tenure": 95,
+    "role_progression": 92,
+    "skill_density": 88,
+    "impact_signals": 90,
+    "formatting": 85
+  },
+  "reasoning": "Impact signals are the standout strength here: nearly every bullet is anchored by hard numbers — latency in milliseconds, throughput in events per second, dollar savings, uptime metrics, and user adoption counts — giving screeners and ATS systems concrete evidence of scope and outcomes at scale. Role progression is equally strong, with a clean IC → Senior → Staff arc across three companies, each move representing a genuine step up in title and responsibility, including tech lead ownership of team growth. Skill density is excellent for a staff-level candidate, covering 14 named skills spanning languages, infrastructure, data systems, and observability — all modern and well-evidenced in the bullets. Tenure is exceptional, with no role under 18 months and a 5-year anchor at the current employer. The single biggest opportunity for improvement is the early-career Bellwether role, which carries only one bullet and no detail on scope, stack used, or broader contribution — expanding that entry (even modestly) would give a more complete picture of the candidate's foundational years."
+}

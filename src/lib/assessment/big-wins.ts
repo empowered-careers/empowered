@@ -365,6 +365,66 @@ export function hasNumber(text: string): boolean {
   );
 }
 
+/**
+ * Numeric claims in a generated bullet that don't trace back to what the
+ * candidate said.
+ *
+ * BIG_WINS_SYSTEM_PROMPT calls "never invent a number" its one unbreakable
+ * rule; this is the part that isn't on the honour system. Every figure in a
+ * bullet must appear in `sources` (the candidate's answers, plus the bullets
+ * already on their resume — the prompt allows reusing a figure they repeated).
+ *
+ * ponytail: token-presence, not arithmetic. The prompt permits a figure that
+ * "follows arithmetically" from an answer ("5 days to 1" → "80% faster"), and
+ * that derivation reads as unbacked here. Flagging is a prompt for the
+ * candidate to confirm, never a deletion, so a false flag costs a glance. If
+ * the rate turns out to be annoying, exempt derived percentages first.
+ */
+export function unbackedNumbers(bullet: string, sources: string[]): string[] {
+  const haystack = sources.map(normalizeFigures).join("   ");
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of bullet.match(FIGURE) ?? []) {
+    const norm = normalizeFigures(raw);
+    if (!norm || seen.has(norm)) continue;
+    seen.add(norm);
+    if (!haystack.includes(norm)) out.push(raw.trim());
+  }
+  return out;
+}
+
+/**
+ * Figures a resume bullet can carry: percentages, currency amounts, k/m/b
+ * magnitudes, Nx multipliers, and bare integers/decimals (which pick up
+ * headcounts, day counts, and years).
+ */
+const FIGURE =
+  /\d+(?:[,\u00a0\u202f ]\d{3})*(?:\.\d+)?\s?(?:[kKmMbB]\b|[xX]\b|%)?/g;
+
+/**
+ * Collapse a figure to a comparable core so "40K", "40,000", "$40k" and
+ * "40 000" all land on the same string. Magnitude suffixes and their
+ * spelled-out forms are expanded rather than stripped, so "40k" does not match
+ * a bare "40".
+ */
+function normalizeFigures(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/(\d)[,\u00a0\u202f ](?=\d{3}(?!\d))/g, "$1") // 40,000 / 40 000 → 40000
+    .replace(/\b(\d+(?:\.\d+)?)\s?(k|thousand)\b/g, (_, n) =>
+      String(Math.round(Number(n) * 1_000))
+    )
+    .replace(/\b(\d+(?:\.\d+)?)\s?(m|million)\b/g, (_, n) =>
+      String(Math.round(Number(n) * 1_000_000))
+    )
+    .replace(/\b(\d+(?:\.\d+)?)\s?(b|billion)\b/g, (_, n) =>
+      String(Math.round(Number(n) * 1_000_000_000))
+    )
+    .replace(/(\d)\.0+\b/g, "$1") // 15.0 → 15
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // ────────────────────────────────────────────────────────────
 // Section 5 — reconstruction path
 // ────────────────────────────────────────────────────────────

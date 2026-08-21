@@ -43,6 +43,9 @@ export function BigWinsClient({
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [questions, setQuestions] = useState<BigWinsCategoryKey[]>([]);
   const [qIndex, setQIndex] = useState(0);
+  /** Unbacked figures in the rewrite just generated. Recap-only — a
+   *  confirmation prompt, not persisted state. */
+  const [flagged, setFlagged] = useState<Record<number, string[]>>({});
   const [nudge, setNudge] = useState<string | null>(null);
   const [nudged, setNudged] = useState<Set<string>>(new Set());
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
@@ -138,6 +141,7 @@ export function BigWinsClient({
         setStep("question");
         return;
       }
+      setFlagged(res.flagged);
       setResult((prev) => ({
         roles: {
           ...(prev?.roles ?? {}),
@@ -160,6 +164,8 @@ export function BigWinsClient({
         toast.error(res.error);
         return;
       }
+      // Their own words now — nothing left to trace back.
+      setFlagged({});
       setResult((prev) => {
         const roles = { ...(prev?.roles ?? {}) };
         if (res.bullets.length === 0) delete roles[res.key];
@@ -240,6 +246,7 @@ export function BigWinsClient({
       <BigWinsRecap
         role={activeMerged}
         bullets={result?.roles[active.key]?.bullets ?? []}
+        flagged={flagged}
         originalBullets={active.originalBullets}
         onSaveEdits={saveEdits}
         onMoreQuestions={moreQuestions}

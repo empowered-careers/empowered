@@ -1,0 +1,71 @@
+{
+  "id": "quantified-staff-engineer",
+  "synthetic": true,
+  "note": "Long tenure, clear IC progression, every bullet quantified. Top of the band.",
+  "input": {
+    "seniority_level": "staff",
+    "total_years_exp": 11.5,
+    "skills": [
+      "TypeScript",
+      "Go",
+      "React",
+      "PostgreSQL",
+      "Kubernetes",
+      "AWS",
+      "Terraform",
+      "gRPC",
+      "Kafka",
+      "Redis",
+      "GraphQL",
+      "Datadog",
+      "CI/CD",
+      "Distributed Systems"
+    ],
+    "education": [
+      {
+        "school": "University of Illinois Urbana-Champaign",
+        "degree": "BS",
+        "field": "Computer Science",
+        "start": "2011-08",
+        "end": "2015-05"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "Northwind Systems",
+        "title": "Staff Software Engineer",
+        "start": "2020-03",
+        "end": null,
+        "bullets": [
+          "Led the migration of the billing platform off a monolith, cutting p99 checkout latency from 1.8s to 340ms across 12M monthly transactions",
+          "Designed the multi-region failover for the payments service, taking annual unplanned downtime from 4.2 hours to 11 minutes",
+          "Grew the platform team from 4 to 11 engineers as tech lead, with 3 promotions to senior in 2 years"
+        ]
+      },
+      {
+        "company": "Cartograph",
+        "title": "Senior Software Engineer",
+        "start": "2017-01",
+        "end": "2020-02",
+        "bullets": [
+          "Rebuilt the ingestion pipeline in Go, raising sustained throughput from 8K to 95K events/second",
+          "Cut AWS spend by $430K/year by rightsizing the fleet and moving cold storage to S3 Glacier"
+        ]
+      },
+      {
+        "company": "Bellwether Labs",
+        "title": "Software Engineer",
+        "start": "2015-06",
+        "end": "2016-12",
+        "bullets": [
+          "Shipped the first version of the customer dashboard, adopted by 1,400 of 1,600 accounts in the first quarter"
+        ]
+      }
+    ],
+    "raw_text": "quantified-staff-engineer\n\nStaff Software Engineer, Northwind Systems  2020-03 – Present\n  • Led the migration of the billing platform off a monolith, cutting p99 checkout latency from 1.8s to 340ms across 12M monthly transactions\n  • Designed the multi-region failover for the payments service, taking annual unplanned downtime from 4.2 hours to 11 minutes\n  • Grew the platform team from 4 to 11 engineers as tech lead, with 3 promotions to senior in 2 years\n\nSenior Software Engineer, Cartograph  2017-01 – 2020-02\n  • Rebuilt the ingestion pipeline in Go, raising sustained throughput from 8K to 95K events/second\n  • Cut AWS spend by $430K/year by rightsizing the fleet and moving cold storage to S3 Glacier\n\nSoftware Engineer, Bellwether Labs  2015-06 – 2016-12\n  • Shipped the first version of the customer dashboard, adopted by 1,400 of 1,600 accounts in the first quarter"
+  },
+  "label": {
+    "overall": 88,
+    "provenance": "reference-frozen-v1"
+  }
+}

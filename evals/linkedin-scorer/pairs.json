@@ -1,7 +1,22 @@
 [
   {
-    "stronger": "REPLACE_WITH_FIXTURE_ID",
-    "weaker": "REPLACE_WITH_FIXTURE_ID",
-    "reason": "Strong: tight headline, rich About, top 3 roles each with 3+ quantified bullets, 25+ skills, 2+ certs. Weak: empty About, title-only roles, < 10 skills."
+    "stronger": "complete-staff-profile",
+    "weaker": "bare-profile",
+    "reason": "Every section filled with quantified roles and 26 skills vs. no About, one title-only role, 4 skills, no headline."
+  },
+  {
+    "stronger": "complete-staff-profile",
+    "weaker": "buzzword-about",
+    "reason": "Both complete; one has a specific headline and quantified bullets, the other a cliché About and responsibility statements."
+  },
+  {
+    "stronger": "buzzword-about",
+    "weaker": "bare-profile",
+    "reason": "Generic but present beats absent: an About, two roles with bullets, 16 skills, a cert."
+  },
+  {
+    "stronger": "strong-headline-thin-body",
+    "weaker": "bare-profile",
+    "reason": "A strong headline and 20 skills carry it above a profile with neither, despite the stub About and empty bullets."
   }
 ]

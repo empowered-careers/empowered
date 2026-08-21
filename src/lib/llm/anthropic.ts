@@ -18,3 +18,17 @@ export const PARSER_MODEL = env.ANTHROPIC_PARSER_MODEL;
 export const SCORER_MODEL = env.ANTHROPIC_SCORER_MODEL;
 export const PROMPT_VERSION = env.RESUME_PROMPT_VERSION;
 export const LINKEDIN_PROMPT_VERSION = env.LINKEDIN_PROMPT_VERSION;
+
+/**
+ * Pull the first balanced JSON object out of a model text block.
+ * `label` prefixes the error so a failure names the call that produced it.
+ */
+export function extractJson(text: string, label: string): unknown {
+  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start === -1 || end === -1) {
+    throw new Error(`${label}: no JSON object in response`);
+  }
+  return JSON.parse(trimmed.slice(start, end + 1));
+}

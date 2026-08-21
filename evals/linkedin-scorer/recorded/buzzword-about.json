@@ -1,0 +1,11 @@
+{
+  "overall": 51,
+  "dimensions": {
+    "headline_quality": 42,
+    "about_quality": 22,
+    "experience_depth": 35,
+    "skill_density": 62,
+    "profile_completeness": 72
+  },
+  "reasoning": "The strongest signal here is skill density — 16 well-chosen, role-consistent Java-stack skills give recruiters useful keyword surface area and keep the profile findable in technical searches. The single biggest drag on the score is the About section, which is pure buzzword soup ('leveraging synergies,' 'move the needle,' 'lifelong learner') with zero concrete information about domain, scale, or technology focus — rewriting it in first person with 100-150 words covering the insurance/fintech domain, the core Java stack, and one or two specific systems worked on would immediately lift credibility. The headline also costs points because 'Software Engineer at Meridian Insurance' omits seniority, specialization, and any differentiating signal visible to a recruiter in search results. Experience depth is the other critical gap: the top two roles carry only responsibility-statements ('responsible for…', 'participated in…') with no metrics, team sizes, system scale, or outcomes — adding three quantified bullets to the current role (e.g., transactions processed, uptime improvements, team size) would move that dimension substantially."
+}

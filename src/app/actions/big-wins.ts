@@ -13,7 +13,16 @@ import { createClient } from "@/lib/supabase/server";
 import type { AssessmentResponseInsert } from "@/types/db";
 
 export type SaveRoleResult =
-  | { ok: true; key: string; bullets: string[] }
+  | {
+      ok: true;
+      key: string;
+      bullets: string[];
+      /**
+       * Bullet index → figures the rewrite carries that aren't traceable to the
+       * candidate's answers. Empty on the edit path (their own words).
+       */
+      flagged: Record<number, string[]>;
+    }
   | { ok: false; error: string };
 
 interface SaveRoleInput {
@@ -51,8 +60,9 @@ export async function saveRole(input: SaveRoleInput): Promise<SaveRoleResult> {
   const key = roleKey(input.company, input.title);
 
   let bullets: string[];
+  let flagged: Record<number, string[]>;
   try {
-    bullets = await polishWins(input);
+    ({ bullets, flagged } = await polishWins(input));
   } catch (err) {
     console.error("[saveRole] polishWins:", err);
     return {
@@ -73,7 +83,16 @@ export async function saveRole(input: SaveRoleInput): Promise<SaveRoleResult> {
   }));
 
   if (!saved.ok) return saved;
-  return { ok: true, key, bullets };
+
+  // A rising flag rate means the model is drifting off "never invent a number".
+  if (Object.keys(flagged).length > 0) {
+    console.warn(
+      `[saveRole] unbacked figures in ${key}:`,
+      JSON.stringify(flagged)
+    );
+  }
+
+  return { ok: true, key, bullets, flagged };
 }
 
 /**
@@ -104,7 +123,7 @@ export async function editRoleBullets(
   });
 
   if (!saved.ok) return saved;
-  return { ok: true, key, bullets: cleaned };
+  return { ok: true, key, bullets: cleaned, flagged: {} };
 }
 
 /** Read the current row, apply `next`, upsert it back. */

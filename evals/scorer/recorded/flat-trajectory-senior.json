@@ -1,0 +1,11 @@
+{
+  "overall": 52,
+  "dimensions": {
+    "tenure": 92,
+    "role_progression": 42,
+    "skill_density": 42,
+    "impact_signals": 15,
+    "formatting": 72
+  },
+  "reasoning": "The candidate's strongest signal is tenure — two long anchor roles spanning 12 years with no gaps or job-hopping reflects exactly the stability that ATS filters and hiring managers reward. The single biggest opportunity for improvement is impact_signals: every bullet across both roles is a pure responsibility statement ('Responsible for…', 'Participated in…', 'Helped with…') with zero quantified outcomes — adding numbers such as system uptime percentages, volume of claims processed, incident response SLAs, or team size would immediately elevate this resume's competitiveness. Role progression is also a concern, as the candidate has held the same title at two consecutive employers over 12 years with no upward movement toward Staff, Principal, or a management track. The skill set — Java, Spring, SOAP, JSP, Oracle — skews heavily legacy for a claimed senior engineer in 2025, and expanding it with modern frameworks or cloud tooling would strengthen skill density meaningfully."
+}

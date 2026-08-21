@@ -1,0 +1,11 @@
+{
+  "overall": 82,
+  "dimensions": {
+    "tenure": 95,
+    "role_progression": 92,
+    "skill_density": 62,
+    "impact_signals": 88,
+    "formatting": 80
+  },
+  "reasoning": "The candidate's strongest signal is a remarkably clean upward career trajectory — from Senior Engineer to Engineering Manager to Director at scale, all supported by quantified, high-stakes outcomes like owning a $14M budget, driving a 46-person org, and improving platform availability to 99.97% — placing impact signals and role progression as co-leaders. Tenure is equally strong, with three roles averaging well above 2.5 years each and zero job-hopping. The single biggest opportunity is skill density: ten listed skills is below the 12+ threshold expected at director seniority, and several entries (e.g., 'Hiring', 'Roadmapping', 'Budget Ownership') read as soft competencies rather than technical depth markers; expanding the technical skills section with specific tools, frameworks, or platforms actually in use would materially strengthen ATS performance and screener confidence."
+}

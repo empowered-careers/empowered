@@ -1,0 +1,74 @@
+{
+  "id": "job-hopper-mid",
+  "synthetic": true,
+  "note": "Four sub-year roles in a row. Tenure floor; impact_signals mid.",
+  "input": {
+    "seniority_level": "senior",
+    "total_years_exp": 5,
+    "skills": [
+      "Python",
+      "Django",
+      "React",
+      "MySQL",
+      "Docker",
+      "Celery",
+      "Redis",
+      "pytest"
+    ],
+    "education": [
+      {
+        "school": "Portland State University",
+        "degree": "BS",
+        "field": "Information Systems",
+        "start": "2016-09",
+        "end": "2020-06"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "Vantage Retail",
+        "title": "Senior Backend Engineer",
+        "start": "2024-09",
+        "end": null,
+        "bullets": [
+          "Cut order-sync failures by 60% by rewriting the retry layer"
+        ]
+      },
+      {
+        "company": "Halcyon Health",
+        "title": "Backend Engineer",
+        "start": "2023-11",
+        "end": "2024-08",
+        "bullets": [
+          "Built the appointment-reminder service handling 40K messages/day"
+        ]
+      },
+      {
+        "company": "Truss Logistics",
+        "title": "Backend Engineer",
+        "start": "2023-01",
+        "end": "2023-10",
+        "bullets": ["Maintained the dispatch API"]
+      },
+      {
+        "company": "Fernwood Media",
+        "title": "Backend Engineer",
+        "start": "2022-02",
+        "end": "2022-12",
+        "bullets": ["Worked on the CMS and internal tooling"]
+      },
+      {
+        "company": "Kestrel Group",
+        "title": "Junior Developer",
+        "start": "2020-07",
+        "end": "2022-01",
+        "bullets": ["Supported the reporting stack"]
+      }
+    ],
+    "raw_text": "job-hopper-mid\n\nSenior Backend Engineer, Vantage Retail  2024-09 – Present\n  • Cut order-sync failures by 60% by rewriting the retry layer\n\nBackend Engineer, Halcyon Health  2023-11 – 2024-08\n  • Built the appointment-reminder service handling 40K messages/day\n\nBackend Engineer, Truss Logistics  2023-01 – 2023-10\n  • Maintained the dispatch API\n\nBackend Engineer, Fernwood Media  2022-02 – 2022-12\n  • Worked on the CMS and internal tooling\n\nJunior Developer, Kestrel Group  2020-07 – 2022-01\n  • Supported the reporting stack"
+  },
+  "label": {
+    "overall": 48,
+    "provenance": "reference-frozen-v1"
+  }
+}

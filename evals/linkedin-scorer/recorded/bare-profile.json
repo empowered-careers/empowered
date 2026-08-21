@@ -1,0 +1,11 @@
+{
+  "overall": 14,
+  "dimensions": {
+    "headline_quality": 0,
+    "about_quality": 0,
+    "experience_depth": 10,
+    "skill_density": 20,
+    "profile_completeness": 20
+  },
+  "reasoning": "The strongest signal present is a current role at Sable Digital and a completed BA from Georgia State, which at least establishes a foundational timeline for recruiters. However, the profile is extremely bare across every dimension: the OAuth headline is empty (invisible in search snippets), there is no About section, the single experience entry has zero bullets or descriptions, only four skills are tagged, and there are no certifications or recommendations. The single highest-leverage improvement is to write 3-5 quantified bullets for the current Web Developer role — describing specific projects, technologies used at scale, or measurable outcomes (e.g., page-load improvements, number of sites built) — which would immediately lift the most heavily weighted dimension and make the profile worth clicking on in recruiter search results."
+}

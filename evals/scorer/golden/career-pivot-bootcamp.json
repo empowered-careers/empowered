@@ -1,0 +1,64 @@
+{
+  "id": "career-pivot-bootcamp",
+  "synthetic": true,
+  "note": "Deliberate mid-band ambiguity: short tech tenure, upward titles, half the bullets quantified.",
+  "input": {
+    "seniority_level": "senior",
+    "total_years_exp": 4,
+    "skills": [
+      "Python",
+      "FastAPI",
+      "React",
+      "TypeScript",
+      "PostgreSQL",
+      "Docker",
+      "pandas",
+      "SQL",
+      "dbt",
+      "Airflow"
+    ],
+    "education": [
+      {
+        "school": "Hackbright Academy",
+        "degree": "Certificate",
+        "field": "Software Engineering",
+        "start": "2021-01",
+        "end": "2021-06"
+      },
+      {
+        "school": "University of Washington",
+        "degree": "BS",
+        "field": "Biology",
+        "start": "2012-09",
+        "end": "2016-06"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "Lumen Diagnostics",
+        "title": "Senior Software Engineer",
+        "start": "2023-08",
+        "end": null,
+        "bullets": [
+          "Built the lab-results ETL that cut manual reconciliation from 12 hours to 40 minutes per week",
+          "Own the internal reporting stack used by 8 clinical teams"
+        ]
+      },
+      {
+        "company": "Lumen Diagnostics",
+        "title": "Software Engineer",
+        "start": "2021-09",
+        "end": "2023-07",
+        "bullets": [
+          "Shipped the patient portal used by 22,000 patients in its first year",
+          "Contributed to the API and internal tooling"
+        ]
+      }
+    ],
+    "raw_text": "career-pivot-bootcamp\n\nSenior Software Engineer, Lumen Diagnostics  2023-08 – Present\n  • Built the lab-results ETL that cut manual reconciliation from 12 hours to 40 minutes per week\n  • Own the internal reporting stack used by 8 clinical teams\n\nSoftware Engineer, Lumen Diagnostics  2021-09 – 2023-07\n  • Shipped the patient portal used by 22,000 patients in its first year\n  • Contributed to the API and internal tooling"
+  },
+  "label": {
+    "overall": 62,
+    "provenance": "reference-frozen-v1"
+  }
+}

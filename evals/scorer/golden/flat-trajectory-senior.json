@@ -1,0 +1,56 @@
+{
+  "id": "flat-trajectory-senior",
+  "synthetic": true,
+  "note": "Solid tenure, same title for 9 years, responsibility-statement bullets. Progression and impact both low.",
+  "input": {
+    "seniority_level": "senior",
+    "total_years_exp": 12,
+    "skills": [
+      "Java",
+      "Spring",
+      "Oracle",
+      "Jenkins",
+      "JIRA",
+      "Maven",
+      "SOAP",
+      "JSP"
+    ],
+    "education": [
+      {
+        "school": "Rutgers University",
+        "degree": "BS",
+        "field": "Computer Engineering",
+        "start": "2009-09",
+        "end": "2013-05"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "Meridian Insurance",
+        "title": "Senior Software Engineer",
+        "start": "2018-04",
+        "end": null,
+        "bullets": [
+          "Responsible for maintenance of the policy administration system",
+          "Participated in code reviews and release planning",
+          "Supported production incidents on a rotating on-call schedule"
+        ]
+      },
+      {
+        "company": "Atlas Federal",
+        "title": "Senior Software Engineer",
+        "start": "2013-08",
+        "end": "2018-03",
+        "bullets": [
+          "Responsible for the claims intake module",
+          "Helped with migration efforts to a newer application server"
+        ]
+      }
+    ],
+    "raw_text": "flat-trajectory-senior\n\nSenior Software Engineer, Meridian Insurance  2018-04 – Present\n  • Responsible for maintenance of the policy administration system\n  • Participated in code reviews and release planning\n  • Supported production incidents on a rotating on-call schedule\n\nSenior Software Engineer, Atlas Federal  2013-08 – 2018-03\n  • Responsible for the claims intake module\n  • Helped with migration efforts to a newer application server"
+  },
+  "label": {
+    "overall": 54,
+    "provenance": "reference-frozen-v1"
+  }
+}

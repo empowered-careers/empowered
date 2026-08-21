@@ -1,4 +1,4 @@
-import { getAnthropic, SCORER_MODEL } from "./anthropic";
+import { extractJson, getAnthropic, SCORER_MODEL } from "./anthropic";
 import { LINKEDIN_SCORER_SYSTEM_PROMPT } from "./prompts";
 import {
   type LinkedInScoring,
@@ -36,10 +36,11 @@ export async function scoreLinkedIn(
             type: "text",
             text:
               "Score this LinkedIn profile per the rubric. Return only the JSON object.\n\n" +
-              "## OAuth Headline (canonical, used by recruiters)\n" +
-              (oauthHeadline ? `"${oauthHeadline}"` : "(empty)") +
-              "\n\n## Parsed profile\n" +
-              JSON.stringify(parsed, null, 2),
+              "<oauth_headline>\n" +
+              (oauthHeadline ?? "(empty)") +
+              "\n</oauth_headline>\n\n<parsed_profile>\n" +
+              JSON.stringify(parsed, null, 2) +
+              "\n</parsed_profile>",
           },
         ],
       },
@@ -50,15 +51,7 @@ export async function scoreLinkedIn(
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("LinkedIn scorer: no text block in Claude response");
   }
-  return LinkedInScoringSchema.parse(extractJson(textBlock.text));
-}
-
-function extractJson(text: string): unknown {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start === -1 || end === -1) {
-    throw new Error("LinkedIn scorer: no JSON object in response");
-  }
-  return JSON.parse(trimmed.slice(start, end + 1));
+  return LinkedInScoringSchema.parse(
+    extractJson(textBlock.text, "LinkedIn scorer")
+  );
 }

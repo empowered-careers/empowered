@@ -14,6 +14,7 @@ import {
   mergeRoleBullets,
   roleKey,
   rolesFromParsed,
+  unbackedNumbers,
   vaguenessNudge,
 } from "./big-wins";
 
@@ -148,6 +149,51 @@ const emptied = mergeRoleBullets(roles, {
 assert.deepEqual(emptied[0].bullets, ["old a"]);
 assert.equal(emptied[0].rewritten, false);
 assert.equal(emptied.length, 2, "empty overlay entries are not surfaced");
+
+// ── Numeric provenance: the "never invent a number" rule ─────
+{
+  const src = [
+    "We cut invoicing from 5 days to 1 and saved about $40,000 a year",
+    "Churn dropped roughly 15% across a 12-person team",
+  ];
+  const backed = (b: string) => unbackedNumbers(b, src);
+
+  assert.deepEqual(
+    backed("Cut invoicing from 5 days to 1, saving $40,000 annually"),
+    [],
+    "figures present verbatim are backed"
+  );
+  assert.deepEqual(
+    backed("Saved $40K a year in labor hours"),
+    [],
+    "40K matches 40,000 across formatting"
+  );
+  assert.deepEqual(
+    backed("Reduced churn by roughly 15% on a 12-person team"),
+    [],
+    "hedged figures stay backed"
+  );
+  assert.deepEqual(
+    backed("Managed a $2.4M portfolio of 18 enterprise accounts"),
+    ["2.4M", "18"],
+    "figures absent from the answers are flagged"
+  );
+  assert.deepEqual(
+    backed("Rebuilt the escalation process end to end"),
+    [],
+    "a bullet with no figures is never flagged"
+  );
+  assert.deepEqual(
+    unbackedNumbers("Grew revenue 3x", ["tripled revenue, roughly 3x"]),
+    [],
+    "multipliers compare on their own token"
+  );
+  assert.deepEqual(
+    unbackedNumbers("Cut costs 40%", ["saved $40,000"]),
+    ["40%"],
+    "a percentage does not match a same-digit dollar figure"
+  );
+}
 
 console.log("big-wins OK:", {
   categories: CATEGORY_ORDER.length,

@@ -1,4 +1,4 @@
-import { getAnthropic, SCORER_MODEL } from "./anthropic";
+import { extractJson, getAnthropic, SCORER_MODEL } from "./anthropic";
 import { SCORER_SYSTEM_PROMPT } from "./prompts";
 import { type ParsedResume, type Scoring, ScoringSchema } from "./schemas";
 
@@ -32,7 +32,9 @@ export async function scoreResume(parsed: ParsedResume): Promise<Scoring> {
             type: "text",
             text:
               "Score this parsed resume per the rubric in the system prompt. Return only the JSON object.\n\n" +
-              JSON.stringify(payload, null, 2),
+              "<parsed_resume>\n" +
+              JSON.stringify(payload, null, 2) +
+              "\n</parsed_resume>",
           },
         ],
       },
@@ -44,16 +46,6 @@ export async function scoreResume(parsed: ParsedResume): Promise<Scoring> {
     throw new Error("Scorer: no text block in Claude response");
   }
 
-  const json = extractJson(textBlock.text);
+  const json = extractJson(textBlock.text, "Scorer");
   return ScoringSchema.parse(json);
-}
-
-function extractJson(text: string): unknown {
-  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start === -1 || end === -1) {
-    throw new Error("Scorer: no JSON object in response");
-  }
-  return JSON.parse(trimmed.slice(start, end + 1));
 }

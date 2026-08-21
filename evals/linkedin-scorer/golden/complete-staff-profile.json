@@ -1,0 +1,107 @@
+{
+  "id": "complete-staff-profile",
+  "synthetic": true,
+  "note": "Every section filled, tight headline, quantified roles. Top of the band.",
+  "input": {
+    "profile": {
+      "about": "I build payments infrastructure that people don't have to think about. Today I lead the platform team at Northwind Systems, where we moved billing off a monolith and took p99 checkout latency from 1.8s to 340ms across 12 million monthly transactions. Before that I spent three years on data ingestion at Cartograph, scaling a Go pipeline from 8K to 95K events per second. I care most about the unglamorous parts — failover you can prove works, observability that catches the incident before the customer does, and migrations that finish. I mentor four engineers and write about distributed systems tradeoffs when I have something worth saying.",
+      "experience": [
+        {
+          "company": "Northwind Systems",
+          "title": "Staff Software Engineer",
+          "start": "2020-03",
+          "end": null,
+          "location": "Chicago, IL",
+          "bullets": [
+            "Led the billing platform migration off a monolith, cutting p99 checkout latency from 1.8s to 340ms across 12M monthly transactions",
+            "Designed multi-region failover for payments, taking annual unplanned downtime from 4.2 hours to 11 minutes",
+            "Grew the platform team from 4 to 11 engineers, with 3 promotions to senior in 2 years"
+          ]
+        },
+        {
+          "company": "Cartograph",
+          "title": "Senior Software Engineer",
+          "start": "2017-01",
+          "end": "2020-02",
+          "location": "Remote",
+          "bullets": [
+            "Rebuilt the ingestion pipeline in Go, raising sustained throughput from 8K to 95K events/second",
+            "Cut AWS spend by $430K/year by rightsizing the fleet"
+          ]
+        },
+        {
+          "company": "Bellwether Labs",
+          "title": "Software Engineer",
+          "start": "2015-06",
+          "end": "2016-12",
+          "location": "Chicago, IL",
+          "bullets": [
+            "Shipped the first customer dashboard, adopted by 1,400 of 1,600 accounts in one quarter"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "school": "University of Illinois Urbana-Champaign",
+          "degree": "BS",
+          "field": "Computer Science",
+          "start": "2011-08",
+          "end": "2015-05"
+        }
+      ],
+      "skills": [
+        "Go",
+        "TypeScript",
+        "Kubernetes",
+        "PostgreSQL",
+        "Kafka",
+        "Terraform",
+        "AWS",
+        "gRPC",
+        "Redis",
+        "GraphQL",
+        "Distributed Systems",
+        "Observability",
+        "Datadog",
+        "CI/CD",
+        "React",
+        "Docker",
+        "Python",
+        "SQL",
+        "System Design",
+        "Incident Response",
+        "Mentoring",
+        "Payments",
+        "Microservices",
+        "Prometheus",
+        "Linux",
+        "Load Testing"
+      ],
+      "certifications": [
+        {
+          "name": "Certified Kubernetes Administrator",
+          "issuer": "CNCF",
+          "issued_at": "2021-04",
+          "expires_at": "2027-04"
+        },
+        {
+          "name": "AWS Solutions Architect – Professional",
+          "issuer": "Amazon Web Services",
+          "issued_at": "2022-09",
+          "expires_at": "2025-09"
+        }
+      ],
+      "languages": ["English", "Spanish"],
+      "honors_awards": ["Northwind Engineering Excellence Award, 2022"],
+      "publications": [
+        "Failover You Can Prove — Northwind Engineering Blog, 2023"
+      ],
+      "recommendations_received_count": 6
+    },
+    "oauth_headline": "Staff Engineer @ Northwind • Payments infrastructure • Go, Kubernetes, 12M txn/mo"
+  },
+  "label": {
+    "overall": 89,
+    "provenance": "reference-frozen-v1"
+  }
+}

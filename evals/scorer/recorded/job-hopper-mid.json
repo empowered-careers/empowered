@@ -1,0 +1,11 @@
+{
+  "overall": 52,
+  "dimensions": {
+    "tenure": 42,
+    "role_progression": 62,
+    "skill_density": 55,
+    "impact_signals": 38,
+    "formatting": 72
+  },
+  "reasoning": "The candidate's strongest signal is role progression: they advanced from Junior Developer to Senior Backend Engineer over five years across competitive environments, which is a credible upward arc for someone with this experience level. Skill density is adequate but thin for a claimed senior — eight skills is below the 12+ threshold and the stack (Python, Django, React, MySQL, Docker, Celery, Redis, pytest) lacks breadth in areas like cloud infrastructure, observability, or distributed systems that senior engineers are typically expected to demonstrate. The single biggest opportunity for improvement is impact signals: nearly all bullets are responsibility statements ('Maintained the dispatch API', 'Supported the reporting stack', 'Worked on the CMS') with only two bullets carrying any quantification, and even those lack business context such as cost savings, reliability SLAs, or user scale. Adding concrete metrics — uptime percentages, request volume, error-rate baselines before and after, revenue or cost impact — to every bullet would dramatically increase the resume's effectiveness with both ATS systems and human reviewers. Tenure is also a concern, as three consecutive roles lasted under a year (Truss Logistics at 9 months, Fernwood Media at 10 months, Halcyon Health at 9 months), which presents a job-hopping pattern that screeners will flag without explanatory context."
+}

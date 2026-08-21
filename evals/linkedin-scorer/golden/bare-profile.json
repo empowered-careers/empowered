@@ -1,0 +1,40 @@
+{
+  "id": "bare-profile",
+  "synthetic": true,
+  "note": "No about, title-only roles, 4 skills, empty headline. Floor case.",
+  "input": {
+    "profile": {
+      "about": null,
+      "experience": [
+        {
+          "company": "Sable Digital",
+          "title": "Web Developer",
+          "start": "2024-07",
+          "end": null,
+          "location": null,
+          "bullets": []
+        }
+      ],
+      "education": [
+        {
+          "school": "Georgia State University",
+          "degree": "BA",
+          "field": "Communications",
+          "start": "2020-08",
+          "end": "2024-05"
+        }
+      ],
+      "skills": ["HTML", "CSS", "JavaScript", "WordPress"],
+      "certifications": [],
+      "languages": [],
+      "honors_awards": [],
+      "publications": [],
+      "recommendations_received_count": 0
+    },
+    "oauth_headline": null
+  },
+  "label": {
+    "overall": 22,
+    "provenance": "reference-frozen-v1"
+  }
+}

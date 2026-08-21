@@ -1,0 +1,11 @@
+{
+  "overall": 55,
+  "dimensions": {
+    "headline_quality": 82,
+    "about_quality": 15,
+    "experience_depth": 20,
+    "skill_density": 62,
+    "profile_completeness": 52
+  },
+  "reasoning": "The headline is the standout strength — it is concise, under 120 characters, names the role, company, org scope, and domain, giving recruiters an immediately useful signal in search results. However, the experience section is the single biggest drag on this profile: all three roles, including six-plus years as a Director and Engineering Manager, have zero bullets or descriptions, leaving recruiters with nothing but job titles and dates — adding three quantified bullets to the current Director role (team size, system scale, and one business outcome) would be the highest-leverage single change. The About section is effectively absent at five words, far below the 100-word floor for a meaningful score. On completeness, the profile has education, 20 skills, and four recommendations, but lacks any certifications and the hollow experience entries undermine what is otherwise a reasonable section inventory. Bringing experience descriptions and the About section up to rubric standard would likely push the overall score above 70."
+}

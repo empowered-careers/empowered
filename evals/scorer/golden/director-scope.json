@@ -1,0 +1,66 @@
+{
+  "id": "director-scope",
+  "synthetic": true,
+  "note": "Real management progression with org-scale numbers. Upper band, different shape from the staff IC.",
+  "input": {
+    "seniority_level": "director",
+    "total_years_exp": 15,
+    "skills": [
+      "Engineering Management",
+      "Platform Strategy",
+      "Go",
+      "Kubernetes",
+      "AWS",
+      "Hiring",
+      "SRE",
+      "Observability",
+      "Roadmapping",
+      "Budget Ownership"
+    ],
+    "education": [
+      {
+        "school": "Carnegie Mellon University",
+        "degree": "MS",
+        "field": "Software Engineering",
+        "start": "2008-08",
+        "end": "2010-05"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "Halyard Cloud",
+        "title": "Director of Engineering",
+        "start": "2019-06",
+        "end": null,
+        "bullets": [
+          "Own a $14M engineering budget and a 46-person org across 5 teams, with voluntary attrition held at 6%",
+          "Took platform availability from 99.5% to 99.97% over 2 years by funding a dedicated SRE team",
+          "Hired 23 engineers in 18 months while raising the offer-accept rate from 54% to 81%"
+        ]
+      },
+      {
+        "company": "Halyard Cloud",
+        "title": "Engineering Manager",
+        "start": "2016-02",
+        "end": "2019-05",
+        "bullets": [
+          "Grew the infrastructure team from 3 to 14 and cut mean time to recovery from 90 to 22 minutes"
+        ]
+      },
+      {
+        "company": "Redpoint Software",
+        "title": "Senior Software Engineer",
+        "start": "2010-07",
+        "end": "2016-01",
+        "bullets": [
+          "Led the search rewrite that cut query latency 4x at 30M documents"
+        ]
+      }
+    ],
+    "raw_text": "director-scope\n\nDirector of Engineering, Halyard Cloud  2019-06 – Present\n  • Own a $14M engineering budget and a 46-person org across 5 teams, with voluntary attrition held at 6%\n  • Took platform availability from 99.5% to 99.97% over 2 years by funding a dedicated SRE team\n  • Hired 23 engineers in 18 months while raising the offer-accept rate from 54% to 81%\n\nEngineering Manager, Halyard Cloud  2016-02 – 2019-05\n  • Grew the infrastructure team from 3 to 14 and cut mean time to recovery from 90 to 22 minutes\n\nSenior Software Engineer, Redpoint Software  2010-07 – 2016-01\n  • Led the search rewrite that cut query latency 4x at 30M documents"
+  },
+  "label": {
+    "overall": 84,
+    "provenance": "reference-frozen-v1"
+  }
+}

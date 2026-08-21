@@ -11,6 +11,8 @@ interface BigWinsRecapProps {
   bullets: string[];
   /** Bullets from the resume before the rewrite. May be empty. */
   originalBullets: string[];
+  /** Bullet index → figures we couldn't trace back to their answers. */
+  flagged: Record<number, string[]>;
   onSaveEdits: (bullets: string[]) => void;
   onMoreQuestions: () => void;
   hasMoreQuestions: boolean;
@@ -23,6 +25,7 @@ export function BigWinsRecap({
   role,
   bullets,
   originalBullets,
+  flagged,
   onSaveEdits,
   onMoreQuestions,
   hasMoreQuestions,
@@ -92,7 +95,16 @@ export function BigWinsRecap({
             </p>
             <ul className="list-inside list-disc space-y-2 text-sm text-foreground">
               {bullets.map((b, i) => (
-                <li key={i}>{b}</li>
+                <li key={i}>
+                  {b}
+                  {flagged[i] && (
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      We couldn&apos;t trace {listFigures(flagged[i])} back to
+                      your answer — confirm it or edit the bullet before this
+                      goes on your resume.
+                    </span>
+                  )}
+                </li>
               ))}
             </ul>
           </div>
@@ -137,4 +149,11 @@ export function BigWinsRecap({
       </div>
     </div>
   );
+}
+
+/** "40K", "40K and 12%", "40K, 12% and 3x" */
+function listFigures(figures: string[]): string {
+  const quoted = figures.map((f) => `“${f.trim()}”`);
+  if (quoted.length === 1) return quoted[0];
+  return `${quoted.slice(0, -1).join(", ")} and ${quoted[quoted.length - 1]}`;
 }

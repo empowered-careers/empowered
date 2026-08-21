@@ -1,0 +1,11 @@
+{
+  "overall": 63,
+  "dimensions": {
+    "tenure": 85,
+    "role_progression": 75,
+    "skill_density": 62,
+    "impact_signals": 55,
+    "formatting": 72
+  },
+  "reasoning": "The candidate's strongest signal is tenure and company loyalty — nearly four continuous years at a single employer with an internal promotion from Software Engineer to Senior Software Engineer, which is a clean and credible progression story. Skill density is solid for a mid-level profile (10 listed skills spanning backend, frontend, data engineering, and orchestration) but falls slightly short of what 'senior' typically warrants: there are no cloud platform skills, no observability/testing tools, and the skills list lacks corroboration in bullets beyond general inference. Impact signals are the single biggest opportunity for improvement — while a few bullets contain meaningful numbers (12 hours → 40 minutes, 22,000 patients), roughly half the bullets are responsibility-statements ('Contributed to the API and internal tooling,' 'Own the internal reporting stack'), and adding quantified outcomes — uptime, query latency, team size supported, or business impact — to every bullet would materially lift the resume's competitiveness for senior roles. Formatting is readable with consistent dates and clear role delineation, though the sparse bullet count (two per role) limits both parsability and substantive signal."
+}

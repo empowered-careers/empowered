@@ -1,0 +1,77 @@
+{
+  "id": "strong-headline-thin-body",
+  "synthetic": true,
+  "note": "Deliberate split: excellent headline and skills, but a stub About and no bullets. Guards against one dimension carrying the score.",
+  "input": {
+    "profile": {
+      "about": "Engineering leader based in Seattle.",
+      "experience": [
+        {
+          "company": "Halyard Cloud",
+          "title": "Director of Engineering",
+          "start": "2019-06",
+          "end": null,
+          "location": "Seattle, WA",
+          "bullets": []
+        },
+        {
+          "company": "Halyard Cloud",
+          "title": "Engineering Manager",
+          "start": "2016-02",
+          "end": "2019-05",
+          "location": "Seattle, WA",
+          "bullets": []
+        },
+        {
+          "company": "Redpoint Software",
+          "title": "Senior Software Engineer",
+          "start": "2010-07",
+          "end": "2016-01",
+          "location": "Seattle, WA",
+          "bullets": []
+        }
+      ],
+      "education": [
+        {
+          "school": "Carnegie Mellon University",
+          "degree": "MS",
+          "field": "Software Engineering",
+          "start": "2008-08",
+          "end": "2010-05"
+        }
+      ],
+      "skills": [
+        "Engineering Management",
+        "Platform Strategy",
+        "Go",
+        "Kubernetes",
+        "AWS",
+        "Hiring",
+        "SRE",
+        "Observability",
+        "Roadmapping",
+        "Budget Ownership",
+        "Coaching",
+        "Incident Management",
+        "Org Design",
+        "Terraform",
+        "Postmortems",
+        "Performance Management",
+        "Recruiting",
+        "Public Speaking",
+        "Distributed Systems",
+        "Cost Optimization"
+      ],
+      "certifications": [],
+      "languages": ["English"],
+      "honors_awards": [],
+      "publications": [],
+      "recommendations_received_count": 4
+    },
+    "oauth_headline": "Director of Engineering @ Halyard Cloud • 46-person org • Platform & SRE"
+  },
+  "label": {
+    "overall": 52,
+    "provenance": "reference-frozen-v1"
+  }
+}
