@@ -59,6 +59,17 @@ export default async function AppGroupLayout({
 
   const isAdmin = profile?.role === "admin";
 
+  // Private-beta gate: active only while BETA_INVITE_CODE is set (unset =
+  // fully inert). Admins bypass; employers were redirected above. Verified
+  // users carry `beta_invite_ok: true` on auth metadata (set by /invite).
+  if (
+    process.env.BETA_INVITE_CODE &&
+    !isAdmin &&
+    user.user_metadata?.beta_invite_ok !== true
+  ) {
+    redirect("/invite");
+  }
+
   const { percentage } = getProfileStrength(profile, resumes);
 
   const userName =
