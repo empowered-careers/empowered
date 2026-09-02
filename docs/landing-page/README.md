@@ -64,9 +64,9 @@ Already wired in the file: Get started goes to `/login?tab=signup`, Log in to `/
 
 Lauren's call from Sep 1: **no coaching bookings during beta.** Coaching gets offered at the exit survey. So for the beta cohort, disable or de-emphasize the three tier buttons and the single-sessions link. They come back at public launch.
 
-## The score card is a sample
+## The score card must be realistic
 
-The three dimension names on the hero card (Impact evidence, Recruiter readability, Search visibility) are placeholders I wrote. When you implement, swap in the real dimension names and, ideally, a real report render. If the numbers stay illustrative, keep the "Sample report shown for illustration" caption.
+The hero score card is illustrative: the category names (Impact evidence, Recruiter readability, Search visibility) and the numbers are placeholders I wrote for layout. When you implement, make the card a faithful representation of an actual score report from the product: real category names, a plausible score, and a "what's holding you back" line shaped like what the product actually generates. It's the first promise a visitor sees about what signup delivers, so it needs to match what they'll actually get. If any part stays illustrative, keep the "Sample report shown for illustration" caption.
 
 ## Do not carry over from the old homepage
 
