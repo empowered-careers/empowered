@@ -52,6 +52,11 @@ const envSchema = z.object({
   STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
   STRIPE_PRICE_PRO_QUARTERLY: z.string().optional(),
 
+  // Private beta gate. When set, signed-in candidates must enter this code
+  // once (stored on auth user metadata) before reaching the app. When unset,
+  // the gate is fully inert — no behavior change anywhere.
+  BETA_INVITE_CODE: z.string().optional(),
+
   // Versioned at code level; bump when prompts/rubric change
   RESUME_PROMPT_VERSION: z.string().default("1.1.0"),
   LINKEDIN_PROMPT_VERSION: z.string().default("1.1.0"),
