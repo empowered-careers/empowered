@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Montserrat } from "next/font/google";
 
@@ -115,6 +116,7 @@ export default function RootLayout({
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
