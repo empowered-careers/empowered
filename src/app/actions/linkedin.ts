@@ -9,7 +9,10 @@ import {
 } from "@/lib/linkedin-identity-sync";
 import { createClient } from "@/lib/supabase/server";
 
-export type { FetchLinkedInUrlResult };
+// NOTE: no type re-exports here. `export type { … }` in a "use server" file
+// compiles to a runtime reference and crashes the whole module on evaluation
+// (ReferenceError), taking every action in this file down with it. Import
+// FetchLinkedInUrlResult from "@/lib/linkedin-identity-sync" instead.
 
 type ServerSupabase = Awaited<ReturnType<typeof createClient>>;
 
