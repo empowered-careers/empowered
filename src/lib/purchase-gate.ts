@@ -35,3 +35,17 @@ export function needsPurchase({
   if (isAdmin) return false;
   return !hasEnrollment;
 }
+
+/**
+ * Beta invite code comparison. Case- and whitespace-insensitive because the
+ * code gets copy-pasted out of an email; an empty expected code never matches,
+ * so an unset `BETA_INVITE_CODE` can't be redeemed with an empty input.
+ */
+export function matchesInviteCode(
+  input: string,
+  expected: string | undefined
+): boolean {
+  const want = expected?.trim().toUpperCase();
+  if (!want) return false;
+  return input.trim().toUpperCase() === want;
+}

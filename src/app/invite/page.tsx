@@ -1,18 +1,11 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { PageShell } from "@/components/page-shell";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { InviteClient } from "@/components/invite/invite-client";
 import { hasAnyEnrollment } from "@/lib/coaching";
 import { needsPurchase, purchaseGateEnabled } from "@/lib/purchase-gate";
 import { createClient } from "@/lib/supabase/server";
+
+import { env } from "../../../env";
 
 export const metadata = {
   title: "Private Beta | Empowered Careers",
@@ -26,13 +19,13 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * Where the (app) purchase gate sends candidates who haven't bought anything.
+ * Where the (app) purchase gate sends candidates who own nothing yet.
  *
- * There is no code to enter here: an "invite code" is a Stripe promotion code,
- * typed into Checkout's promo field (`allow_promotion_codes` is already on in
- * `api/stripe/checkout`), and a 100%-off coupon grants the enrollment through
- * the normal webhook. That keeps one entitlement path — `enrollments` — instead
- * of a second, self-writable one.
+ * Two ways out: redeem the beta invite code (a comp "Beta Access" enrollment),
+ * or buy something. The same code string is also a 100%-off Stripe promotion
+ * code, so a tester who'd rather run the real checkout gets the same result
+ * through the webhook. Either way the entitlement lands in `enrollments` — the
+ * one thing the gate reads.
  */
 export default async function InvitePage() {
   if (!purchaseGateEnabled()) {
@@ -67,28 +60,6 @@ export default async function InvitePage() {
   }
 
   return (
-    <PageShell>
-      <div className="flex justify-center pt-16">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-3xl">Private Beta</CardTitle>
-            <CardDescription>
-              Empowered Careers is in private beta. Access comes with your first
-              purchase — pick anything from the catalog to unlock your
-              dashboard.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-              Have an invite code? Enter it in the promotion code field at
-              checkout.
-            </p>
-            <Button asChild className="w-full">
-              <Link href="/pricing">See what&apos;s available</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </PageShell>
+    <InviteClient codeRedeemable={Boolean(env.BETA_INVITE_CODE?.trim())} />
   );
 }
