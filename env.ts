@@ -52,10 +52,11 @@ const envSchema = z.object({
   STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
   STRIPE_PRICE_PRO_QUARTERLY: z.string().optional(),
 
-  // Private beta gate. When set, signed-in candidates must enter this code
-  // once (stored on auth user metadata) before reaching the app. When unset,
-  // the gate is fully inert — no behavior change anywhere.
-  BETA_INVITE_CODE: z.string().optional(),
+  // Purchase gate. When "true", signed-in candidates need an enrollment (i.e.
+  // a completed Stripe purchase) to reach the app. Anything else = fully inert,
+  // no behavior change anywhere. Entitlement is read from `enrollments` —
+  // never from user metadata, which the browser session can write itself.
+  PURCHASE_GATE_ENABLED: z.string().optional(),
 
   // Versioned at code level; bump when prompts/rubric change
   RESUME_PROMPT_VERSION: z.string().default("1.1.0"),
