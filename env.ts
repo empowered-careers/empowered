@@ -58,6 +58,12 @@ const envSchema = z.object({
   // never from user metadata, which the browser session can write itself.
   PURCHASE_GATE_ENABLED: z.string().optional(),
 
+  // Beta invite code (e.g. ECTEST100). Redeeming it at /invite grants a comp
+  // "Beta Access" enrollment, so a tester gets in without paying. Mirrors the
+  // string of the 100%-off Stripe promotion code of the same name, which is the
+  // other way in — via real checkout. Unset = no redemption path at all.
+  BETA_INVITE_CODE: z.string().optional(),
+
   // Versioned at code level; bump when prompts/rubric change
   RESUME_PROMPT_VERSION: z.string().default("1.1.0"),
   LINKEDIN_PROMPT_VERSION: z.string().default("1.1.0"),

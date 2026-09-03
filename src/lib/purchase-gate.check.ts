@@ -1,6 +1,10 @@
 import assert from "node:assert";
 
-import { needsPurchase, purchaseGateEnabled } from "./purchase-gate";
+import {
+  matchesInviteCode,
+  needsPurchase,
+  purchaseGateEnabled,
+} from "./purchase-gate";
 
 // Run: npx tsx src/lib/purchase-gate.check.ts
 
@@ -51,5 +55,28 @@ process.env.PURCHASE_GATE_ENABLED = "true";
 assert.equal(purchaseGateEnabled(), true, '"true" enables the gate');
 if (original === undefined) delete process.env.PURCHASE_GATE_ENABLED;
 else process.env.PURCHASE_GATE_ENABLED = original;
+
+// ── invite code ──────────────────────────────────────────────
+assert.equal(matchesInviteCode("ECTEST100", "ECTEST100"), true, "exact match");
+assert.equal(
+  matchesInviteCode("  ectest100 ", "ECTEST100"),
+  true,
+  "pasted out of an email: whitespace and case must not matter"
+);
+assert.equal(matchesInviteCode("ECTEST101", "ECTEST100"), false, "wrong code");
+// No configured code must be unredeemable, including by the empty string —
+// otherwise every signed-in user walks through a blank form.
+for (const input of ["", "   ", "ECTEST100"]) {
+  assert.equal(
+    matchesInviteCode(input, undefined),
+    false,
+    `no code configured → ${JSON.stringify(input)} must not match`
+  );
+  assert.equal(
+    matchesInviteCode(input, "  "),
+    false,
+    `blank code configured → ${JSON.stringify(input)} must not match`
+  );
+}
 
 console.log("purchase-gate.check.ts OK");
