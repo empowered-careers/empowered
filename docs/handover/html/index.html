@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Empowered Careers — Codebase Handover</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="brand">Empowered Careers <span>· handover</span></div>
+      <nav class="tabs">
+        <a class="on" href="index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="data-model.html">Data model</a>
+        <a href="services.html">Services</a>
+        <a href="flows.html">Flows</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Codebase handover</h1>
+      <p class="lede">
+        A coaching and content platform for mid-to-senior tech professionals. It
+        assesses and scores candidates, then sells them 1:1 coaching, courses, and à la
+        carte career services.
+      </p>
+      <p>
+        These pages are a visual companion to the markdown in
+        <code>docs/handover/</code>, which is the source of truth. Every section links
+        back to it.
+      </p>
+
+      <h2>Five things to know before touching anything</h2>
+
+      <div class="card">
+        <h3>1. Revenue is à la carte only</h3>
+        <p>
+          There are no subscriptions. Entitlement is a row in <code>enrollments</code>,
+          written by the Stripe webhook — never <code>profiles.plan</code>. Never add a
+          plan-based gate.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>2. Dormant ≠ deleted</h3>
+        <p>
+          The job board, matching, employer portal, and subscription code are kept
+          deliberately. They're unlinked from candidate nav, not removed. Don't build
+          on them; don't delete them.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>3. RLS is the authorization model</h3>
+        <p>
+          And a policy-blocked write returns success-shaped empty data, not an error.
+          If a write "succeeds" but no row appears, suspect RLS before anything else.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>
+          4. The money path has never completed end to end
+          <span class="tag danger">unverified</span>
+        </h3>
+        <p>
+          <code>payments</code> and <code>enrollments</code> were both 0 rows at last
+          audit. Everything downstream — the purchase gate, entitlement checks, JD
+          quota, coaching access — is built on it. Verify it first.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>5. There are no automated tests</h3>
+        <p>
+          Nine <code>assert</code>-based <code>.check.ts</code> files exist and CI runs
+          none of them. Verification is type-check, lint, LLM evals, and manual smoke
+          tests.
+        </p>
+      </div>
+
+      <h2>The pivot</h2>
+      <p>
+        The platform launched job-board-first: a curated board of exclusive roles gated
+        by a subscription tier, with matching, an employer portal, and placement
+        commissions. In <strong>August 2026</strong> it pivoted to coaching-first.
+      </p>
+      <p>
+        Rather than rip the old product out, the pivot <strong>unlinked</strong> it.
+        Schema stays, routes stay, admin surfaces stay — nothing in candidate
+        navigation points at it. That's why roughly half the codebase serves a product
+        that's no longer sold.
+      </p>
+      <div class="note">
+        <p><strong>Three rules that override anything older in <code>docs/</code>:</strong></p>
+        <p>
+          1. Dormant ≠ deleted. &nbsp;·&nbsp; 2. No subscriptions — entitlements route
+          through <code>enrollments</code>. &nbsp;·&nbsp; 3. Intake stays mandatory —
+          the resume-upload gate before dashboard access stays, because building the
+          candidate list is the point.
+        </p>
+        <span class="src"
+          >Source: <a href="../../ec-pivot-brief.md">docs/ec-pivot-brief.md</a> ·
+          <a href="../../ec-pivot-plan.md">docs/ec-pivot-plan.md</a> ·
+          <a href="../../../CLAUDE.md">CLAUDE.md</a></span
+        >
+      </div>
+
+      <h2>Stack</h2>
+      <table>
+        <tr><th>Layer</th><th>Technology</th><th>Status</th></tr>
+        <tr><td>Framework</td><td>Next.js 16 App Router + React 19</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Language</td><td>TypeScript (strict)</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Styling</td><td>Tailwind CSS v4 + shadcn/ui</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Database / auth</td><td>Supabase — Postgres, Auth, Storage, Realtime, RLS</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Server state</td><td>TanStack Query v5</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Background jobs</td><td>Inngest — 4 functions</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>LLM</td><td>Anthropic Claude — parsing, scoring, rewriting</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Payments</td><td>Stripe — one-time purchases only</td><td><span class="tag warn">unproven</span></td></tr>
+        <tr><td>Lifecycle email</td><td>Loops</td><td><span class="tag warn">wired, no sequences</span></td></tr>
+        <tr><td>Booking</td><td>Calendly</td><td><span class="tag warn">blocked on a secret</span></td></tr>
+        <tr><td>Booking (alt)</td><td>Cal.com — unused twin</td><td><span class="tag dead">dormant</span></td></tr>
+        <tr><td>Hosting</td><td>Vercel + Web Analytics</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>Lint / format</td><td>ESLint + Prettier (not Biome)</td><td><span class="tag live">live</span></td></tr>
+        <tr><td>CI</td><td>GitHub Actions</td><td><span class="tag live">live</span></td></tr>
+      </table>
+
+      <h2>Where to go next</h2>
+      <div class="grid">
+        <div class="card">
+          <h3><a href="architecture.html">Architecture →</a></h3>
+          <p>
+            The four conventions you'll otherwise violate by accident, the request
+            flow, the provider tree, and the async background-job pattern.
+          </p>
+        </div>
+        <div class="card">
+          <h3><a href="data-model.html">Data model →</a></h3>
+          <p>
+            28 tables and 21 enums, colour-coded live vs dormant. RLS, database
+            functions, storage buckets, migration workflow.
+          </p>
+        </div>
+        <div class="card">
+          <h3><a href="services.html">Services →</a></h3>
+          <p>
+            Every third-party dependency: what it does here, which files touch it,
+            dashboard URLs, and exactly what breaks when its variable is unset.
+          </p>
+        </div>
+        <div class="card">
+          <h3><a href="flows.html">Flows →</a></h3>
+          <p>
+            Three sequence walkthroughs: resume upload, Stripe purchase → entitlement,
+            and the assessment / dashboard prescription loop.
+          </p>
+        </div>
+      </div>
+
+      <h2>The markdown docs</h2>
+      <table>
+        <tr><th>Doc</th><th>Answers</th></tr>
+        <tr>
+          <td><a href="../local-setup.md">local-setup.md</a></td>
+          <td>How do I run it, and how do I know it worked?</td>
+        </tr>
+        <tr>
+          <td><a href="../services.md">services.md</a></td>
+          <td>What external services, and what breaks when they're unset?</td>
+        </tr>
+        <tr>
+          <td><a href="../architecture.md">architecture.md</a></td>
+          <td>How is the code organized, and what conventions must I follow?</td>
+        </tr>
+        <tr>
+          <td><a href="../data-model.md">data-model.md</a></td>
+          <td>What's in the database and how is it protected?</td>
+        </tr>
+        <tr>
+          <td><a href="../dormant-surfaces.md">dormant-surfaces.md</a></td>
+          <td>Why is this code here if nobody uses it?</td>
+        </tr>
+        <tr>
+          <td><a href="../open-items.md">open-items.md</a></td>
+          <td>What isn't finished, and whose problem is it?</td>
+        </tr>
+        <tr>
+          <td><a href="../../README.md">docs/README.md</a></td>
+          <td>Index of all product docs and what's superseded</td>
+        </tr>
+      </table>
+
+      <h2>Who to ask</h2>
+      <p>
+        <strong>GT (Thrilok)</strong> — architecture, schema, Inngest, Stripe, anything
+        cross-cutting. Also the source for vendor invites and credentials, which are
+        deliberately not in this repo.<br />
+        <strong>Lauren</strong> — product decisions, coaching content, admin
+        operations, and every pricing question in
+        <a href="../open-items.md">open-items.md</a>.
+      </p>
+    </main>
+
+    <footer class="site">
+      Companion to <code>docs/handover/</code>. The markdown is the source of truth —
+      if these disagree, the markdown wins, and please fix the HTML.
+    </footer>
+  </body>
+</html>

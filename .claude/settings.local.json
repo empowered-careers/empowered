@@ -1,4 +1,8 @@
 {
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787",
+    "ENABLE_TOOL_SEARCH": "true"
+  },
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"D:\\\\empowered\" -Depth 2)",
@@ -37,7 +41,23 @@
       "Bash(curl -s http://localhost:8288/dev)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('count:',len\\(d['functions']\\)\\); [print\\(' -',f.get\\('slug'\\) or f.get\\('name'\\)\\) for f in d['functions']]\")",
       "Bash(npx inngest-cli@latest *)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(gh pr *)",
+      "mcp__headroom__headroom_retrieve"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/gt/.local/share/../bin/headroom wrap selfheal --marker headroom-wrap-selfheal",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

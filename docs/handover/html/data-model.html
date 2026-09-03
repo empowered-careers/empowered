@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data model — Empowered Careers handover</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="brand">Empowered Careers <span>· handover</span></div>
+      <nav class="tabs">
+        <a href="index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a class="on" href="data-model.html">Data model</a>
+        <a href="services.html">Services</a>
+        <a href="flows.html">Flows</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Data model</h1>
+      <p class="lede">
+        28 tables, 21 enums, 5 database functions, 2 storage buckets — in Supabase
+        PostgreSQL with Row Level Security enforced at the database level.
+      </p>
+      <p>
+        Column-level detail: <a href="../../db_schema.md">docs/db_schema.md</a>. Full
+        page: <a href="../data-model.md">docs/handover/data-model.md</a>. Types to
+        import: <code>src/types/db.ts</code>.
+      </p>
+
+      <p>
+        <span class="tag live">live</span> in use today &nbsp;·&nbsp;
+        <span class="tag dead">dormant</span> kept deliberately, don't build on it
+        &nbsp;·&nbsp; <span class="tag danger">0 rows</span> never written to
+      </p>
+
+      <h2>Tables by domain</h2>
+
+      <h3>Identity and intake <span class="tag live">live</span></h3>
+      <table>
+        <tr><th>Table</th><th>What it holds</th></tr>
+        <tr><td><code>profiles</code></td><td>One row per auth user. Role, name, LinkedIn, Stripe customer id, and the frozen <code>plan</code> column</td></tr>
+        <tr><td><code>resumes</code></td><td>Uploaded resumes. <code>status</code>, <code>parsed_json</code>, <code>resume_score</code>, file hash, <code>is_current</code></td></tr>
+        <tr><td><code>linkedin_profiles</code></td><td>Parsed LinkedIn PDF exports + <code>profile_score</code></td></tr>
+        <tr><td><code>candidate_preferences</code></td><td>Onboarding survey answers</td></tr>
+      </table>
+      <div class="note">
+        <p>
+          <code>profiles</code> is created by the <code>handle_new_user()</code> trigger
+          on signup and kept in sync by <code>handle_auth_user_updated()</code>.
+          <strong>Don't touch either trigger without sign-off.</strong>
+        </p>
+      </div>
+
+      <h3>Assessments <span class="tag live">live</span></h3>
+      <table>
+        <tr><th>Table</th><th>What it holds</th></tr>
+        <tr><td><code>assessments</code></td><td>The assessment definitions</td></tr>
+        <tr><td><code>assessment_responses</code></td><td>A candidate's answers</td></tr>
+        <tr><td><code>candidate_scores</code></td><td>Derived scores per candidate</td></tr>
+      </table>
+      <p>
+        Three assessments are seeded by migration: <strong>Career Identity
+        Blueprint</strong>, <strong>Big Wins</strong>, <strong>Role Clarity</strong>. A
+        fourth — the <strong>Career Positioning Assessment</strong> — is public,
+        pre-signup, and lives in code
+        (<code>src/lib/assessment/career-positioning.ts</code>) rather than these
+        tables; its results land on <code>leads</code>.
+      </p>
+
+      <h3>Commerce <span class="tag live">live</span></h3>
+      <table>
+        <tr><th>Table</th><th>What it holds</th></tr>
+        <tr><td><code>coaching_products</code></td><td>The SKU catalog. <code>kind</code> ∈ course / session / service / bundle, plus <code>stripe_price_id</code></td></tr>
+        <tr><td><code>bundle_contents</code></td><td>Which products a bundle fans out to</td></tr>
+        <tr><td><code>coaches</code></td><td>Coach profiles</td></tr>
+        <tr><td><code><strong>enrollments</strong></code> <span class="tag danger">0 rows</span></td><td><strong>The entitlement source of truth.</strong> Written by the Stripe webhook</td></tr>
+        <tr><td><code>coaching_sessions</code></td><td>Booked sessions, written by the Calendly webhook</td></tr>
+        <tr><td><code>payments</code> <span class="tag danger">0 rows</span></td><td>Payment records</td></tr>
+        <tr><td><code>stripe_webhook_events</code></td><td>Raw events, for idempotency and debugging</td></tr>
+      </table>
+      <div class="note danger">
+        <p>
+          <code>payments</code> and <code>enrollments</code> were both
+          <strong>0 rows</strong> at last audit. No purchase has completed end to end.
+          See <a href="../open-items.md">open-items.md</a>.
+        </p>
+      </div>
+      <p>
+        <code>coaching_products.kind</code> is a <strong>text column with a CHECK
+        constraint</strong>, not a Postgres enum — it superseded a dropped
+        <code>coaching_product_type</code> enum. The union lives in
+        <code>src/types/db.ts</code> as <code>CoachingProductKind</code>, which is the
+        single source of truth.
+      </p>
+
+      <h3>Engagement and growth <span class="tag live">live</span></h3>
+      <table>
+        <tr><th>Table</th><th>What it holds</th></tr>
+        <tr><td><code>jds</code></td><td>Candidate-pasted job descriptions for the ATS checker</td></tr>
+        <tr><td><code>notifications</code></td><td>The in-app bell feed</td></tr>
+        <tr><td><code>leads</code></td><td>Pre-signup capture, incl. Career Positioning results</td></tr>
+        <tr><td><code>events</code></td><td>Webinars, workshops, AMAs, masterclasses</td></tr>
+      </table>
+
+      <h3>Job board and employer <span class="tag dead">dormant</span></h3>
+      <p>
+        Schema kept, surfaces unlinked from candidate nav.
+        <strong>Don't build on them; don't delete them.</strong>
+      </p>
+      <table>
+        <tr><th>Table</th><th>Referenced in app code?</th></tr>
+        <tr><td><code>jobs</code></td><td>Yes — admin + dormant candidate routes</td></tr>
+        <tr><td><code>saved_jobs</code></td><td>Yes</td></tr>
+        <tr><td><code>applications</code></td><td>Yes</td></tr>
+        <tr><td><code>employers</code></td><td>Yes</td></tr>
+        <tr><td><code>client_companies</code></td><td>Yes</td></tr>
+        <tr><td><code>placements</code></td><td>Yes</td></tr>
+        <tr><td><code>commissions</code></td><td>Yes</td></tr>
+        <tr><td><code>job_scores</code></td><td><strong>No</strong> — zero references</td></tr>
+        <tr><td><code>matches</code></td><td><strong>No</strong> — zero references</td></tr>
+        <tr><td><code>referrals</code></td><td><strong>No</strong> — zero references</td></tr>
+      </table>
+      <p>
+        The last three have schema and nothing else — the tail of a matching feature
+        that was specified but never built
+        (<code>docs/deferred/ec-matching-*.md</code>). Still don't delete them without
+        asking; migrations and policies reference them.
+      </p>
+
+      <h2>Enums</h2>
+      <p>
+        Import from <code>src/types/db.ts</code>, never from
+        <code>database.types.ts</code>.
+      </p>
+
+      <h3>Live</h3>
+      <table>
+        <tr><th>Enum</th><th>Values</th></tr>
+        <tr><td><code>user_role</code></td><td>candidate · admin · employer</td></tr>
+        <tr><td><code>resume_status</code></td><td>uploading · processing · complete · failed</td></tr>
+        <tr><td><code>linkedin_sync_status</code></td><td>idle · processing · complete · failed</td></tr>
+        <tr><td><code>enrollment_status</code></td><td>active · completed · expired · refunded</td></tr>
+        <tr><td><code>coaching_session_status</code></td><td>see generated types</td></tr>
+        <tr><td><code>payment_status</code></td><td>succeeded · pending · failed</td></tr>
+        <tr><td><code>product_type</code></td><td>see generated types</td></tr>
+        <tr><td><code>event_type</code></td><td>webinar · workshop · ama · masterclass</td></tr>
+        <tr><td><code>switch_urgency</code></td><td>actively_looking · open · passive · not_looking</td></tr>
+        <tr><td><code>work_auth</code></td><td>see generated types</td></tr>
+        <tr><td><code>remote_preference</code></td><td>remote · hybrid · onsite · flexible</td></tr>
+        <tr><td><code>billing_cadence</code></td><td>one_time · monthly · quarterly · annual — <strong>only <code>one_time</code> is live</strong></td></tr>
+      </table>
+      <p>
+        The two async-job status enums follow the shared background-job pattern. New
+        async features should use the same four values.
+      </p>
+
+      <h3>Dormant <span class="tag dead">frozen</span></h3>
+      <p>
+        <code>plan</code> (free / plan_1 / plan_2 / plan_3) · <code>job_tier</code> ·
+        <code>job_status</code> · <code>application_status</code> ·
+        <code>remote_policy</code> · <code>subscription_status</code> ·
+        <code>commission_status</code> · <code>referral_status</code> ·
+        <code>relationship_type</code>
+      </p>
+      <div class="note warn">
+        <p>
+          <code>plan</code> and <code>subscription_status</code> are the subscription
+          model. <strong>Frozen, not extended.</strong> Never add a plan-based gate —
+          new entitlements route through <code>enrollments</code>.
+        </p>
+      </div>
+
+      <h2>Database functions</h2>
+      <table>
+        <tr><th>Function</th><th>Used for</th></tr>
+        <tr><td><code>is_admin()</code></td><td>RLS predicate <span class="tag live">live</span></td></tr>
+        <tr><td><code>is_employer()</code></td><td>RLS predicate <span class="tag live">live</span></td></tr>
+        <tr><td><code>current_employer_id()</code></td><td>RLS predicate — scopes employer rows <span class="tag live">live</span></td></tr>
+        <tr><td><code>can_see_job_tier()</code></td><td>Plan-based job visibility <span class="tag dead">dormant, frozen</span></td></tr>
+        <tr><td><code>is_paid_subscriber()</code></td><td>Subscription check <span class="tag dead">dormant, frozen</span></td></tr>
+      </table>
+
+      <h2>Storage buckets</h2>
+      <table>
+        <tr><th>Bucket</th><th>Contents</th></tr>
+        <tr><td><code>resumes</code></td><td>Uploaded PDF / DOC / DOCX resumes</td></tr>
+        <tr><td><code>linkedin-exports</code></td><td>LinkedIn "Save to PDF" exports</td></tr>
+      </table>
+
+      <h2>Row Level Security</h2>
+      <p>
+        <strong>RLS is the authorization model.</strong> The publishable key is safe in
+        the browser precisely because policies decide what it can reach.
+      </p>
+      <ul>
+        <li>
+          <strong>Every new table needs RLS policies in the same migration.</strong> No
+          exceptions.
+        </li>
+        <li>
+          The <strong>service client</strong> bypasses RLS entirely — for Inngest
+          workers and webhook handlers, which have no user session. Never reachable
+          from the browser.
+        </li>
+        <li>The <strong>server client</strong> does <em>not</em> bypass RLS.</li>
+        <li>
+          Candidates read and write only their own rows. Admins get broad access via
+          <code>is_admin()</code>. Employers are scoped by
+          <code>current_employer_id()</code>.
+        </li>
+        <li>
+          A migration (<code>20260903000000_enrollments_no_self_grant.sql</code>)
+          explicitly prevents users granting themselves enrollments — entitlement can
+          only come from the webhook. This is what makes the purchase gate trustworthy.
+        </li>
+      </ul>
+
+      <div class="note danger">
+        <p><strong>The failure mode that will cost you an afternoon</strong></p>
+        <p>
+          A policy-blocked write returns <strong>success-shaped empty data, not an
+          error</strong>. If a write appears to succeed but no row exists, suspect RLS
+          before anything else. This exact bug shipped once: every admin
+          coaching-product write was silently rejected until a migration fixed the
+          policy.
+        </p>
+      </div>
+
+      <h2>Migrations</h2>
+      <pre><code>supabase/migrations/YYYYMMDDHHMMSS_description.sql
+
+npx supabase db push       # apply
+npm run supabase:types     # regenerate database.types.ts
+# then add new enums/rows to src/types/db.ts</code></pre>
+      <p>
+        <strong>Never edit an applied migration.</strong> Write a new one. Seed
+        migrations that matter: the coaching catalog, and one per seeded assessment.
+      </p>
+
+      <h2>Requires sign-off before you touch it</h2>
+      <ul>
+        <li><code>profiles</code> — auth-linked</li>
+        <li><code>handle_new_user()</code> / <code>handle_auth_user_updated()</code></li>
+        <li>
+          RLS policies on <code>resumes</code>, <code>jobs</code>,
+          <code>applications</code>, <code>payments</code>, <code>enrollments</code>
+        </li>
+        <li>Any migration that already ran on production</li>
+      </ul>
+    </main>
+
+    <footer class="site">
+      Source: <a href="../data-model.md">docs/handover/data-model.md</a> ·
+      <a href="../../db_schema.md">docs/db_schema.md</a> ·
+      <a href="../dormant-surfaces.md">dormant-surfaces.md</a>
+    </footer>
+  </body>
+</html>
