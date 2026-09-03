@@ -9,3 +9,9 @@ pnpm-lock.yaml
 yarn.lock
 *.min.js
 src/types/database.types.ts
+
+# Reference/handoff HTML mockups and CLI scratch state — not source, don't reformat
+docs/**/*.html
+supabase/.temp
+.claude
+.serena
