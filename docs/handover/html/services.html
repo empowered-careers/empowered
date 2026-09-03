@@ -370,9 +370,9 @@
       </p>
       <div class="note warn">
         <p>
-          The final "Test (if available)" step is <code>continue-on-error: true</code>
-          against a <code>test</code> script that doesn't exist — it always no-ops.
-          <strong>CI does not run the nine <code>.check.ts</code> self-checks.</strong>
+          The final "Self-checks" step runs <code>npm test</code>, which executes all
+          ten <code>assert</code>-based <code>.check.ts</code> files. A failed assertion
+          fails the build.
         </p>
       </div>
 

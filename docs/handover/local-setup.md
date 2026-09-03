@@ -190,7 +190,7 @@ npx tsx src/components/local-date.check.ts
 npx tsx src/lib/cal.check.ts        # dormant twin
 ```
 
-Silent exit = pass. **CI does not run these.**
+Silent exit = pass. Run them all at once with `npm test` — which is what CI runs.
 
 ## 9. LLM evals
 

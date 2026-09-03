@@ -57,11 +57,6 @@ Needs a developer.
 
 ### Cheap, high-value improvements
 
-- **Wire the `.check.ts` files into CI.** Nine `assert`-based self-checks exist and CI
-  runs none of them — the "Test (if available)" step is `continue-on-error: true`
-  against a `test` script that doesn't exist. Adding a `test` script that runs them
-  via `tsx` is a small, obviously-correct first contribution.
-
 - **Review candidate-facing prescription copy.** The `reason` strings in
   `src/lib/dashboard/prescribe.ts` are shown to candidates **verbatim** on the
   dashboard and have never been reviewed by anyone with voice authority.

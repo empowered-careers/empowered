@@ -324,10 +324,9 @@ import type { ResumeStatus } from "@/types/db";</code></pre>
       </table>
       <div class="note warn">
         <p>
-          <strong>CI does not run these.</strong> The <code>ci.yml</code> "Test (if
-          available)" step is <code>continue-on-error: true</code> against a script that
-          doesn't exist, so it always no-ops. Wiring them in is a cheap, high-value
-          first contribution.
+          Run them all with <code>npm test</code>. <strong>CI runs this on every push
+          and PR</strong> as the "Self-checks" step, and a failed assertion fails the
+          build.
         </p>
       </div>
 

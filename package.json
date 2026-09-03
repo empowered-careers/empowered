@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "for f in $(find src -name \"*.check.ts\" | sort); do echo \"→ $f\"; tsx \"$f\" || exit 1; done",
     "fix": "eslint . --fix && prettier --write .",
     "prepare": "husky",
     "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts",

@@ -444,9 +444,8 @@ alone; don't build on it.
 - **CI runs on** push and PR to `main`: `npm run type-check` → `npm run check` →
   `npm run build`, on Node 20.11.0.
 - The build step uses placeholder Supabase values, so CI needs no real secrets.
-- The final "Test (if available)" step is `continue-on-error: true` and there is no
-  `test` script — it always no-ops. **CI does not run the `.check.ts` self-checks.**
-  Run those by hand: `npx tsx src/lib/<name>.check.ts`.
+- The final "Self-checks" step runs `npm test`, which executes all ten
+  `assert`-based `.check.ts` files. A failed assertion fails the build.
 
 ---
 

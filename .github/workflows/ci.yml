@@ -36,6 +36,5 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-publishable-key
 
-      - name: Test (if available)
-        run: npm run test
-        continue-on-error: true
+      - name: Self-checks
+        run: npm test

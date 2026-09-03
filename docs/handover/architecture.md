@@ -81,7 +81,10 @@ boundary then replaces the entire page with "Something went wrong", and every co
 on it goes dead.
 
 Use `<LocalDate>`, `<LocalDateOrNull>`, or `useLocalDateOrNull()` from
-`src/components/local-date.tsx`. They pin the server snapshot to UTC so the server
+`src/components/local-date.tsx`. **An ESLint rule enforces this** — `toLocaleDateString`,
+`toLocaleTimeString`, and `toLocaleString` on a `Date` are errors under
+`src/components/**` and `src/app/**/*-client.tsx`. Currency formatting is unaffected
+(no time zone involved), and Server Components are deliberately out of scope. They pin the server snapshot to UTC so the server
 render and the hydration pass agree, then swap to the visitor's local date.
 
 The same trap applies to anything else that differs between server and client:
@@ -280,10 +283,8 @@ npx tsx src/lib/purchase-gate.check.ts
 | `src/data/target-roles.check.ts`                 | Reference data integrity       |
 | `src/components/local-date.check.ts`             | Hydration-safe date formatting |
 
-**CI does not run these.** The `ci.yml` "Test (if available)" step is
-`continue-on-error: true` against a script that doesn't exist, so it always no-ops.
-Wiring these into CI is a cheap, high-value first contribution — see
-[`open-items.md`](open-items.md).
+Run them all with `npm test`. **CI runs this on every push and PR** as the
+"Self-checks" step, and a failed assertion fails the build.
 
 ### LLM evals
 
