@@ -1,5 +1,7 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+
 import type { DashboardProfile } from "@/hooks/use-dashboard-data";
 
 interface DashboardHeaderProps {
@@ -28,9 +30,23 @@ function getGreeting(): string {
   return "Good evening";
 }
 
+// Stable no-op subscription — the greeting never needs to push updates.
+const emptySubscribe = () => () => {};
+
 export function DashboardHeader({ profile, userEmail }: DashboardHeaderProps) {
   const displayName = getDisplayName(profile, userEmail);
-  const greeting = getGreeting();
+
+  // Hydration-safe time-of-day greeting. Computing it during render
+  // hydration-mismatches whenever the server's UTC hour falls in a different
+  // greeting bucket than the visitor's local hour (React #418 — the error
+  // boundary then swallows the whole dashboard). The server snapshot renders
+  // "Hello" on the server AND the hydration pass, then React re-reads the
+  // client snapshot for the visitor's local-time greeting.
+  const greeting = useSyncExternalStore(
+    emptySubscribe,
+    getGreeting,
+    () => "Hello"
+  );
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
