@@ -615,6 +615,13 @@ carte — never check `profiles.plan`.
 duplicating the grant. `handleCheckoutCompleted` swallows `23505` here the same
 way it does on the `payments` insert.
 
+RLS: owners **read and update** their own rows (`setCourseProgress()` reports
+self-declared course progress) — no candidate INSERT or DELETE. Grants come only
+from the Stripe webhook on the service-role key. Was a single `for all` policy,
+which let a browser session insert its own entitlement; tightened in
+`20260903000000_enrollments_no_self_grant.sql` when the purchase gate started
+reading this table.
+
 ---
 
 ### `coaching_sessions`

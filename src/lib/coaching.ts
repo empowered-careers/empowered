@@ -104,3 +104,23 @@ export async function hasEnrollment(
     .maybeSingle();
   return Boolean(data);
 }
+
+/**
+ * Does this profile own *anything*? The purchase gate's read side — see
+ * `src/lib/purchase-gate.ts` and the `(app)` layout.
+ *
+ * Same status set as `hasEnrollment`: `active` or `completed`, so finishing a
+ * course doesn't lock you back out. `expired`/`refunded` deliberately don't
+ * count — that's the gate closing again on a refund.
+ */
+export async function hasAnyEnrollment(profileId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("enrollments")
+    .select("id")
+    .eq("profile_id", profileId)
+    .in("status", ["active", "completed"])
+    .limit(1)
+    .maybeSingle();
+  return Boolean(data);
+}

@@ -6,6 +6,8 @@ import {
   type DashboardResume,
   getProfileStrength,
 } from "@/hooks/use-dashboard-data";
+import { hasAnyEnrollment } from "@/lib/coaching";
+import { needsPurchase, purchaseGateEnabled } from "@/lib/purchase-gate";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -59,13 +61,20 @@ export default async function AppGroupLayout({
 
   const isAdmin = profile?.role === "admin";
 
-  // Private-beta gate: active only while BETA_INVITE_CODE is set (unset =
-  // fully inert). Admins bypass; employers were redirected above. Verified
-  // users carry `beta_invite_ok: true` on auth metadata (set by /invite).
+  // Purchase gate: active only while PURCHASE_GATE_ENABLED="true" (anything
+  // else = fully inert). Entitlement is an `enrollments` row written by the
+  // Stripe webhook — never auth metadata, which the user's own browser session
+  // can write. Admins bypass; employers were redirected above.
+  //
+  // ponytail: one query, only when the gate is on. If the gate ships for real,
+  // fold it into the Promise.all above.
   if (
-    process.env.BETA_INVITE_CODE &&
-    !isAdmin &&
-    user.user_metadata?.beta_invite_ok !== true
+    purchaseGateEnabled() &&
+    needsPurchase({
+      enabled: true,
+      isAdmin,
+      hasEnrollment: await hasAnyEnrollment(user.id),
+    })
   ) {
     redirect("/invite");
   }
