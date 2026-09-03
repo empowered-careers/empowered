@@ -1,8 +1,4 @@
 {
-  "env": {
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787",
-    "ENABLE_TOOL_SEARCH": "true"
-  },
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"D:\\\\empowered\" -Depth 2)",

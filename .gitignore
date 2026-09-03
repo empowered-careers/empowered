@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Eval run reports — timestamped output, not source
 evals/reports/
+
+# Headroom wrap bookkeeping (local PIDs/ports; rewritten every wrap/unwrap)
+.claude/.headroom_wrap_*
