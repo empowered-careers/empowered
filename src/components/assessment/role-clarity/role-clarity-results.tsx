@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { useLocalDateOrNull } from "@/components/local-date";
 import { Button } from "@/components/ui/button";
 import {
   ROLE_CLARITY_MAX,
@@ -20,24 +21,13 @@ interface RoleClarityResultsProps {
   onRetake: () => void;
 }
 
-function formatTakenDate(iso: string | null): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 export function RoleClarityResults({
   result,
   completedAt,
   prescription,
   onRetake,
 }: RoleClarityResultsProps) {
-  const taken = formatTakenDate(completedAt);
+  const taken = useLocalDateOrNull(completedAt, "long");
   const weakest = SECTIONS[result.weakest];
 
   return (

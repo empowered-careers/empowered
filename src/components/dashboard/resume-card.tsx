@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
+import { LocalDate } from "@/components/local-date";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ResumeUploader } from "@/components/resume/resume-uploader";
 import { Badge } from "@/components/ui/badge";
@@ -20,14 +21,6 @@ import type { DashboardResume } from "@/hooks/use-dashboard-data";
 
 interface ResumeCardProps {
   resumes: DashboardResume[];
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }
 
 function ResumeScoreBadge({ score }: { score: number | null }) {
@@ -174,7 +167,7 @@ export function ResumeCard({ resumes }: ResumeCardProps) {
                         `Resume ${resumes.length - i}`}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Uploaded {formatDate(resume.uploaded_at)}
+                      Uploaded <LocalDate iso={resume.uploaded_at} />
                     </p>
                   </div>
                 </div>

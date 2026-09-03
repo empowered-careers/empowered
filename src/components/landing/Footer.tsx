@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
@@ -21,31 +19,39 @@ export function Footer() {
                 EMPOWERED
               </span>
             </Link>
-            <p className="font-sans text-sm text-foreground/40 leading-relaxed max-w-[200px]">
-              The private talent network for mid-to-senior tech professionals.
+            <p className="font-sans text-sm text-foreground/40 leading-relaxed max-w-[220px]">
+              Resume scoring and career coaching from a real recruiter.
             </p>
           </div>
 
-          {/* Links */}
+          {/* Product */}
           <div>
             <h4 className="font-sans font-bold text-xs uppercase tracking-widest text-foreground mb-6">
-              Platform
+              Product
             </h4>
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="#how-it-works"
+                  href="/#how-it-works"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
-                  How It Works
+                  How it works
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#pricing"
+                  href="/pricing"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
-                  Pricing
+                  Coaching
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/events"
+                  className="font-sans text-sm text-foreground/60 hover:text-foreground"
+                >
+                  Events
                 </Link>
               </li>
               <li>
@@ -53,7 +59,7 @@ export function Footer() {
                   href="/login"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
-                  Member Login
+                  Log in
                 </Link>
               </li>
             </ul>
@@ -67,19 +73,19 @@ export function Footer() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="#"
+                  href="/#lauren"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
-                  About
+                  About Lauren
                 </Link>
               </li>
               <li>
-                <Link
-                  href="#"
+                <a
+                  href="mailto:Lauren@empowered-careers.com"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
                   Contact
-                </Link>
+                </a>
               </li>
               <li>
                 <Link
@@ -100,42 +106,28 @@ export function Footer() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="#"
+                  href="/privacy"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
-                  Privacy Policy
+                  Privacy policy
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/terms"
                   className="font-sans text-sm text-foreground/60 hover:text-foreground"
                 >
-                  Terms of Service
+                  Terms of service
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-6 border-t border-border pt-12 md:flex-row">
-          <p className="font-sans text-xs text-foreground/20">
+        <div className="border-t border-border pt-12">
+          <p className="font-sans text-xs text-foreground/30">
             © {currentYear} {siteConfig.name}. All rights reserved.
           </p>
-          <div className="flex gap-8">
-            <Link
-              href="#"
-              className="font-sans text-xs text-foreground/40 hover:text-foreground transition-colors"
-            >
-              Twitter
-            </Link>
-            <Link
-              href="#"
-              className="font-sans text-xs text-foreground/40 hover:text-foreground transition-colors"
-            >
-              LinkedIn
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

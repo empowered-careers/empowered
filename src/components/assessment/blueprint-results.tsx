@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { type ComponentType, type ReactNode, useState } from "react";
 
+import { useLocalDateOrNull } from "@/components/local-date";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,24 +32,13 @@ interface BlueprintResultsProps {
   onRetake: () => void;
 }
 
-function formatCompletedAt(iso: string | null): string | null {
-  if (!iso) return null;
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 export function BlueprintResults({
   result,
   completedAt,
   onRetake,
 }: BlueprintResultsProps) {
   const [retakeOpen, setRetakeOpen] = useState(false);
-  const completedLabel = formatCompletedAt(completedAt);
+  const completedLabel = useLocalDateOrNull(completedAt, "long");
   return (
     <div className="space-y-6">
       {/* Hero */}

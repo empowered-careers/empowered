@@ -117,11 +117,11 @@ migrations and policies reference them.
 
 ## What to do when you hit dormant code
 
-| Situation                                      | Do this                                        |
-| ---------------------------------------------- | ---------------------------------------------- |
-| A feature needs job-board data                 | Stop and ask. It probably shouldn't            |
-| You want to delete a dormant table or route    | Ask first. Default answer is no                |
-| You need a new entitlement check               | Use `enrollments`. Never `plan`                |
-| A dormant surface has a bug                    | Note it; don't fix it unless asked             |
-| A doc describes the job board as current       | Check its pivot banner — the pivot docs win    |
-| You're unsure whether something is dormant     | Is it in `topNavTabs`? If not, probably yes    |
+| Situation                                   | Do this                                     |
+| ------------------------------------------- | ------------------------------------------- |
+| A feature needs job-board data              | Stop and ask. It probably shouldn't         |
+| You want to delete a dormant table or route | Ask first. Default answer is no             |
+| You need a new entitlement check            | Use `enrollments`. Never `plan`             |
+| A dormant surface has a bug                 | Note it; don't fix it unless asked          |
+| A doc describes the job board as current    | Check its pivot banner — the pivot docs win |
+| You're unsure whether something is dormant  | Is it in `topNavTabs`? If not, probably yes |

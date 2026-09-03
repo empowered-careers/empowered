@@ -4,6 +4,7 @@ import { Calendar, GraduationCap, Play, Video } from "lucide-react";
 import Link from "next/link";
 
 import { CoachingMenu } from "@/components/coaching/coaching-menu";
+import { LocalDate } from "@/components/local-date";
 import { Button } from "@/components/ui/button";
 import type { Catalog } from "@/lib/catalog";
 import type { MyCoaching, MyCoachingItem } from "@/lib/coaching";
@@ -16,16 +17,6 @@ import type { MyCoaching, MyCoachingItem } from "@/lib/coaching";
  * Layout is owned-on-top, purchasable-at-the-bottom, packages before sessions.
  * The add-more menu is `CoachingMenu`, not the marketing `PricingCatalog`.
  */
-
-function formatSession(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
 
 /**
  * Tag the booking link with the enrollment id.
@@ -115,7 +106,7 @@ function ItemCard({ item }: { item: MyCoachingItem }) {
         {next && (
           <p className="mt-4 flex items-center gap-1.5 text-[12.5px] text-foreground">
             <Video className="size-3.5 text-accent" />
-            {formatSession(next.scheduled_for)}
+            <LocalDate format="datetime" iso={next.scheduled_for} />
             {next.duration_min ? ` · ${next.duration_min} min` : ""}
           </p>
         )}

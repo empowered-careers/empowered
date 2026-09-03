@@ -1,95 +1,101 @@
-"use client";
-
 import Link from "next/link";
 
+import { DimensionList } from "@/components/score/dimension-list";
 import { Button } from "@/components/ui/button";
+
+/**
+ * Sample report shown in the hero. The dimension keys and labels are the five
+ * the scorer actually returns (`ScoringDimensionsSchema` / `DIMENSION_LABELS`),
+ * rendered through the same `DimensionList` the resume page uses, so the card is
+ * a faithful preview of what signup delivers. The values are illustrative.
+ */
+const SAMPLE_OVERALL = 74;
+const SAMPLE_DIMENSIONS = [
+  { key: "tenure", label: "Tenure", value: 82 },
+  { key: "role_progression", label: "Role progression", value: 71 },
+  { key: "skill_density", label: "Skill density", value: 78 },
+  { key: "impact_signals", label: "Impact signals", value: 54 },
+  { key: "formatting", label: "Formatting", value: 88 },
+];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-border bg-background pt-20 pb-32 md:pt-32 md:pb-48">
-      {/* Background Grid Pattern */}
+    <section className="relative overflow-hidden border-b border-border bg-background py-20 md:py-28">
+      {/* Background grid, faded out towards the bottom */}
       <div
-        className="absolute inset-0 z-0 opacity-[0.03]"
+        className="pointer-events-none absolute inset-0 z-0 opacity-[0.06]"
         style={{
           backgroundImage: `linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
+          backgroundSize: "72px 72px",
+          maskImage: "linear-gradient(to bottom, #000 40%, transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom, #000 40%, transparent)",
         }}
       />
 
-      <div className="container relative z-10 mx-auto px-4">
-        <div className="max-w-4xl">
-          <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight text-foreground mb-8">
-            Access Exclusive Tech Roles <br className="hidden md:block" />
-            That Never Hit Job Boards
+      <div className="container relative z-10 mx-auto grid items-center gap-14 px-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <div>
+          <p className="mb-5 font-sans font-semibold text-[11px] text-accent uppercase tracking-[0.18em]">
+            Be bold. Be Empowered.
+          </p>
+          <h1 className="mb-8 font-display font-bold text-5xl text-foreground leading-[1.1] tracking-tight md:text-6xl">
+            <span className="block">Get hired faster.</span>
+            <span className="block">Get paid what you&apos;re worth.</span>
           </h1>
-
-          <p className="font-sans text-xl md:text-2xl text-foreground/60 max-w-2xl mb-12 leading-relaxed">
-            Get assessed. Get matched. Get hired. The private talent network for
-            mid-to-senior tech professionals.
+          <p className="mb-8 max-w-xl font-sans text-foreground/70 text-lg leading-relaxed md:text-xl">
+            You&apos;ve done the work. Empowered Careers helps hiring teams see
+            it: AI tools with a recruiter&apos;s judgment rebuild your resume
+            and LinkedIn in your voice. Real coaching is one click away.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <Button
+              asChild
+              className="h-14 px-10 font-bold text-lg"
+              size="lg"
               variant="lime"
-              size="lg"
-              className="h-14 px-10 text-lg font-bold"
-              asChild
             >
-              <Link href="/login?tab=signup">Get Your Free Resume Score</Link>
+              <Link href="/login?tab=signup">Get started</Link>
             </Button>
             <Button
-              variant="outline"
-              size="lg"
-              className="h-14 px-10 text-lg font-bold border-2"
               asChild
+              className="h-14 border-2 px-10 font-bold text-lg"
+              size="lg"
+              variant="outline"
             >
-              <Link href="#how-it-works">How It Works</Link>
+              <Link href="#how-it-works">How it works</Link>
             </Button>
           </div>
+          <p className="mt-5 font-sans text-foreground/50 text-sm">
+            Start free with your resume score. No credit card.
+          </p>
+        </div>
 
-          {/* Visual Element: Abstract Grid/Preview */}
-          <div className="mt-20 relative">
-            <div className="absolute -inset-4 bg-accent/10 -z-10 blur-3xl opacity-50" />
-            <div className="relative border border-foreground/10 bg-card p-4 md:p-8">
-              <div className="flex items-center gap-4 mb-8 border-b border-foreground/5 pb-4">
-                <div className="size-3 bg-red-400" />
-                <div className="size-3 bg-yellow-400" />
-                <div className="size-3 bg-green-400" />
-                <div className="h-4 w-32 bg-foreground/5" />
-              </div>
+        <div className="relative border border-border bg-card p-8">
+          <span className="absolute -top-3 left-6 bg-accent px-2.5 py-0.5 font-sans font-bold text-[10px] text-accent-foreground uppercase tracking-[0.14em]">
+            Your resume score
+          </span>
+          <p className="font-sans text-[11px] text-foreground/50 uppercase tracking-[0.16em]">
+            Overall
+          </p>
+          <p className="font-display font-bold text-6xl text-foreground leading-none">
+            {SAMPLE_OVERALL}
+            <span className="ml-1 font-medium text-2xl text-foreground/50">
+              /100
+            </span>
+          </p>
 
-              <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between gap-8 border-b border-foreground/5 pb-6 last:border-0 last:pb-0"
-                  >
-                    <div className="space-y-2">
-                      <div
-                        className={
-                          i === 1
-                            ? "h-6 w-48 bg-foreground"
-                            : "h-6 w-48 bg-foreground/10"
-                        }
-                      />
-                      <div className="h-4 w-32 bg-foreground/5" />
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="h-8 w-20 border border-foreground/10" />
-                      <div className="h-8 w-20 bg-accent/20" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <DimensionList className="my-7" items={SAMPLE_DIMENSIONS} />
 
-              {/* Blurred Overlay for "Private" feel */}
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-card/40 backdrop-blur-[2px]">
-                <div className="bg-foreground px-6 py-3 font-bold text-sm uppercase tracking-widest text-primary-foreground">
-                  Private Network Only
-                </div>
-              </div>
-            </div>
-          </div>
+          <p className="border-t border-border pt-4 font-sans text-foreground/70 text-sm">
+            <b className="font-semibold text-foreground">
+              What&apos;s holding you back:
+            </b>{" "}
+            your last two roles list responsibilities without a single number a
+            hiring manager can weigh.
+          </p>
+          <p className="mt-4 font-sans text-[11px] text-foreground/40 tracking-wide">
+            Sample report shown for illustration.
+          </p>
         </div>
       </div>
     </section>

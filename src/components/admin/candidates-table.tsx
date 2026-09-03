@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { LocalDate } from "@/components/local-date";
 import { Input } from "@/components/ui/input";
 import { planLabel } from "@/lib/plan";
 import type { AdminCandidateListFields, Plan } from "@/types/db";
@@ -18,14 +19,6 @@ const PLAN_FILTERS: Array<{ value: "all" | Plan; label: string }> = [
   { value: "plan_2", label: "Core" },
   { value: "plan_3", label: "Pro" },
 ];
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export function CandidatesTable({ candidates }: Props) {
   const [query, setQuery] = useState("");
@@ -93,7 +86,7 @@ export function CandidatesTable({ candidates }: Props) {
                   )}
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  {formatDate(c.created_at)}
+                  <LocalDate iso={c.created_at} />
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
                   {c.linkedin_url ? "Linked" : "—"}

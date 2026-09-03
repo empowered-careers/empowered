@@ -45,7 +45,13 @@ export function Navbar() {
             href="#how-it-works"
             className="text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
           >
-            How It Works
+            How it works
+          </Link>
+          <Link
+            href="#lauren"
+            className="text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+          >
+            Meet Lauren
           </Link>
           <Link
             href="/events"
@@ -57,13 +63,13 @@ export function Navbar() {
             href="#pricing"
             className="text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
           >
-            Pricing
+            Coaching
           </Link>
           <Link
             href="/login"
             className="text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
           >
-            Log In
+            Log in
           </Link>
           <Button
             variant="lime"
@@ -71,7 +77,7 @@ export function Navbar() {
             asChild
             className="h-11 px-6 font-bold"
           >
-            <Link href="/login?tab=signup">Get Started</Link>
+            <Link href="/login?tab=signup">Get started</Link>
           </Button>
         </div>
 
@@ -96,7 +102,14 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(false)}
               className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
             >
-              How It Works
+              How it works
+            </Link>
+            <Link
+              href="#lauren"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
+            >
+              Meet Lauren
             </Link>
             <Link
               href="/events"
@@ -110,14 +123,14 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(false)}
               className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
             >
-              Pricing
+              Coaching
             </Link>
             <Link
               href="/login"
               onClick={() => setIsMenuOpen(false)}
               className="py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-accent"
             >
-              Log In
+              Log in
             </Link>
             <Button
               variant="lime"
@@ -129,7 +142,7 @@ export function Navbar() {
                 href="/login?tab=signup"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Get Started
+                Get started
               </Link>
             </Button>
           </div>

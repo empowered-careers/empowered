@@ -1,6 +1,7 @@
 import { ArrowRight, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
+import { LocalDate } from "@/components/local-date";
 import { Button } from "@/components/ui/button";
 import type { MyCoaching } from "@/lib/coaching";
 
@@ -45,14 +46,16 @@ export function MyCoachingCard({ coaching }: { coaching: MyCoaching }) {
             </span>
           </p>
           <p className="mt-1 text-muted-foreground text-sm">
-            {next
-              ? `Next session ${new Date(next.scheduled_for).toLocaleDateString(
-                  undefined,
-                  { weekday: "long", month: "short", day: "numeric" }
-                )}`
-              : inProgress > 0
-                ? `${inProgress} course${inProgress === 1 ? "" : "s"} in progress`
-                : "Nothing booked yet"}
+            {next ? (
+              <>
+                {"Next session "}
+                <LocalDate format="weekday" iso={next.scheduled_for} />
+              </>
+            ) : inProgress > 0 ? (
+              `${inProgress} course${inProgress === 1 ? "" : "s"} in progress`
+            ) : (
+              "Nothing booked yet"
+            )}
           </p>
           <Button asChild className="mt-4" size="sm" variant="outline">
             <Link href="/content">

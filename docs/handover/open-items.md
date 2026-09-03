@@ -45,7 +45,7 @@ Needs a developer.
 
 - **Adversarial RLS check.** Never run. With a candidate JWT in Supabase Studio,
   confirm: `insert into jobs …` blocked; `select * from applications where profile_id
-  != auth.uid()` blocked; `update applications set status='offer'` on your own row
+!= auth.uid()` blocked; `update applications set status='offer'` on your own row
   blocked. RLS is the authorization model — this is worth an afternoon.
 
 - **`/admin/coaching` write path.** Create a `kind='session'` product and then edit it.
@@ -99,7 +99,7 @@ Verify each is set **in Vercel**, not only `.env.local`:
 - [ ] `ANTHROPIC_API_KEY` — Inngest Cloud calls the Vercel function, so a local-only
       key means every production parse and score fails
 - [ ] `SUPABASE_SECRET_KEY` — same reason
-- [ ] `INNGEST_EVENT_KEY` — the endpoint sync proves only the *signing* key is set;
+- [ ] `INNGEST_EVENT_KEY` — the endpoint sync proves only the _signing_ key is set;
       sending is a separate key. Without it, `inngest.send()` throws
 - [ ] `NEXT_PUBLIC_SITE_URL` = the real domain — Stripe Checkout builds its
       success/cancel URLs from it
@@ -184,7 +184,7 @@ From `docs/README.md`, comparing the code against
   **These two numbers decide which service tier the follow-up call pitches.**
   Intentional?
 
-  (The underlying scoring change is *not* in question — the PDF's "max 12 per category,
+  (The underlying scoring change is _not_ in question — the PDF's "max 12 per category,
   72 total" is arithmetically wrong, since 1–5 scales max at 5 and MC at 4. The code
   normalises to percentages, which is correct.)
 

@@ -1,5 +1,11 @@
 # docs/
 
+> **Handing over / new to the codebase?** Read
+> [`handover/`](handover/) first — setup, architecture, third-party services, and a
+> triaged list of what's unfinished. There's an HTML version in
+> [`handover/html/index.html`](handover/html/index.html). This file indexes the wider
+> product-doc history, much of which predates the pivot.
+
 > **Start here:** the platform pivoted from job-board-first to coaching-first in
 > August 2026. `ec-pivot-brief.md` is the direction, `ec-pivot-plan.md` is the
 > implementation. Where any older doc conflicts with those two, they win — and
@@ -24,6 +30,7 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 
 | Dir           | Meaning                                                                     |
 | ------------- | --------------------------------------------------------------------------- |
+| `handover/`   | Onboarding for a new owner — setup, architecture, services, open items      |
 | `done/`       | Shipped plans — historical record, don't edit                               |
 | `deferred/`   | Speced but deliberately not built yet; each says why and what unblocks it   |
 | `deprecated/` | Superseded docs kept as narrative only — never cite these as current status |
@@ -31,6 +38,17 @@ See `docs/done/ec-candidate-pipeline-plan.md` and `docs/done/ec-job-board-plan.m
 | `prototypes/` | Design/UX prototypes (HTML mocks + assessment content drafts)               |
 
 ## Current files
+
+**Handover (read these first if you're new):**
+
+- `handover/README.md` — reading order and the five things to know before touching anything
+- `handover/local-setup.md` — clone to a working resume pipeline, with the observable outcome at each step
+- `handover/services.md` — Supabase, Vercel, Inngest, Anthropic, Stripe, Loops, Calendly, Cal.com, GitHub Actions, Search Console
+- `handover/architecture.md` — the four conventions, request flow, async job pattern, what passes for testing
+- `handover/data-model.md` — 28 tables and 21 enums, live vs dormant, RLS
+- `handover/dormant-surfaces.md` — why half the codebase serves a product that's no longer sold
+- `handover/open-items.md` — `todo.md` triaged into engineering / ops / business decisions
+- `handover/html/` — the same material as browsable HTML
 
 **The pivot (read these first):**
 

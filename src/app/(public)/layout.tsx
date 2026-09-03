@@ -18,7 +18,10 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-accent selection:text-accent-foreground">
+    // Dark is the only theme on the public marketing pages at launch — the
+    // light palette fails contrast on lime. `dark` here (not on <html>) leaves
+    // the signed-in app free to follow the user's system preference.
+    <div className="dark min-h-screen flex flex-col bg-background text-foreground selection:bg-accent selection:text-accent-foreground">
       <JsonLd data={organizationJsonLd} />
       <Navbar />
       <main className="flex-1">{children}</main>

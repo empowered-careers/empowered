@@ -3,15 +3,20 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { retryLinkedinSync, triggerLinkedinSync } from "@/app/actions/linkedin";
+import {
+  retryLinkedinSync,
+  triggerLinkedinSync,
+  type TriggerLinkedinSyncResult,
+} from "@/app/actions/linkedin";
 import {
   Dropzone,
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/dropzone";
+import { LinkedInUrlDialog } from "@/components/linkedin/linkedin-url-dialog";
 import { Button } from "@/components/ui/button";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import { sha256Hex } from "@/lib/file-hash";
@@ -33,6 +38,14 @@ export function LinkedInPdfUpload({
   const queryClient = useQueryClient();
   const triggerLockRef = useRef(false);
 
+  // The upload that couldn't be attached because the profile has no LinkedIn
+  // URL yet. Held so the dialog can retry the SAME storage object instead of
+  // asking the user to pick the file again — the export is already uploaded.
+  const [pendingUpload, setPendingUpload] = useState<{
+    storageObjectPath: string;
+    fileHash: string;
+  } | null>(null);
+
   const upload = useSupabaseUpload({
     bucketName: "linkedin-exports",
     path: userId,
@@ -45,23 +58,23 @@ export function LinkedInPdfUpload({
 
   const { files, isSuccess, uploadedObjectPaths, setFiles, open } = upload;
 
-  useEffect(() => {
-    if (!isSuccess || files.length === 0) {
-      triggerLockRef.current = false;
-      return;
-    }
-
-    const file = files[0];
-    const objectPath = uploadedObjectPaths[file.name];
-    if (!objectPath || triggerLockRef.current) return;
-    triggerLockRef.current = true;
-
-    void (async () => {
-      const fileHash = await sha256Hex(file);
-      const result = await triggerLinkedinSync({
-        storageObjectPath: objectPath,
-        fileHash,
-      });
+  /**
+   * Shared by the initial upload and by the retry that follows the URL dialog,
+   * so both paths settle the same way.
+   */
+  const applySyncResult = useCallback(
+    async (
+      result: TriggerLinkedinSyncResult,
+      pending: { storageObjectPath: string; fileHash: string }
+    ) => {
+      const settle = async () => {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.dashboard.byUser(userId),
+        });
+        router.refresh();
+        setFiles([]);
+        onTriggered?.();
+      };
 
       if (result.success) {
         toast.success(
@@ -74,13 +87,11 @@ export function LinkedInPdfUpload({
               : "Parsing in progress…",
           }
         );
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.dashboard.byUser(userId),
-        });
-        router.refresh();
-        setFiles([]);
-        onTriggered?.();
-      } else if (result.kind === "inngest_send_failed") {
+        await settle();
+        return;
+      }
+
+      if (result.kind === "inngest_send_failed") {
         const stuckId = result.linkedinProfileId;
         toast.error("Processing queue temporarily unavailable", {
           description: "Your export is saved — try again to queue parsing.",
@@ -96,30 +107,73 @@ export function LinkedInPdfUpload({
             },
           },
         });
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.dashboard.byUser(userId),
-        });
-        router.refresh();
-        setFiles([]);
-        onTriggered?.();
-      } else {
-        toast.error(result.error);
-        triggerLockRef.current = false;
+        await settle();
+        return;
       }
+
+      if (result.kind === "missing_linkedin_url") {
+        // Don't toast-and-drop: the PDF is already in storage, so ask for the
+        // one missing input and finish the job rather than losing the upload.
+        setPendingUpload(pending);
+        triggerLockRef.current = false;
+        return;
+      }
+
+      toast.error(result.error);
+      triggerLockRef.current = false;
+    },
+    [onTriggered, queryClient, router, setFiles, userId]
+  );
+
+  useEffect(() => {
+    if (!isSuccess || files.length === 0) {
+      triggerLockRef.current = false;
+      return;
+    }
+
+    const file = files[0];
+    const objectPath = uploadedObjectPaths[file.name];
+    if (!objectPath || triggerLockRef.current) return;
+    triggerLockRef.current = true;
+
+    void (async () => {
+      const pending = {
+        storageObjectPath: objectPath,
+        fileHash: await sha256Hex(file),
+      };
+      await applySyncResult(await triggerLinkedinSync(pending), pending);
     })();
-  }, [
-    files,
-    isSuccess,
-    onTriggered,
-    queryClient,
-    router,
-    setFiles,
-    uploadedObjectPaths,
-    userId,
-  ]);
+  }, [applySyncResult, files, isSuccess, uploadedObjectPaths]);
 
   return (
     <div className="space-y-3">
+      <LinkedInUrlDialog
+        description={
+          <>
+            Your export is uploaded — we just need your profile URL to attach it
+            and start scoring.
+          </>
+        }
+        onOpenChange={(next) => {
+          if (!next) {
+            // Dismissed without saving: the object stays in storage but nothing
+            // references it, so say so rather than implying it worked.
+            setPendingUpload(null);
+            toast.error("Add your LinkedIn URL to finish this upload.");
+          }
+        }}
+        onSaved={() => {
+          const pending = pendingUpload;
+          setPendingUpload(null);
+          if (!pending) return;
+          void (async () => {
+            await applySyncResult(await triggerLinkedinSync(pending), pending);
+          })();
+        }}
+        open={pendingUpload !== null}
+        submitLabel="Save and score"
+        title="One more thing"
+      />
       <p className="text-xs text-muted-foreground">
         On LinkedIn: open your profile → <strong>More</strong> →{" "}
         <strong>Save to PDF</strong>, then upload here.

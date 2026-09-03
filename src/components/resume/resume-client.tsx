@@ -13,6 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { retryParseResume } from "@/app/actions/resume";
+import { LocalDate } from "@/components/local-date";
 import { ResumeUploader } from "@/components/resume/resume-uploader";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
@@ -65,14 +66,6 @@ const SENIORITY_LABELS: Record<SeniorityLevel, string> = {
   vp: "VP",
   c_level: "C-level",
 };
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function scoreColorClass(score: number): string {
   if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
@@ -203,8 +196,13 @@ export function ResumeClient({ resumes, userId, bigWins }: ResumeClientProps) {
                 {cur.file_name?.trim() || "Untitled resume"}
               </p>
               <p className="text-xs text-muted-foreground">
-                Uploaded {formatDate(cur.uploaded_at)}
-                {cur.parsed_at && ` · Parsed ${formatDate(cur.parsed_at)}`}
+                Uploaded <LocalDate iso={cur.uploaded_at} />
+                {cur.parsed_at && (
+                  <>
+                    {" · Parsed "}
+                    <LocalDate iso={cur.parsed_at} />
+                  </>
+                )}
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <StatusBadge status={cur.status} />
@@ -426,7 +424,7 @@ export function ResumeClient({ resumes, userId, bigWins }: ResumeClientProps) {
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Uploaded {formatDate(r.uploaded_at)}
+                    Uploaded <LocalDate iso={r.uploaded_at} />
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

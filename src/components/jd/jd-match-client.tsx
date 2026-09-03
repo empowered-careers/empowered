@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { submitJd } from "@/app/actions/jd";
+import { LocalDate } from "@/components/local-date";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -158,10 +159,7 @@ export function JdMatchClient({
                         : "Scoring…")}
                   </p>
                   <p className="mt-1 text-[11.5px] text-muted-foreground">
-                    {new Date(jd.created_at).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    <LocalDate format="compact" iso={jd.created_at} />
                     {jd.source === "paid" && " · unlimited"}
                   </p>
                 </div>

@@ -35,6 +35,11 @@ export type TriggerLinkedinSyncResult =
       linkedinProfileId: string;
       error: string;
     }
+  // The upload landed in storage but there's no `linkedin_profiles` row to
+  // attach it to, because the profile has no LinkedIn URL yet. Discriminated
+  // rather than matched on the message so the caller can prompt for the URL
+  // and retry the *same* upload — see LinkedInPdfUpload.
+  | { success: false; kind: "missing_linkedin_url"; error: string }
   | { success: false; kind?: undefined; error: string };
 
 /**
@@ -70,7 +75,11 @@ export async function triggerLinkedinSync(input: {
 
   const row = await ensureLinkedinProfileRow(supabase, user.id);
   if (!row) {
-    return { success: false, error: "Add your LinkedIn URL first." };
+    return {
+      success: false,
+      kind: "missing_linkedin_url",
+      error: "Add your LinkedIn URL first.",
+    };
   }
 
   // Action-level dedup: same file hash already fully parsed → skip.

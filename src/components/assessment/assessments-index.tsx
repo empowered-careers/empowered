@@ -3,6 +3,7 @@
 import { Compass, Target, Trophy } from "lucide-react";
 import Link from "next/link";
 
+import { useLocalDateOrNull } from "@/components/local-date";
 import { Button } from "@/components/ui/button";
 import type {
   RoleClarityResult,
@@ -30,27 +31,19 @@ interface AssessmentsIndexProps {
   } | null;
 }
 
-function formatTakenDate(iso: string | null): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 export function AssessmentsIndex({
   blueprint,
   bigWins,
   roleClarity,
 }: AssessmentsIndexProps) {
-  const taken = formatTakenDate(blueprint?.completed_at ?? null);
+  const taken = useLocalDateOrNull(blueprint?.completed_at ?? null, "long");
   const hasResult = !!blueprint?.result;
-  const winsUpdated = formatTakenDate(bigWins.completed_at);
+  const winsUpdated = useLocalDateOrNull(bigWins.completed_at, "long");
   const clarityResult = roleClarity?.result ?? null;
-  const clarityTaken = formatTakenDate(roleClarity?.completed_at ?? null);
+  const clarityTaken = useLocalDateOrNull(
+    roleClarity?.completed_at ?? null,
+    "long"
+  );
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">

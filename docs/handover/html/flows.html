@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flows — Empowered Careers handover</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="brand">Empowered Careers <span>· handover</span></div>
+      <nav class="tabs">
+        <a href="index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="data-model.html">Data model</a>
+        <a href="services.html">Services</a>
+        <a class="on" href="flows.html">Flows</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Flows</h1>
+      <p class="lede">
+        Three walkthroughs that cover most of the platform: the resume pipeline, a
+        purchase becoming an entitlement, and the assessment → prescription loop.
+      </p>
+      <p>
+        Jump to: <a href="#resume">Resume pipeline</a> ·
+        <a href="#purchase">Purchase → entitlement</a> ·
+        <a href="#assessment">Assessment → prescription</a>
+      </p>
+
+      <h2 id="resume">1. Resume upload → parse → score → toast</h2>
+      <p>
+        The canonical instance of the async background-job pattern. Every other
+        background feature is a copy of this shape — <strong>don't invent a new
+        one</strong>.
+      </p>
+
+      <pre><code>Candidate         Server Action      Inngest         Anthropic      Supabase
+    │                   │                │                │             │
+    │── upload PDF ────▶│                │                │             │
+    │                   │── hash file ──────────────────────────────────▶│
+    │                   │◀── duplicate? ────────────────────────────────│
+    │                   │                │                │             │
+    │                   │── insert row, status:'uploading' ────────────▶│
+    │◀── toast 1 ───────│                │                │             │
+    │   "in progress"   │                │                │             │
+    │                   │── send(resume/uploaded) ──▶│    │             │
+    │                   │   fire & forget            │    │             │
+    │◀──────────────────│                │           │    │             │
+    │  free to navigate away             │           │    │             │
+    │                                    │── parse ──────▶│             │
+    │                                    │◀── ParsedResume│             │
+    │                                    │── score ──────▶│             │
+    │                                    │◀── Scoring ────│             │
+    │                                    │── write back (SECRET key) ──▶│
+    │                                    │   status:'complete'          │
+    │                                    │                              │
+    │◀════ Realtime postgres_changes ══════════════════════════════════│
+    │                                                                   │
+    │◀── toast 2, with action button ── useResumeNotifications          │
+    │    → invalidates queryKeys.resumes                                │</code></pre>
+
+      <ol class="steps">
+        <li>
+          <strong>Upload</strong>
+          <p>
+            <code>src/app/actions/resume.ts</code>. The file is hashed first — a
+            duplicate short-circuits with "Resume already on file" and
+            <strong>no Claude call fires</strong>. A different file supersedes the
+            previous row (<code>is_current = false</code>, <code>superseded_at</code>
+            stamped).
+          </p>
+        </li>
+        <li>
+          <strong>Row inserted, first toast</strong>
+          <p>
+            <code>resumes.status</code> starts at <code>'uploading'</code>. The user
+            sees immediate feedback and can navigate away.
+          </p>
+        </li>
+        <li>
+          <strong><code>inngest.send('resume/uploaded')</code></strong>
+          <p>
+            Fire and forget. If <em>this</em> throws, the action returns
+            <code>{ kind: "inngest_send_failed", resumeId }</code> so the UI offers a
+            retry button rather than hanging. There's also a recovery path for rows
+            stuck in <code>uploading</code>/<code>processing</code>.
+          </p>
+        </li>
+        <li>
+          <strong><code>parse-resume</code> runs</strong>
+          <p>
+            <code>src/inngest/functions/parse-resume.ts</code>. Two Claude calls: parse
+            with the cheap model, score with the stronger one. Each step is a
+            <code>step.run()</code>, so a retry resumes rather than restarting.
+            <code>retries: 2</code>, <code>concurrency: { limit: 5 }</code>.
+          </p>
+        </li>
+        <li>
+          <strong>Results written back with the secret key</strong>
+          <p>
+            The worker has no user session, so it uses
+            <code>createServiceClient()</code>, which bypasses RLS.
+            <code>parsed_json</code>, <code>resume_score</code>, and the prompt version
+            are stored; <code>status</code> flips to <code>'complete'</code>.
+          </p>
+        </li>
+        <li>
+          <strong>Realtime fires</strong>
+          <p>
+            <code>useResumeNotifications</code> — mounted once in the root layout, so it
+            survives navigation — catches the <code>postgres_changes</code> event
+            filtered by <code>profile_id=eq.${userId}</code>.
+          </p>
+        </li>
+        <li>
+          <strong>Toast + cache invalidation</strong>
+          <p>
+            Sonner toast with an action button routing to <code>/resume</code>, and the
+            relevant <code>queryKeys.*</code> entry is invalidated.
+          </p>
+        </li>
+      </ol>
+
+      <div class="note">
+        <p><strong>On failure</strong></p>
+        <p>
+          The function's <code>onFailure</code> handler flips the row to
+          <code>status: 'failed'</code> with a truncated <code>parse_error</code>.
+          <code>NonRetriableError</code> is used for "this will never succeed" cases
+          (row missing) so retries aren't burned.
+        </p>
+      </div>
+
+      <p>
+        <strong>Same shape, different domain:</strong> <code>parse-linkedin</code>
+        (LinkedIn PDF exports — and it must leave the OAuth fields
+        <code>linkedin_url</code>, <code>headline</code>, <code>raw_json</code>
+        untouched) and <code>match-jd</code> (a pasted job description scored against
+        the resume, surfaced at <code>/jd-match</code>).
+      </p>
+
+      <h2 id="purchase">2. Purchase → payment → entitlement</h2>
+      <div class="note danger">
+        <p>
+          <strong>This path has never completed end to end.</strong>
+          <code>payments</code> and <code>enrollments</code> were both 0 rows at last
+          audit. Everything below is as-designed, not as-verified.
+        </p>
+      </div>
+
+      <pre><code>Candidate      /api/stripe/checkout      Stripe      /api/stripe/webhook   Supabase
+    │                  │                    │                 │              │
+    │── POST {priceId} ▶│                    │                 │              │
+    │                  │── assertAllowedPriceId() ─────────────────────────▶ │
+    │                  │   derives subscription vs one_time server-side      │
+    │                  │                    │                 │              │
+    │                  │── create customer if needed ────────▶│              │
+    │                  │── cache stripe_customer_id ───────────────────────▶ │
+    │                  │── create Checkout Session ──────────▶│              │
+    │◀── redirect URL ─│                    │                 │              │
+    │                                       │                 │              │
+    │══ pays on Stripe's hosted page ══════▶│                 │              │
+    │                                       │── webhook ─────▶│              │
+    │                                       │                 │── verify sig │
+    │                                       │                 │── dedupe on  │
+    │                                       │                 │   event_id ─▶│
+    │                                       │                 │              │
+    │                                       │      handleCheckoutCompleted   │
+    │                                       │                 │── payments ─▶│
+    │                                       │                 │── enrollments│
+    │                                       │                 │   (+ bundle  │
+    │                                       │                 │    fan-out) ▶│
+    │◀── /checkout/success ─────────────────│◀── 200 ok ──────│              │</code></pre>
+
+      <ol class="steps">
+        <li>
+          <strong>Client POSTs <code>{ priceId }</code></strong>
+          <p>That's the entire request body.</p>
+        </li>
+        <li>
+          <strong>The price is validated server-side</strong>
+          <p>
+            <code>assertAllowedPriceId()</code> checks it against
+            <code>coaching_products.stripe_price_id</code> and derives
+            <code>subscription</code> vs <code>one_time</code> from it.
+            <strong>A client cannot force the mode or pay an arbitrary price.</strong>
+          </p>
+        </li>
+        <li>
+          <strong>Stripe customer ensured</strong>
+          <p>
+            Created if absent, then cached on
+            <code>profiles.stripe_customer_id</code> for the portal and webhook lookups.
+          </p>
+        </li>
+        <li>
+          <strong>Checkout Session created; client redirects</strong>
+          <p>
+            Success and cancel URLs are built from
+            <code>NEXT_PUBLIC_SITE_URL</code> — which is why a wrong value in
+            production sends paying customers to <code>localhost</code>.
+          </p>
+        </li>
+        <li>
+          <strong>Webhook: verify, then dedupe</strong>
+          <p>
+            Raw body + Node runtime are required for signature verification. The event
+            is recorded in <code>stripe_webhook_events</code> and the handler
+            short-circuits if <code>processed_at</code> is already set —
+            <strong>Stripe redelivers</strong>.
+          </p>
+        </li>
+        <li>
+          <strong><code>handleCheckoutCompleted</code></strong>
+          <p>
+            Inserts a <code>payments</code> row (unique-violation tolerant), then upserts
+            <code>enrollments</code>.
+          </p>
+        </li>
+        <li>
+          <strong>Bundle fan-out</strong>
+          <p>
+            A bundle grants its <em>own</em> enrollment <strong>plus</strong> one per
+            product in <code>bundle_contents</code>, so both "what did they buy" and
+            "what can they access" stay answerable. Upserted with
+            <code>ignoreDuplicates</code> — <code>on conflict do nothing</code> per row
+            — so redelivery is a no-op and a buyer who already owns one contained SKU
+            still gets the rest. A plain insert would fail the whole batch on 23505.
+          </p>
+        </li>
+      </ol>
+
+      <div class="note">
+        <p><strong>Two design decisions worth knowing</strong></p>
+        <p>
+          <strong>Handler errors return 5xx on purpose</strong> so Stripe retries; the
+          error is stored on the <code>stripe_webhook_events</code> row. Unknown event
+          types are recorded and acked with 200 — a 4xx would make Stripe retry forever.
+        </p>
+        <p>
+          <strong>The bundle's own enrollment row is load-bearing.</strong> The
+          quick-add SKUs in <code>bundle_contents</code> are a coarser, cheaper
+          repackaging and don't cover everything a tier advertises — so the fan-out
+          can't be the whole entitlement story.
+        </p>
+      </div>
+
+      <h3>Then: the purchase gate reads it</h3>
+      <pre><code>src/app/(app)/layout.tsx
+
+  no user ──────────────────────────────────▶ redirect('/login')
+  role === 'employer' ──────────────────────▶ redirect('/employer')
+  needsPurchase({ enabled, isAdmin, hasEnrollment }) ─▶ redirect('/invite')
+
+src/lib/purchase-gate.ts   (pure — see purchase-gate.check.ts)
+
+  !enabled   → false   gate off is fully inert, whatever the role
+  isAdmin    → false   admins are the ones who'd have to unlock it
+  otherwise  → !hasEnrollment</code></pre>
+      <p>
+        <code>hasAnyEnrollment()</code> in <code>src/lib/coaching.ts</code> reads
+        <code>enrollments</code> — <strong>never user metadata</strong>, which the
+        browser session can write itself. A migration
+        (<code>20260903000000_enrollments_no_self_grant.sql</code>) removes the
+        candidate INSERT policy, so entitlement can only be granted by server code that
+        checked something first. There are exactly two such writers:
+      </p>
+      <pre><code>  handleCheckoutCompleted()   ← a completed Stripe payment
+  redeemInviteCode()          ← a valid BETA_INVITE_CODE at /invite
+                                grants a comp "Beta Access" enrollment
+
+  both write on the SERVICE-ROLE client, and both land in `enrollments`</code></pre>
+      <p>
+        The beta code is also registered as a 100%-off Stripe promotion code, so a
+        tester who runs real checkout instead arrives at the same place via the webhook.
+        Either way, <code>enrollments</code> stays the single entitlement source.
+      </p>
+
+      <h3>And separately: Calendly books the session</h3>
+      <pre><code>Candidate ─▶ Calendly (one shared event type for all session products)
+                  │
+                  │  booking URL carries ?utm_content=&lt;enrollment_id&gt;
+                  ▼
+          /api/calendly/webhook ─▶ coaching_sessions
+                  │
+                  └─ 503 today: CALENDLY_WEBHOOK_SECRET is unset</code></pre>
+      <p>
+        Matching is on <code>utm_content</code>, <strong>not</strong> the event slug —
+        so duplicate booking URLs across products are correct, not a bug.
+      </p>
+
+      <h2 id="assessment">3. Assessment → scores → dashboard prescription</h2>
+      <p>
+        How the platform decides what to recommend selling to a given candidate. This is
+        the qualification-and-warming layer that feeds 1:1 coaching.
+      </p>
+
+      <pre><code>  ┌─ Career Positioning Assessment ─┐   public, pre-signup, 18 questions
+  │  lives in CODE, not the DB      │   → results land on `leads`
+  └─────────────────────────────────┘
+
+  ┌─ Career Identity Blueprint ─┐
+  │  Big Wins                   │  seeded in `assessments` by migration
+  │  Role Clarity               │  answers → `assessment_responses`
+  └─────────────────────────────┘  derived → `candidate_scores`
+                │
+                ▼
+      fetchDashboardSignals()  ── src/lib/dashboard/signals.ts
+                │
+                │  Blueprint dimensions (7 × 0–100)
+                │  resume_score · linkedin profile_score · latest JD ats_score
+                │  owned product names (from enrollments)
+                ▼
+        prescribe()  ── src/lib/dashboard/prescribe.ts
+                │
+                │  RULES, NOT AN LLM
+                │  matches on product NAME, not id
+                │  never prescribes something already owned
+                │  a rule whose product isn't in the catalog is SKIPPED
+                ▼
+      one product + a `reason` string, shown on the dashboard</code></pre>
+
+      <div class="note">
+        <p><strong>Why rules and not an LLM</strong></p>
+        <p>
+          Straight from the source: this is a ranking-and-explanation problem over a
+          fixed 11-row catalog, and a rules table is auditable, free, and instant.
+          Promote to LLM-assisted only if the rules demonstrably misfire.
+        </p>
+        <p>
+          Rules match on product <strong>name</strong> so the seeded catalog can be
+          edited in admin without a code change, and a rule pointing at a product that
+          isn't in the catalog is skipped rather than rendered as a dead CTA.
+        </p>
+      </div>
+
+      <div class="note warn">
+        <p>
+          The <code>reason</code> strings in <code>prescribe.ts</code> are shown to
+          candidates <strong>verbatim</strong> and have never been reviewed by anyone
+          with voice authority. See <a href="../open-items.md">open-items.md</a>.
+        </p>
+      </div>
+
+      <p>
+        Alongside the prescription, the dashboard composes
+        <code>buildProfileSteps()</code> (the completeness checklist behind the sidebar
+        ring) and <code>computeNudges()</code> (time-sensitive prompts — interviewing
+        applications, stale enrollments). All three are pure functions; only
+        <code>prescribe</code> has a <code>.check.ts</code>.
+      </p>
+
+      <h3>The intake gate sits in front of all of it</h3>
+      <p>
+        Resume upload is required before dashboard access, and it stays that way even
+        with no job board behind it — <strong>building the candidate list is the
+        point</strong>. That's rule 3 of the pivot, and it isn't up for
+        re-litigation.
+      </p>
+    </main>
+
+    <footer class="site">
+      Sources: <a href="../architecture.md">architecture.md</a> ·
+      <a href="../services.md">services.md</a> ·
+      <a href="../local-setup.md">local-setup.md</a> ·
+      <a href="../open-items.md">open-items.md</a>
+    </footer>
+  </body>
+</html>

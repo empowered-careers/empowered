@@ -1,55 +1,47 @@
-"use client";
+const steps = [
+  {
+    number: "01",
+    title: "Get your score",
+    description:
+      "Upload your resume and connect your LinkedIn. You get a score out of 100 and a clear read on what's working and what's holding you back.",
+  },
+  {
+    number: "02",
+    title: "Strengthen your story",
+    description:
+      "AI-assisted improvements to your resume and LinkedIn, written in your voice and grounded in your real history. Nothing gets invented, because the tool only works from what you've actually done.",
+  },
+  {
+    number: "03",
+    title: "Add a coach when you want one",
+    description:
+      "The tools stand on their own. When you want a human read, book a session with a coach who knows what hiring managers look for, with a wrap-up conversation built into the price.",
+  },
+];
 
 export function HowItWorks() {
-  const steps = [
-    {
-      number: "01",
-      title: "Get Assessed",
-      description:
-        "Upload your resume, link LinkedIn. We score your profile across 8 dimensions including technical depth, leadership potential, and market value.",
-    },
-    {
-      number: "02",
-      title: "Access Exclusive Roles",
-      description:
-        "Subscribe to unlock roles that never hit public job boards. These are direct-to-recruiter opportunities from our private network.",
-    },
-    {
-      number: "03",
-      title: "Get Matched",
-      description:
-        "Our algorithm surfaces roles where you're a top 5% fit — moving beyond keyword matching to true competency alignment.",
-    },
-  ];
-
   return (
-    <section id="how-it-works" className="bg-background py-24 md:py-32">
+    <section className="bg-background py-24 md:py-32" id="how-it-works">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mb-20">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
-            The private path to your next <br />
-            career breakthrough.
-          </h2>
-          <p className="font-sans text-lg text-foreground/60">
-            Stop competing in public talent pools. Join the 1% who get hired
-            through private networks.
-          </p>
-        </div>
+        <p className="mb-4 font-sans font-semibold text-[11px] text-accent uppercase tracking-[0.18em]">
+          How it works
+        </p>
+        <h2 className="mb-16 max-w-3xl font-display font-bold text-4xl text-foreground md:text-5xl">
+          Score it, strengthen it, own the story.
+        </h2>
 
-        <div className="grid md:grid-cols-3 gap-12">
+        <div className="grid gap-12 md:grid-cols-3">
           {steps.map((step) => (
-            <div key={step.number} className="relative group">
-              <div className="font-display text-8xl font-black text-foreground/[0.03] absolute -top-12 -left-4 pointer-events-none group-hover:text-accent/10 transition-colors duration-500">
+            <div key={step.number}>
+              <div className="font-display text-4xl text-accent/85 leading-none">
                 {step.number}
               </div>
-              <div className="relative z-10 pt-8">
-                <h3 className="font-display text-2xl font-bold text-foreground mb-4">
-                  {step.title}
-                </h3>
-                <p className="font-sans text-foreground/60 leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
+              <h3 className="mt-4 mb-3 font-display font-bold text-2xl text-foreground">
+                {step.title}
+              </h3>
+              <p className="font-sans text-foreground/60 leading-relaxed">
+                {step.description}
+              </p>
             </div>
           ))}
         </div>

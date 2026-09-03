@@ -145,9 +145,37 @@ check `STRIPE_WEBHOOK_SECRET` first.
 
 ---
 
+## 7b. Smoke test: the invite code
+
+The other way into a gated app, and the one beta testers actually use.
+
+```bash
+# in .env.local
+PURCHASE_GATE_ENABLED=true
+BETA_INVITE_CODE=ECTEST100
+```
+
+Sign in as a non-admin with no enrollment.
+
+- [ ] Any `(app)` route redirects to `/invite`
+- [ ] `/invite` shows the code form (it hides the form and offers only the purchase
+      route when `BETA_INVITE_CODE` is unset)
+- [ ] A wrong code is rejected; **an empty submission is rejected** — matching is
+      case- and whitespace-insensitive, but an empty expected code never matches
+- [ ] The right code grants an `enrollments` row against the seeded **Beta Access**
+      product, and the app opens
+- [ ] "Beta Access" does **not** appear in `/pricing`, the catalog, or dashboard
+      prescriptions — it's `is_active = false`, and all three filter on that
+
+Then unset `PURCHASE_GATE_ENABLED` and confirm the gate goes fully inert: nobody is
+redirected, whatever their role or entitlement. That branch is covered by
+`npx tsx src/lib/purchase-gate.check.ts`.
+
+---
+
 ## 8. The self-checks
 
-No test framework. Nine `assert`-based files, run individually:
+No test framework. Ten `assert`-based files, run individually:
 
 ```bash
 npx tsx src/lib/purchase-gate.check.ts
@@ -158,6 +186,7 @@ npx tsx src/lib/assessment/big-wins.check.ts
 npx tsx src/lib/assessment/career-positioning.check.ts
 npx tsx src/lib/assessment/role-clarity.check.ts
 npx tsx src/data/target-roles.check.ts
+npx tsx src/components/local-date.check.ts
 npx tsx src/lib/cal.check.ts        # dormant twin
 ```
 
@@ -186,16 +215,16 @@ Husky + lint-staged run ESLint and Prettier on staged files automatically.
 
 ## Troubleshooting
 
-| Symptom                                        | Cause                                                                 |
-| ---------------------------------------------- | --------------------------------------------------------------------- |
-| Resume stuck at `processing` forever            | Inngest dev server not running (Terminal 1)                           |
-| Inngest GUI lists no functions                  | Next.js not running, or `/api/inngest` is erroring                     |
-| `getAnthropic()` throws                         | `ANTHROPIC_API_KEY` unset                                              |
-| Worker can't write results back                 | `SUPABASE_SECRET_KEY` unset — the worker has no user session           |
-| Write "succeeds" but no row appears             | **RLS.** A blocked write returns success-shaped empty data, not an error |
-| Checkout 503s                                   | `STRIPE_SECRET_KEY` unset                                              |
-| Payment succeeds in Stripe, nothing in the DB   | `STRIPE_WEBHOOK_SECRET` unset or wrong → route 503s                    |
-| Booking made, no `coaching_sessions` row        | `CALENDLY_WEBHOOK_SECRET` unset → route 503s                           |
-| Zod error at boot naming a variable             | That variable is missing or malformed. `env.ts` is the authority       |
-| Type errors after pulling                       | Schema changed — run `npm run supabase:types`                          |
-| A retry button on a JD submission               | `inngest.send()` failed — check `INNGEST_EVENT_KEY` in production      |
+| Symptom                                       | Cause                                                                    |
+| --------------------------------------------- | ------------------------------------------------------------------------ |
+| Resume stuck at `processing` forever          | Inngest dev server not running (Terminal 1)                              |
+| Inngest GUI lists no functions                | Next.js not running, or `/api/inngest` is erroring                       |
+| `getAnthropic()` throws                       | `ANTHROPIC_API_KEY` unset                                                |
+| Worker can't write results back               | `SUPABASE_SECRET_KEY` unset — the worker has no user session             |
+| Write "succeeds" but no row appears           | **RLS.** A blocked write returns success-shaped empty data, not an error |
+| Checkout 503s                                 | `STRIPE_SECRET_KEY` unset                                                |
+| Payment succeeds in Stripe, nothing in the DB | `STRIPE_WEBHOOK_SECRET` unset or wrong → route 503s                      |
+| Booking made, no `coaching_sessions` row      | `CALENDLY_WEBHOOK_SECRET` unset → route 503s                             |
+| Zod error at boot naming a variable           | That variable is missing or malformed. `env.ts` is the authority         |
+| Type errors after pulling                     | Schema changed — run `npm run supabase:types`                            |
+| A retry button on a JD submission             | `inngest.send()` failed — check `INNGEST_EVENT_KEY` in production        |

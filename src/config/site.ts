@@ -9,15 +9,15 @@ export const siteConfig = {
   name: "Empowered Careers",
   shortName: "Empowered",
   description:
-    "A curated talent network for mid-to-senior tech professionals — assessed, scored, and matched to exclusive roles.",
+    "AI career tools with a real recruiter's judgment: score your resume and LinkedIn, rebuild them in your voice, and add real coaching when you want it.",
   keywords: [
     "Empowered Careers",
-    "tech careers",
-    "senior engineer jobs",
-    "talent network",
-    "exclusive roles",
+    "resume score",
+    "resume rewrite",
+    "LinkedIn optimization",
+    "career coaching",
     "interview prep",
-    "resume coaching",
+    "executive job search",
   ],
   author: {
     name: "Empowered Careers",

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Services — Empowered Careers handover</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="brand">Empowered Careers <span>· handover</span></div>
+      <nav class="tabs">
+        <a href="index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="data-model.html">Data model</a>
+        <a class="on" href="services.html">Services</a>
+        <a href="flows.html">Flows</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Third-party services</h1>
+      <p class="lede">
+        Every external dependency: what it does here, which files touch it, and exactly
+        what breaks when its variable is unset.
+      </p>
+      <p>
+        Full detail including setup steps:
+        <a href="../services.md">docs/handover/services.md</a>. Variables:
+        <a href="../../../.env.local.example">.env.local.example</a> and
+        <a href="../../../env.ts">env.ts</a>.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>You will need invites.</strong> Ask GT for access to each dashboard.
+          Credentials are not in this repo and never should be.
+        </p>
+      </div>
+
+      <h2>The posture: optional and inert</h2>
+      <p>
+        Only Supabase is required for the app to boot. Every other integration degrades
+        quietly when its variable is unset. This is deliberate, so the app runs locally
+        without every vendor provisioned — <strong>don't "fix" it</strong> by making
+        them required in <code>env.ts</code>.
+      </p>
+      <table>
+        <tr><th>Unset</th><th>Consequence</th></tr>
+        <tr><td><code>ANTHROPIC_API_KEY</code></td><td>Parse/score runs fail at <code>getAnthropic()</code></td></tr>
+        <tr><td><code>INNGEST_*</code></td><td>Nothing, in local dev. In production, jobs never run</td></tr>
+        <tr><td><code>STRIPE_SECRET_KEY</code></td><td>Checkout and portal routes return 503</td></tr>
+        <tr><td><code>STRIPE_WEBHOOK_SECRET</code></td><td>Webhook 503s → <strong>no payments or enrollments recorded</strong></td></tr>
+        <tr><td><code>LOOPS_API_KEY</code></td><td>Lifecycle event firing is a no-op</td></tr>
+        <tr><td><code>CALENDLY_WEBHOOK_SECRET</code></td><td>Webhook 503s → bookings not recorded</td></tr>
+        <tr><td><code>PURCHASE_GATE_ENABLED</code></td><td>Gate is fully inert; nobody is ever gated</td></tr>
+        <tr><td><code>BETA_INVITE_CODE</code></td><td>No redemption path; <code>/invite</code> shows only the purchase route</td></tr>
+      </table>
+
+      <h2>What talks to what</h2>
+      <pre><code>                     ┌──────────────┐
+   Candidate ───────▶│   Next.js    │
+                     │   (Vercel)   │
+                     └──┬────┬────┬─┘
+                        │    │    │
+        ┌───────────────┘    │    └────────────────┐
+        ▼                    ▼                     ▼
+  ┌───────────┐      ┌──────────────┐       ┌────────────┐
+  │ Supabase  │      │   Inngest    │       │   Stripe   │
+  │           │      │              │       │            │
+  │ Postgres  │◀─────│ parse-resume │       │  Checkout  │
+  │ Auth      │ (2)  │ parse-linked │       │            │
+  │ Storage   │      │ match-jd     │──▶ Anthropic       │
+  │ Realtime  │      │ sweep-inactive       │            │
+  └─────┬─────┘      └──────┬───────┘       └─────┬──────┘
+        │                   │                     │
+        │ (3) postgres_     │ (4) inactivity      │ (1) webhook
+        │     changes       ▼     events          ▼
+        │             ┌──────────┐         /api/stripe/webhook
+        └────────────▶│  Loops   │◀────────────────┘
+          Sonner      └──────────┘         writes payments +
+          toast                            enrollments
+
+
+  Calendly ──▶ /api/calendly/webhook ──▶ coaching_sessions
+  Cal.com  ──▶ /api/cal/webhook       ──▶ 💤 dormant twin, no account</code></pre>
+      <p>
+        <strong>(2)</strong> Inngest workers write back with the <em>secret</em> key —
+        they have no user session, so they bypass RLS.
+        <strong>(3)</strong> That write triggers Realtime, which the layout-mounted
+        hooks turn into a toast.
+        <strong>(1)</strong> The Stripe webhook is the only writer of
+        <code>enrollments</code> — a migration prevents users granting themselves one.
+      </p>
+
+      <h2>At a glance</h2>
+      <table>
+        <tr><th>Service</th><th>Status</th><th>Required for</th><th>Dashboard</th></tr>
+        <tr><td>Supabase</td><td><span class="tag live">live</span></td><td>Everything</td><td><a href="https://supabase.com/dashboard/project/wpurdayfjsyiedabmipt">project <code>wpurdayfjsyiedabmipt</code></a></td></tr>
+        <tr><td>Vercel</td><td><span class="tag live">live</span></td><td>Hosting</td><td><a href="https://vercel.com/dashboard">vercel.com/dashboard</a></td></tr>
+        <tr><td>Inngest</td><td><span class="tag live">live</span></td><td>All background jobs</td><td><a href="https://app.inngest.com">app.inngest.com</a></td></tr>
+        <tr><td>Anthropic</td><td><span class="tag live">live</span></td><td>Parsing + scoring</td><td><a href="https://console.anthropic.com">console.anthropic.com</a></td></tr>
+        <tr><td>Stripe</td><td><span class="tag warn">unproven</span></td><td>Revenue</td><td><a href="https://dashboard.stripe.com">dashboard.stripe.com</a></td></tr>
+        <tr><td>Loops</td><td><span class="tag warn">no sequences</span></td><td>Lifecycle email</td><td><a href="https://app.loops.so">app.loops.so</a></td></tr>
+        <tr><td>Calendly</td><td><span class="tag warn">blocked</span></td><td>Coaching bookings</td><td><a href="https://calendly.com/integrations/api_webhooks">calendly.com</a></td></tr>
+        <tr><td>Cal.com</td><td><span class="tag dead">dormant</span></td><td>Nothing</td><td>—</td></tr>
+        <tr><td>GitHub Actions</td><td><span class="tag live">live</span></td><td>CI</td><td>repo → Actions</td></tr>
+        <tr><td>Google Search Console</td><td><span class="tag warn">pending</span></td><td>SEO verification</td><td><a href="https://search.google.com/search-console">search-console</a></td></tr>
+      </table>
+
+      <h2>Supabase <span class="tag live">live</span></h2>
+      <div class="card">
+        <p>
+          Everything persistent: PostgreSQL (28 tables), Auth (email + Google +
+          LinkedIn OAuth), Storage (2 buckets), Realtime, and RLS — which is the actual
+          authorization model, not a nice-to-have.
+        </p>
+        <p>
+          <strong>Files:</strong> five clients in <code>src/lib/supabase/</code> —
+          <code>client</code>, <code>server</code>, <code>service</code>,
+          <code>anon</code>, <code>middleware</code>.
+        </p>
+        <p>
+          <strong>Variables:</strong> <code>NEXT_PUBLIC_SUPABASE_URL</code>,
+          <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> (both required to boot),
+          <code>SUPABASE_SECRET_KEY</code> (bypasses RLS, server-only).
+        </p>
+        <p>
+          Uses the <strong>publishable/secret</strong> key naming, not legacy
+          <code>anon</code>/<code>service_role</code> — see
+          <a href="../../../MIGRATION.md">MIGRATION.md</a>.
+        </p>
+      </div>
+
+      <h2>Vercel <span class="tag live">live</span></h2>
+      <div class="card">
+        <p>
+          Hosting, preview deploys, and Web Analytics
+          (<code>@vercel/analytics</code> in <code>src/app/layout.tsx</code>). Deploys
+          on merge to <code>main</code>. Current deployment:
+          <a href="https://empowered-orcin.vercel.app">empowered-orcin.vercel.app</a>.
+        </p>
+      </div>
+      <div class="note danger">
+        <p><strong>The environment-parity trap</strong></p>
+        <p>
+          Every server-side variable must be set <strong>in Vercel</strong>, not just
+          <code>.env.local</code>. Inngest Cloud runs the workers by calling the Vercel
+          function — so a local-only <code>ANTHROPIC_API_KEY</code> or
+          <code>SUPABASE_SECRET_KEY</code> means every production parse and score fails
+          while local dev looks perfectly healthy.
+        </p>
+        <p>
+          Also: <code>NEXT_PUBLIC_SITE_URL</code> must be the real domain. Stripe
+          Checkout builds its success/cancel URLs from it, so a wrong value sends
+          paying customers to <code>localhost</code>.
+        </p>
+      </div>
+
+      <h2>Inngest <span class="tag live">live</span></h2>
+      <div class="card">
+        <p>
+          All asynchronous work. App id <code>empowered-careers</code>, served from
+          <code>src/app/api/inngest/route.ts</code>, event schemas typed with Zod in
+          <code>src/inngest/client.ts</code>.
+        </p>
+        <table>
+          <tr><th>Function</th><th>Trigger</th><th>Does</th></tr>
+          <tr><td><code>parse-resume</code></td><td><code>resume/uploaded</code></td><td>PDF → Claude parse → Claude score → write back</td></tr>
+          <tr><td><code>parse-linkedin</code></td><td><code>linkedin/uploaded</code></td><td>Same shape for LinkedIn PDF exports</td></tr>
+          <tr><td><code>match-jd</code></td><td><code>jd/submitted</code></td><td>Scores a pasted JD against the resume</td></tr>
+          <tr><td><code>sweep-inactive</code></td><td>cron <code>0 7 * * *</code></td><td>Fires 7- and 30-day inactivity events to Loops</td></tr>
+        </table>
+      </div>
+      <p>
+        <strong>Local dev needs no keys.</strong> <code>npm run dev</code> sets
+        <code>INNGEST_DEV=1</code>, pointing the client at
+        <code>npm run inngest:dev</code> (GUI on <code>localhost:8288</code>).
+      </p>
+      <p>
+        Production needs <strong>two different keys</strong>:
+        <code>INNGEST_SIGNING_KEY</code> is Inngest Cloud proving it may invoke your
+        endpoint; <code>INNGEST_EVENT_KEY</code> is your app proving it may send events.
+        Having only the signing key is a real and confusing failure — the endpoint syncs
+        green, but <code>inngest.send()</code> throws.
+      </p>
+      <div class="note warn">
+        <p>
+          <strong>The most-forgotten operational step.</strong> After every deploy that
+          adds or changes a function:
+        </p>
+        <pre><code>curl -X PUT https://&lt;your-domain&gt;/api/inngest
+# → {"message":"Successfully registered","modified":true}</code></pre>
+      </div>
+      <p>
+        Conventions: async work goes through Inngest (no raw API routes for
+        long-running work); register in the <code>serve({ functions: [...] })</code>
+        array; concurrency is capped at <code>{ limit: 5 }</code> per function —
+        don't remove it; every function needs an <code>onFailure</code> handler that
+        flips the row to <code>failed</code>; use <code>NonRetriableError</code> for
+        "this will never succeed".
+      </p>
+
+      <h2>Anthropic <span class="tag live">live</span></h2>
+      <div class="card">
+        <p>
+          Resume and LinkedIn parsing, ATS/profile scoring, JD matching, Big Wins bullet
+          rewriting. All LLM logic lives in <code>src/lib/llm/</code> —
+          <strong>never call the API directly from a component or action.</strong>
+        </p>
+        <table>
+          <tr><th>Variable</th><th>Default</th></tr>
+          <tr><td><code>ANTHROPIC_API_KEY</code></td><td>— (required)</td></tr>
+          <tr><td><code>ANTHROPIC_PARSER_MODEL</code></td><td><code>claude-haiku-4-5-20251001</code> — cheap, for extraction</td></tr>
+          <tr><td><code>ANTHROPIC_SCORER_MODEL</code></td><td><code>claude-sonnet-4-6</code> — stronger, for judgement</td></tr>
+          <tr><td><code>RESUME_PROMPT_VERSION</code></td><td><code>1.1.0</code></td></tr>
+          <tr><td><code>LINKEDIN_PROMPT_VERSION</code></td><td><code>1.1.0</code></td></tr>
+        </table>
+        <p>
+          The prompt-version strings are stamped onto every parsed row.
+          <strong>Bump them whenever you change a prompt or the rubric</strong> —
+          otherwise old and new results are indistinguishable in the data.
+        </p>
+        <p>
+          <strong>Run the evals before changing a prompt:</strong>
+          <code>npm run eval:scorers</code> (offline, free).
+          <code>--record</code> and <code>--live</code> cost money.
+        </p>
+      </div>
+
+      <h2>Stripe <span class="tag warn">live, unproven</span></h2>
+      <div class="note danger">
+        <p><strong>The money path has never completed end to end.</strong></p>
+        <p>
+          <code>payments</code> and <code>enrollments</code> were both 0 rows at last
+          audit. Treat the whole path as unverified until you run one with
+          <code>4242 4242 4242 4242</code>.
+        </p>
+      </div>
+      <div class="card">
+        <p>
+          One-time à la carte purchases of coaching sessions, courses, and bundles.
+          <strong>Not subscriptions</strong> — that code is dormant.
+        </p>
+        <table>
+          <tr><th>Path</th><th>Role</th></tr>
+          <tr><td><code>api/stripe/checkout/route.ts</code></td><td>Creates the Checkout Session</td></tr>
+          <tr><td><code>api/stripe/webhook/route.ts</code></td><td>Verifies signature, dedupes, dispatches</td></tr>
+          <tr><td><code>api/stripe/portal/route.ts</code></td><td>Customer portal</td></tr>
+          <tr><td><code>lib/stripe/client.ts</code></td><td>SDK client + <code>isStripeConfigured()</code></td></tr>
+          <tr><td><code>lib/stripe/validate.ts</code></td><td><code>assertAllowedPriceId()</code></td></tr>
+          <tr><td><code>lib/stripe/webhook-handlers.ts</code></td><td>Per-event handlers</td></tr>
+        </table>
+        <p>
+          <strong>The catalog lives in Stripe, not in code.</strong> 11 Products with
+          one-time Prices; each price id is pasted into
+          <code>coaching_products.stripe_price_id</code> via <code>/admin/coaching</code>.
+          Runbook: <a href="../../ec-catalog-setup.md">docs/ec-catalog-setup.md</a>.
+        </p>
+        <p>
+          Walk the purchase sequence on the
+          <a href="flows.html#purchase">Flows page →</a>
+        </p>
+      </div>
+
+      <h3>The purchase gate</h3>
+      <p>
+        <code>PURCHASE_GATE_ENABLED=true</code> requires a signed-in candidate to hold
+        an enrollment before the app opens. Anything else — including unset — is fully
+        inert. Entitlement is read from <code>enrollments</code>,
+        <strong>never from user metadata</strong>, which the browser session can write
+        itself. Admins always bypass.
+      </p>
+      <h3>The private beta invite code</h3>
+      <p>
+        <code>BETA_INVITE_CODE</code> (e.g. <code>ECTEST100</code>). There are
+        <strong>two ways a tester gets in</strong>, and both end at the same place — a
+        row in <code>enrollments</code>:
+      </p>
+      <ol>
+        <li>
+          <strong>Enter the code at <code>/invite</code>.</strong>
+          <code>redeemInviteCode()</code> grants a comp <strong>"Beta Access"</strong>
+          enrollment.
+        </li>
+        <li>
+          <strong>Run real Stripe checkout</strong> using the same string as a 100%-off
+          promotion code. The webhook then grants the enrollment.
+        </li>
+      </ol>
+      <div class="note">
+        <p>
+          Redemption writes on the <strong>service-role client</strong>. After migration
+          <code>20260903000000</code>, candidates have no INSERT policy on
+          <code>enrollments</code> — entitlement can only be granted by server code that
+          checked something first: the code here, or a completed payment in the webhook.
+        </p>
+        <p>
+          <code>matchesInviteCode()</code> is case- and whitespace-insensitive (testers
+          paste it out of an email) and <strong>never matches when
+          <code>BETA_INVITE_CODE</code> is unset or blank</strong>, so a blank form can't
+          unlock anything. <code>/invite</code> hides the form entirely when no code is
+          configured, falling back to the purchase route.
+        </p>
+        <p>
+          Migration <code>20260903010000_beta_access_product.sql</code> seeds the "Beta
+          Access" product — <code>enrollments.product_id</code> is <code>NOT NULL</code>,
+          so redemption needs something to enroll in. It's
+          <code>is_active = false</code>, keeping it out of <code>/pricing</code>, the
+          catalog, and dashboard signals, which all filter on that flag.
+        </p>
+      </div>
+
+      <h2>Loops <span class="tag warn">wired, not live</span></h2>
+      <div class="card">
+        <p>
+          The app already fires 14 events from Server Actions and Inngest functions —
+          <code>candidate.signup</code>, <code>candidate.resume_uploaded</code>,
+          <code>candidate.course_purchased</code>, <code>candidate.session_booked</code>,
+          <code>candidate.enrollment_completed</code>,
+          <code>candidate.inactive_7d</code>, <code>candidate.inactive_30d</code>, plus
+          the <code>lead.*</code> and <code>assessment.*</code> events.
+        </p>
+        <p>
+          <strong>No sequences exist in Loops to receive them, so nothing sends.</strong>
+          Creating them is an ops task, not an engineering one. Code:
+          <code>src/lib/loops/client.ts</code>.
+        </p>
+      </div>
+
+      <h2>Calendly <span class="tag warn">blocked</span></h2>
+      <div class="card">
+        <p>
+          Candidates book coaching sessions; the webhook records them into
+          <code>coaching_sessions</code>. Code: <code>src/lib/calendly.ts</code>,
+          <code>src/app/api/calendly/webhook/route.ts</code>.
+        </p>
+        <p>
+          <strong>Blocked on one variable.</strong>
+          <code>CALENDLY_WEBHOOK_SECRET</code> has never been set, so the route returns
+          503 and no booking has ever been recorded. Booking URLs <em>are</em> set on
+          all 8 session products — candidates can book, the platform just doesn't know.
+        </p>
+      </div>
+      <div class="note">
+        <p><strong>The non-obvious design</strong></p>
+        <p>
+          All session products deliberately share a <strong>single Calendly event
+          type</strong>. Bookings are matched to enrollments on the
+          <code>utm_content</code> query parameter — which carries the enrollment id —
+          <strong>not</strong> on the event slug. Duplicate booking URLs across products
+          are correct, not a bug.
+        </p>
+      </div>
+
+      <h2>Cal.com <span class="tag dead">dormant</span></h2>
+      <p>
+        <code>src/lib/cal.ts</code> and <code>src/app/api/cal/webhook/route.ts</code>
+        are a complete, unused twin of the Calendly integration, gated behind
+        <code>CAL_WEBHOOK_SECRET</code>. No account behind it. It exists as a swap-in
+        alternative. Leave it alone.
+      </p>
+
+      <h2>GitHub Actions <span class="tag live">live</span></h2>
+      <p>
+        <code>ci.yml</code> runs on push and PR to <code>main</code>:
+        <code>type-check</code> → <code>check</code> → <code>build</code>, on Node
+        20.11.0. The build step uses placeholder Supabase values, so CI needs no real
+        secrets.
+      </p>
+      <div class="note warn">
+        <p>
+          The final "Test (if available)" step is <code>continue-on-error: true</code>
+          against a <code>test</code> script that doesn't exist — it always no-ops.
+          <strong>CI does not run the nine <code>.check.ts</code> self-checks.</strong>
+        </p>
+      </div>
+
+      <h2>Google Search Console <span class="tag warn">pending</span></h2>
+      <p>
+        <code>NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION</code> is unset. When set, the token
+        is emitted as a meta tag from <code>src/app/layout.tsx</code>. To do: get the
+        token, set it on the deploy host, verify the site, submit
+        <code>/sitemap.xml</code>. <code>/sitemap.xml</code>, <code>/robots.txt</code>,
+        <code>/llms.txt</code>, and <code>/manifest.webmanifest</code> are all generated
+        and derive their URLs from <code>NEXT_PUBLIC_SITE_URL</code>.
+      </p>
+
+      <h2>n8n</h2>
+      <p>
+        GT-managed automation, self-hosted on Hetzner. <strong>No code in this
+        repo</strong> and nothing in the app depends on it.
+      </p>
+
+      <h2>Onboarding checklist</h2>
+      <div class="card">
+        <p>
+          Supabase project invite &nbsp;·&nbsp; Vercel team invite &nbsp;·&nbsp; Inngest
+          app invite &nbsp;·&nbsp; Anthropic Console invite or your own key
+          &nbsp;·&nbsp; Stripe Dashboard invite (test mode is enough to start)
+          &nbsp;·&nbsp; Loops invite (only if building sequences) &nbsp;·&nbsp; Calendly
+          invite (only if wiring the webhook) &nbsp;·&nbsp; GitHub repo access
+        </p>
+        <p>
+          Then <code>cp .env.local.example .env.local</code> and walk
+          <a href="../local-setup.md">local-setup.md</a> end to end.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site">
+      Source: <a href="../services.md">docs/handover/services.md</a> ·
+      <a href="../../../.env.local.example">.env.local.example</a> ·
+      <a href="../open-items.md">open-items.md</a>
+    </footer>
+  </body>
+</html>

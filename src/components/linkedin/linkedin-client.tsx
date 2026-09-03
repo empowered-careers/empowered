@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { retryLinkedinSync } from "@/app/actions/linkedin";
 import { scoreToLetterGrade } from "@/components/linkedin/grade";
 import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
+import { LocalDate } from "@/components/local-date";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,14 +43,6 @@ const DIMENSION_LABELS: Record<keyof LinkedInScoring["dimensions"], string> = {
   skill_density: "Skill density",
   profile_completeness: "Profile completeness",
 };
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function scoreColorClass(score: number): string {
   if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
@@ -184,7 +177,7 @@ export function LinkedinClient({
                 )}
                 {row.status === "complete" && row.synced_at && (
                   <span className="text-xs text-muted-foreground">
-                    Last synced {formatDate(row.synced_at)}
+                    Last synced <LocalDate iso={row.synced_at} />
                   </span>
                 )}
               </div>

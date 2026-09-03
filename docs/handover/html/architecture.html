@@ -83,7 +83,7 @@ import type { ResumeStatus } from "@/types/db";</code></pre>
       <div class="card">
         <h3>3. All mutations are Server Actions</h3>
         <p>
-          Everything in <code>src/app/actions/</code> — 15 files, one per domain. After
+          Everything in <code>src/app/actions/</code> — 16 files, one per domain. After
           a Server Action succeeds, invalidate the relevant TanStack Query key.
         </p>
       </div>
@@ -93,6 +93,27 @@ import type { ResumeStatus } from "@/types/db";</code></pre>
         <p>
           Never hardcode a string array as a query key. Add it to
           <code>queryKeys</code> and import it.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Bonus: never format a date during render</h3>
+        <p>
+          This has caused two production incidents, so it earns a rule of its own.
+          <code>toLocaleDateString</code> reads the <strong>runtime's time zone</strong>,
+          and its <strong>locale</strong> when one isn't pinned. The server renders in
+          UTC, the visitor's browser in their own zone — so any timestamp near midnight
+          UTC formats to a different day on each side. That text mismatch throws
+          <strong>React #418</strong>, the error boundary replaces the whole page with
+          "Something went wrong", and every control on it goes dead.
+        </p>
+        <p>
+          Use <code>&lt;LocalDate&gt;</code>, <code>&lt;LocalDateOrNull&gt;</code>, or
+          <code>useLocalDateOrNull()</code> from
+          <code>src/components/local-date.tsx</code>. The same trap applies to
+          <code>new Date()</code>, <code>Math.random()</code>, <code>window</code>, and
+          <code>localStorage</code>. Server Components are exempt — they render once and
+          never hydrate.
         </p>
       </div>
 
@@ -145,6 +166,13 @@ import type { ResumeStatus } from "@/types/db";</code></pre>
             admin nor an enrollment holder → <code>redirect('/invite')</code>.
             Entitlement is read from <code>enrollments</code>, never from user
             metadata, which the browser session can write itself.
+          </p>
+          <p>
+            <code>/invite</code> offers two ways through: redeem
+            <code>BETA_INVITE_CODE</code> for a comp "Beta Access" enrollment, or buy
+            something. Both writers — <code>redeemInviteCode()</code> and
+            <code>handleCheckoutCompleted()</code> — use the service-role client,
+            because candidates have no INSERT policy on <code>enrollments</code>.
           </p>
         </li>
       </ol>
@@ -275,7 +303,7 @@ import type { ResumeStatus } from "@/types/db";</code></pre>
         What exists instead:
       </p>
 
-      <h3>Nine <code>.check.ts</code> self-checks</h3>
+      <h3>Ten <code>.check.ts</code> self-checks</h3>
       <p>
         <code>assert</code>-based files colocated with the logic they cover. Silent exit
         = pass.
@@ -292,6 +320,7 @@ import type { ResumeStatus } from "@/types/db";</code></pre>
         <tr><td><code>lib/assessment/career-positioning.check.ts</code></td><td>Quiz scoring</td></tr>
         <tr><td><code>lib/assessment/role-clarity.check.ts</code></td><td>Role Clarity scoring</td></tr>
         <tr><td><code>data/target-roles.check.ts</code></td><td>Reference data integrity</td></tr>
+        <tr><td><code>components/local-date.check.ts</code></td><td>Hydration-safe date formatting</td></tr>
       </table>
       <div class="note warn">
         <p>

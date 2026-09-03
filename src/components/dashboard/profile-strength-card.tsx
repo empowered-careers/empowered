@@ -11,29 +11,12 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  type ComponentType,
-  type FormEvent,
-  useId,
-  useState,
-  useTransition,
-} from "react";
-import { toast } from "sonner";
+import { type ComponentType, useState } from "react";
 
-import { updateLinkedInUrl } from "@/app/actions/profile";
 import { scoreToLetterGrade } from "@/components/linkedin/grade";
 import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
+import { LinkedInUrlDialog } from "@/components/linkedin/linkedin-url-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import type {
   DashboardBlueprint,
   DashboardProfile,
@@ -80,13 +63,7 @@ export function ProfileStrengthHero({
 }: ProfileStrengthHeroProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const formId = useId();
   const [linkedinDialogOpen, setLinkedinDialogOpen] = useState(false);
-  const [linkedinUrlInput, setLinkedinUrlInput] = useState("");
-  const [linkedinFormError, setLinkedinFormError] = useState<string | null>(
-    null
-  );
-  const [isSavingLinkedin, startLinkedinTransition] = useTransition();
 
   const hasBlueprint = !!blueprint;
   const { percentage } = getProfileStrength(
@@ -106,11 +83,7 @@ export function ProfileStrengthHero({
   const strokeDashoffset =
     RING_CIRCUMFERENCE * (1 - Math.min(Math.max(percentage, 0), 100) / 100);
 
-  const openLinkedinDialog = () => {
-    setLinkedinFormError(null);
-    setLinkedinUrlInput(profile?.linkedin_url ?? "");
-    setLinkedinDialogOpen(true);
-  };
+  const openLinkedinDialog = () => setLinkedinDialogOpen(true);
 
   const handleStepClick = (step: ProfileStep) => {
     if (step.id === "step-linkedin") {
@@ -120,22 +93,6 @@ export function ProfileStrengthHero({
     if (step.href) {
       router.push(step.href);
     }
-  };
-
-  const handleLinkedinSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setLinkedinFormError(null);
-    startLinkedinTransition(async () => {
-      const result = await updateLinkedInUrl(linkedinUrlInput);
-      if (!result.success) {
-        setLinkedinFormError(result.error);
-        toast.error(result.error);
-        return;
-      }
-      toast.success("LinkedIn profile URL saved.");
-      setLinkedinDialogOpen(false);
-      router.refresh();
-    });
   };
 
   return (
@@ -238,67 +195,12 @@ export function ProfileStrengthHero({
         </div>
       </div>
 
-      <Dialog
-        onOpenChange={(open) => {
-          setLinkedinDialogOpen(open);
-          if (!open) {
-            setLinkedinFormError(null);
-          }
-        }}
+      <LinkedInUrlDialog
+        initialUrl={profile?.linkedin_url}
+        onOpenChange={setLinkedinDialogOpen}
+        onSaved={() => router.refresh()}
         open={linkedinDialogOpen}
-      >
-        <DialogContent aria-describedby={`${formId}-linkedin-desc`}>
-          <DialogHeader>
-            <DialogTitle>Add LinkedIn profile URL</DialogTitle>
-            <DialogDescription id={`${formId}-linkedin-desc`}>
-              Paste your public profile link (e.g.{" "}
-              <span className="whitespace-nowrap font-mono text-xs">
-                linkedin.com/in/your-handle
-              </span>
-              ).
-            </DialogDescription>
-          </DialogHeader>
-          <form className="space-y-3" onSubmit={handleLinkedinSubmit}>
-            <div className="space-y-2">
-              <label
-                className="font-medium text-sm text-foreground"
-                htmlFor={`${formId}-linkedin-url`}
-              >
-                Profile URL
-              </label>
-              <Input
-                autoComplete="url"
-                className={linkedinFormError ? "border-destructive" : undefined}
-                disabled={isSavingLinkedin}
-                id={`${formId}-linkedin-url`}
-                name="linkedin_url"
-                onChange={(ev) => setLinkedinUrlInput(ev.target.value)}
-                placeholder="https://www.linkedin.com/in/your-handle"
-                type="url"
-                value={linkedinUrlInput}
-              />
-              {linkedinFormError ? (
-                <p className="text-destructive text-xs" role="alert">
-                  {linkedinFormError}
-                </p>
-              ) : null}
-            </div>
-            <DialogFooter>
-              <Button
-                disabled={isSavingLinkedin}
-                onClick={() => setLinkedinDialogOpen(false)}
-                type="button"
-                variant="outline"
-              >
-                Cancel
-              </Button>
-              <Button disabled={isSavingLinkedin} type="submit">
-                {isSavingLinkedin ? "Saving…" : "Save"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      />
 
       {/* LinkedIn PDF export upload — unlocks profile scoring */}
       {profile?.linkedin_url && user?.id && (

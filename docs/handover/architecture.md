@@ -62,12 +62,34 @@ as the single source of truth.
 
 ### 3. All mutations are Server Actions
 
-Everything in `src/app/actions/` (15 files, one per domain). After a Server Action
+Everything in `src/app/actions/` (16 files, one per domain). After a Server Action
 succeeds, invalidate the relevant TanStack Query key.
 
 ### 4. Query keys come from `src/lib/query-keys.ts`
 
 Never hardcode a string array as a query key. Add it to `queryKeys` and import it.
+
+### Bonus: never format a date during render
+
+This one has caused two production incidents, so it earns a rule of its own.
+
+`toLocaleDateString` / `toLocaleString` read the **runtime's time zone**, and its
+**locale** when one isn't pinned. The server renders in UTC; the visitor's browser
+renders in their own zone. Any timestamp near midnight UTC therefore formats to a
+different day on each side — a text mismatch that throws **React #418**. The error
+boundary then replaces the entire page with "Something went wrong", and every control
+on it goes dead.
+
+Use `<LocalDate>`, `<LocalDateOrNull>`, or `useLocalDateOrNull()` from
+`src/components/local-date.tsx`. They pin the server snapshot to UTC so the server
+render and the hydration pass agree, then swap to the visitor's local date.
+
+The same trap applies to anything else that differs between server and client:
+`new Date()`, `Math.random()`, `window`, `localStorage`. If you genuinely need one
+during render, use `useSyncExternalStore` with a stable server snapshot — that's what
+the time-of-day greeting in `dashboard-header.tsx` does.
+
+Server Components are exempt: they render once and never hydrate.
 
 ---
 
@@ -113,7 +135,12 @@ Order matters — each depends on the one above it.
 1. **Auth** — no user → `redirect('/login')`.
 2. **Role** — `role === 'employer'` → `redirect('/employer')`.
 3. **Purchase** — if `PURCHASE_GATE_ENABLED === "true"` and the user is neither an
-   admin nor holder of an enrollment → `redirect('/invite')`.
+   admin nor holder of an enrollment → `redirect('/invite')`. Entitlement is read
+   from `enrollments`, never from user metadata, which the browser session can write
+   itself. `/invite` offers two ways through: redeem `BETA_INVITE_CODE` for a comp
+   "Beta Access" enrollment, or buy something. Both writers
+   (`redeemInviteCode()`, `handleCheckoutCompleted()`) use the service-role client,
+   because candidates have no INSERT policy on `enrollments`.
 
 It also fetches the profile + resume rows needed for the sidebar completeness ring and
 wraps everything in `<AppShell>`.
@@ -234,23 +261,24 @@ There is **no test framework** and no `test` script. What exists instead:
 
 ### `.check.ts` self-checks
 
-Nine `assert`-based files colocated with the logic they cover. Run individually:
+Ten `assert`-based files colocated with the logic they cover. Run individually:
 
 ```bash
 npx tsx src/lib/purchase-gate.check.ts
 ```
 
-| File                                             | Covers                       |
-| ------------------------------------------------ | ---------------------------- |
-| `src/lib/purchase-gate.check.ts`                 | Gate branch order            |
-| `src/lib/jd-quota.check.ts`                      | JD check entitlement         |
-| `src/lib/calendly.check.ts`                      | Webhook signature + parsing  |
-| `src/lib/cal.check.ts`                           | Cal.com twin (dormant)       |
-| `src/lib/dashboard/prescribe.check.ts`           | Dashboard prescription rules |
-| `src/lib/assessment/big-wins.check.ts`           | Big Wins logic               |
-| `src/lib/assessment/career-positioning.check.ts` | Quiz scoring                 |
-| `src/lib/assessment/role-clarity.check.ts`       | Role Clarity scoring         |
-| `src/data/target-roles.check.ts`                 | Reference data integrity     |
+| File                                             | Covers                         |
+| ------------------------------------------------ | ------------------------------ |
+| `src/lib/purchase-gate.check.ts`                 | Gate branch order              |
+| `src/lib/jd-quota.check.ts`                      | JD check entitlement           |
+| `src/lib/calendly.check.ts`                      | Webhook signature + parsing    |
+| `src/lib/cal.check.ts`                           | Cal.com twin (dormant)         |
+| `src/lib/dashboard/prescribe.check.ts`           | Dashboard prescription rules   |
+| `src/lib/assessment/big-wins.check.ts`           | Big Wins logic                 |
+| `src/lib/assessment/career-positioning.check.ts` | Quiz scoring                   |
+| `src/lib/assessment/role-clarity.check.ts`       | Role Clarity scoring           |
+| `src/data/target-roles.check.ts`                 | Reference data integrity       |
+| `src/components/local-date.check.ts`             | Hydration-safe date formatting |
 
 **CI does not run these.** The `ci.yml` "Test (if available)" step is
 `continue-on-error: true` against a script that doesn't exist, so it always no-ops.

@@ -13,15 +13,16 @@ in this repo and never should be. Every variable named below is documented in
 Only Supabase is required for the app to boot. Every other integration degrades
 quietly when its variable is unset:
 
-| Unset                     | Consequence                                                  |
-| ------------------------- | ------------------------------------------------------------ |
-| `ANTHROPIC_API_KEY`       | Parse/score runs fail at `getAnthropic()`                    |
-| `INNGEST_*`               | Nothing, in local dev. In production, jobs never run         |
-| `STRIPE_SECRET_KEY`       | Checkout and portal routes return 503                        |
-| `STRIPE_WEBHOOK_SECRET`   | Webhook route 503s → **no payments or enrollments recorded** |
-| `LOOPS_API_KEY`           | Lifecycle event firing is a no-op                            |
-| `CALENDLY_WEBHOOK_SECRET` | Webhook route 503s → bookings not recorded                   |
-| `PURCHASE_GATE_ENABLED`   | Gate is fully inert; nobody is ever gated                    |
+| Unset                     | Consequence                                                        |
+| ------------------------- | ------------------------------------------------------------------ |
+| `ANTHROPIC_API_KEY`       | Parse/score runs fail at `getAnthropic()`                          |
+| `INNGEST_*`               | Nothing, in local dev. In production, jobs never run               |
+| `STRIPE_SECRET_KEY`       | Checkout and portal routes return 503                              |
+| `STRIPE_WEBHOOK_SECRET`   | Webhook route 503s → **no payments or enrollments recorded**       |
+| `LOOPS_API_KEY`           | Lifecycle event firing is a no-op                                  |
+| `CALENDLY_WEBHOOK_SECRET` | Webhook route 503s → bookings not recorded                         |
+| `PURCHASE_GATE_ENABLED`   | Gate is fully inert; nobody is ever gated                          |
+| `BETA_INVITE_CODE`        | No redemption path at all; `/invite` shows only the purchase route |
 
 This is deliberate, so the app runs locally without every vendor provisioned. Don't
 "fix" it by making them required in `env.ts`.
@@ -335,11 +336,34 @@ browser session can write itself. Admins always bypass. Logic in
 `src/lib/purchase-gate.ts`, enforced in `src/app/(app)/layout.tsx`, with `/invite` as
 the landing page for gated users.
 
-A "private beta invite code" is just a **100%-off Stripe promotion code**. It still
-produces a completed Checkout session and therefore an enrollment, so there is no
-separate code to verify anywhere in the app.
-
 Run the self-check: `npx tsx src/lib/purchase-gate.check.ts`
+
+### The private beta invite code
+
+`BETA_INVITE_CODE` (e.g. `ECTEST100`). There are **two ways a tester gets in**, and
+both end at the same place — a row in `enrollments`:
+
+1. **Enter the code at `/invite`.** `redeemInviteCode()`
+   (`src/app/actions/invite.ts`) grants a comp **"Beta Access"** enrollment.
+2. **Run real Stripe checkout** using the same string as a 100%-off promotion code.
+   That produces a completed session, and the webhook grants the enrollment.
+
+Details worth knowing:
+
+- Redemption writes on the **service-role client**. After migration
+  `20260903000000`, candidates have no INSERT policy on `enrollments` — so
+  entitlement can only be granted by server code that checked something first: the
+  code here, or a completed payment in the webhook. `enrollments` stays the single
+  entitlement source.
+- `matchesInviteCode()` is case- and whitespace-insensitive (testers paste it out of
+  an email) and **never matches when `BETA_INVITE_CODE` is unset or blank**, so a
+  blank form can't unlock anything. Covered in `purchase-gate.check.ts`.
+- Migration `20260903010000_beta_access_product.sql` seeds the "Beta Access" product,
+  because `enrollments.product_id` is `NOT NULL` and redemption needs something to
+  enroll in. It's `is_active = false`, which keeps it out of `/pricing`, the catalog,
+  and dashboard signals — all of which filter on that flag.
+- `/invite` hides the form when no code is configured and falls back to the purchase
+  route.
 
 ---
 

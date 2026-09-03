@@ -24,7 +24,7 @@ truth for anything textual.
 
 4. [`architecture.md`](architecture.md) — the four conventions, request flow, the
    async job pattern
-5. [`data-model.md`](data-model.md) — 28 tables, 21 enums, RLS
+5. [`data-model.md`](data-model.md) — 28 tables, 22 enums, RLS
 6. **[`dormant-surfaces.md`](dormant-surfaces.md)** — why half the codebase serves a
    product that's no longer sold
 
@@ -40,14 +40,14 @@ truth for anything textual.
 
 ## Files here
 
-| File                                             | What it answers                                    |
-| ------------------------------------------------ | -------------------------------------------------- |
-| [`local-setup.md`](local-setup.md)               | How do I run it, and how do I know it worked?       |
-| [`services.md`](services.md)                     | What external services, what do they do, what breaks when they're unset? |
-| [`architecture.md`](architecture.md)             | How is the code organized and what conventions must I follow? |
-| [`data-model.md`](data-model.md)                 | What's in the database and how is it protected?     |
-| [`dormant-surfaces.md`](dormant-surfaces.md)     | Why is this code here if nobody uses it?            |
-| [`open-items.md`](open-items.md)                 | What isn't finished, and whose problem is it?       |
+| File                                         | What it answers                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| [`local-setup.md`](local-setup.md)           | How do I run it, and how do I know it worked?                            |
+| [`services.md`](services.md)                 | What external services, what do they do, what breaks when they're unset? |
+| [`architecture.md`](architecture.md)         | How is the code organized and what conventions must I follow?            |
+| [`data-model.md`](data-model.md)             | What's in the database and how is it protected?                          |
+| [`dormant-surfaces.md`](dormant-surfaces.md) | Why is this code here if nobody uses it?                                 |
+| [`open-items.md`](open-items.md)             | What isn't finished, and whose problem is it?                            |
 
 ---
 
@@ -66,7 +66,7 @@ truth for anything textual.
 4. **The money path has never completed end to end.** `payments` and `enrollments`
    were both 0 rows at last audit. Verify it before trusting anything downstream.
 
-5. **There are no automated tests.** Nine `assert`-based `.check.ts` files exist and
+5. **There are no automated tests.** Ten `assert`-based `.check.ts` files exist and
    CI runs none of them. Verification is type-check, lint, evals, and manual smoke
    tests.
 
@@ -81,19 +81,19 @@ superseded.
 **Read the pivot banner at the top of an older doc before trusting it.** Several
 predate the coaching pivot and are accurate about code while wrong about product.
 
-| Need                            | Go to                                                      |
-| ------------------------------- | ---------------------------------------------------------- |
-| Current product direction       | [`../ec-pivot-brief.md`](../ec-pivot-brief.md)             |
-| Implementation state, build order | [`../ec-pivot-plan.md`](../ec-pivot-plan.md)             |
-| Column-level schema             | [`../db_schema.md`](../db_schema.md)                       |
-| Design tokens and conventions   | [`../design.md`](../design.md)                             |
-| Stripe catalog / coaches / Cal setup | [`../ec-catalog-setup.md`](../ec-catalog-setup.md)    |
-| Admin ops + Loops event payloads | [`../ec-admin-operations.md`](../ec-admin-operations.md)  |
-| Assessment content specs        | [`../big_wins_q&a.md`](../big_wins_q&a.md), [`../role-clarity-spec.md`](../role-clarity-spec.md), `../career-positioning-assessment.pdf` |
-| Raw ops checklist               | [`../todo.md`](../todo.md)                                 |
-| Shipped plans (historical)      | [`../done/`](../done/)                                     |
-| Speced but not built            | [`../deferred/`](../deferred/)                             |
-| Superseded, narrative only      | [`../deprecated/`](../deprecated/)                         |
+| Need                                 | Go to                                                                                                                                    |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Current product direction            | [`../ec-pivot-brief.md`](../ec-pivot-brief.md)                                                                                           |
+| Implementation state, build order    | [`../ec-pivot-plan.md`](../ec-pivot-plan.md)                                                                                             |
+| Column-level schema                  | [`../db_schema.md`](../db_schema.md)                                                                                                     |
+| Design tokens and conventions        | [`../design.md`](../design.md)                                                                                                           |
+| Stripe catalog / coaches / Cal setup | [`../ec-catalog-setup.md`](../ec-catalog-setup.md)                                                                                       |
+| Admin ops + Loops event payloads     | [`../ec-admin-operations.md`](../ec-admin-operations.md)                                                                                 |
+| Assessment content specs             | [`../big_wins_q&a.md`](../big_wins_q&a.md), [`../role-clarity-spec.md`](../role-clarity-spec.md), `../career-positioning-assessment.pdf` |
+| Raw ops checklist                    | [`../todo.md`](../todo.md)                                                                                                               |
+| Shipped plans (historical)           | [`../done/`](../done/)                                                                                                                   |
+| Speced but not built                 | [`../deferred/`](../deferred/)                                                                                                           |
+| Superseded, narrative only           | [`../deprecated/`](../deprecated/)                                                                                                       |
 
 ---
 
