@@ -109,6 +109,26 @@ Planned — not built yet (Sprint F in `ec-sprint-plan.md`):
 | `candidate.inactive_7d`     | No login for 7 days                |
 | `candidate.inactive_30d`    | No login for 30 days               |
 
+### Internal alert (not a candidate email)
+
+| Event               | Trigger                                                    |
+| ------------------- | ---------------------------------------------------------- |
+| `pipeline.failures` | Daily `sweep-job-failures` cron found failed or stuck jobs |
+
+The only Loops event that goes to us rather than a candidate. Fired from
+`src/inngest/functions/sweep-job-failures.ts` at 06:30 UTC daily, to whatever
+address `OPS_ALERT_EMAIL` is set to.
+
+**One-time setup:** create a `pipeline.failures` transactional email in Loops,
+addressed to the ops inbox, surfacing the `summary` and `sampleErrors` event
+properties. Until that exists the event fires into the void — the sweep also
+throws, so a failure still turns the run red in the Inngest dashboard, but the
+email is the part a human actually reads.
+
+Why it exists: in the September beta, 7 resume parses failed silently over a
+week and nobody knew until testers emailed asking why nothing was happening.
+The bug was cheap to fix; the two weeks of not knowing were not.
+
 ---
 
 ## Placement Tracking
