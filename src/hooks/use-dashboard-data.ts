@@ -4,7 +4,13 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { BLUEPRINT_ASSESSMENT_ID } from "@/lib/assessment/constants";
 import { queryKeys } from "@/lib/query-keys";
 import { createClient } from "@/lib/supabase/client";
-import type { BillingCadence, Plan, SubscriptionStatus } from "@/types/db";
+import {
+  type BillingCadence,
+  DASHBOARD_RESUME_COLUMNS,
+  type DashboardResumeFields,
+  type Plan,
+  type SubscriptionStatus,
+} from "@/types/db";
 
 export type DashboardProfile = {
   id: string;
@@ -17,12 +23,7 @@ export type DashboardProfile = {
   onboarding_completed_at: string | null;
 };
 
-export type DashboardResume = {
-  id: string;
-  uploaded_at: string;
-  resume_score: number | null;
-  file_name: string | null;
-};
+export type DashboardResume = DashboardResumeFields;
 
 export type DashboardBlueprint = {
   archetype: string | null;
@@ -49,7 +50,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 
     supabase
       .from("resumes")
-      .select("id, uploaded_at, resume_score, file_name")
+      .select(DASHBOARD_RESUME_COLUMNS)
       .eq("profile_id", userId)
       .order("uploaded_at", { ascending: false }),
 

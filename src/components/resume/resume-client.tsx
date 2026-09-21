@@ -10,11 +10,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { retryParseResume } from "@/app/actions/resume";
 import { LocalDate } from "@/components/local-date";
 import { ResumeUploader } from "@/components/resume/resume-uploader";
+import { RetryButton } from "@/components/retry-button";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -250,21 +250,10 @@ export function ResumeClient({ resumes, userId, bigWins }: ResumeClientProps) {
               {cur.parse_error && (
                 <p className="mt-1 text-xs opacity-90">{cur.parse_error}</p>
               )}
-              <Button
-                size="sm"
-                variant="outline"
+              <RetryButton
                 className="mt-2 h-7 text-xs"
-                onClick={async () => {
-                  const result = await retryParseResume(cur.id);
-                  if (result.success) {
-                    toast.success("Queued — parsing in progress");
-                  } else {
-                    toast.error(result.error);
-                  }
-                }}
-              >
-                Retry
-              </Button>
+                action={() => retryParseResume(cur.id)}
+              />
             </div>
           </div>
         )}

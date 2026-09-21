@@ -112,6 +112,16 @@ export type CandidateScoresUpdate =
   Database["public"]["Tables"]["candidate_scores"]["Update"];
 
 // --- Narrow column-subset types for list views ---
+// Keep the SELECT column string in DASHBOARD_RESUME_COLUMNS and this Pick in
+// sync. Used by both the dashboard server component and the client hook that
+// hydrates from it — they must select identically.
+export const DASHBOARD_RESUME_COLUMNS =
+  "id, uploaded_at, resume_score, file_name, status" as const;
+export type DashboardResumeFields = Pick<
+  ResumeRow,
+  "id" | "uploaded_at" | "resume_score" | "file_name" | "status"
+>;
+
 // Keep the SELECT column string in JOB_CARD_COLUMNS and this Pick in sync.
 export const JOB_CARD_COLUMNS =
   "id, title, company_name, location, job_tier, remote_policy, salary_min, salary_max, posted_at" as const;
