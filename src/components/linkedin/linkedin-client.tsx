@@ -3,12 +3,12 @@
 import { AlertCircle, Clock, Linkedin, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { retryLinkedinSync } from "@/app/actions/linkedin";
 import { scoreToLetterGrade } from "@/components/linkedin/grade";
 import { LinkedInPdfUpload } from "@/components/linkedin/linkedin-pdf-upload";
 import { LocalDate } from "@/components/local-date";
+import { RetryButton } from "@/components/retry-button";
 import { DimensionList } from "@/components/score/dimension-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,9 +40,28 @@ const DIMENSION_LABELS: Record<keyof LinkedInScoring["dimensions"], string> = {
   headline_quality: "Headline quality",
   about_quality: "About quality",
   experience_depth: "Experience depth",
-  skill_density: "Skill density",
   profile_completeness: "Profile completeness",
 };
+
+/**
+ * Beta testers reported "it only saw 3 of my 42 skills" and "it didn't
+ * recognise any of my 6 recommendations". Both are limits of LinkedIn's PDF
+ * export, not of the parse — say so where they'll see it, rather than letting
+ * it read as the product failing.
+ */
+function ExportLimitsNote() {
+  return (
+    <p className="mt-3 border-l-2 border-border pl-3 text-xs text-muted-foreground">
+      <span className="font-medium text-foreground">
+        Why this looks shorter than your profile:
+      </span>{" "}
+      LinkedIn’s “Save to PDF” export only prints your top 3 skills and leaves
+      recommendations out entirely — they aren’t separate sections in the file.
+      Nothing is missing from your actual profile, and your grade doesn’t count
+      either against you.
+    </p>
+  );
+}
 
 function scoreColorClass(score: number): string {
   if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
@@ -212,21 +231,11 @@ export function LinkedinClient({
               {row.sync_error && (
                 <p className="mt-1 text-xs opacity-90">{row.sync_error}</p>
               )}
-              <Button
-                size="sm"
-                variant="outline"
+              <RetryButton
                 className="mt-2 h-7 text-xs"
-                onClick={async () => {
-                  const result = await retryLinkedinSync(row.id);
-                  if (result.success) {
-                    toast.success("Queued — parsing in progress");
-                  } else {
-                    toast.error(result.error);
-                  }
-                }}
-              >
-                Retry sync
-              </Button>
+                label="Retry sync"
+                action={() => retryLinkedinSync(row.id)}
+              />
             </div>
           </div>
         )}
@@ -243,11 +252,16 @@ export function LinkedinClient({
               Object.keys(
                 DIMENSION_LABELS
               ) as (keyof LinkedInScoring["dimensions"])[]
-            ).map((k) => ({
-              key: k,
-              label: DIMENSION_LABELS[k],
-              value: scoring.dimensions[k],
-            }))}
+            )
+              // headline_quality is null when no headline could be read from
+              // the export or OAuth — omit the row rather than show a 0 the
+              // candidate would read as a judgement.
+              .filter((k) => scoring.dimensions[k] !== null)
+              .map((k) => ({
+                key: k,
+                label: DIMENSION_LABELS[k],
+                value: scoring.dimensions[k] as number,
+              }))}
           />
         </section>
       )}
@@ -326,7 +340,8 @@ export function LinkedinClient({
             </div>
           )}
 
-          {parsed.skills.length > 0 && (
+          {(parsed.skills.length > 0 ||
+            (parsed.inferred_skills?.length ?? 0) > 0) && (
             <div className="mb-6">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Skills
@@ -341,7 +356,25 @@ export function LinkedinClient({
                     {s}
                   </Badge>
                 ))}
+                {(parsed.inferred_skills ?? []).map((s) => (
+                  <Badge
+                    key={s}
+                    variant="outline"
+                    className="border-dashed border-border text-xs text-muted-foreground"
+                  >
+                    {s}
+                  </Badge>
+                ))}
               </div>
+              {(parsed.inferred_skills?.length ?? 0) > 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Solid badges are the “Top Skills” your export lists. Dashed
+                  ones we read from your About and Experience text — they’re not
+                  tagged on LinkedIn yet, so recruiter searches won’t match
+                  them.
+                </p>
+              )}
+              <ExportLimitsNote />
             </div>
           )}
 

@@ -77,17 +77,24 @@ export const parseLinkedinFn = inngest.createFunction(
       return parseLinkedIn(Buffer.from(pdfBase64, "base64"));
     });
 
+    // The PDF is the reliable source: the OAuth headline needs scopes we don't
+    // hold, so /v2/me returns null for every candidate in practice. Prefer what
+    // we actually read, fall back to OAuth if the export had no headline line.
+    const headline = parsed.headline ?? row.headline;
+
     const scoring = await step.run("score-claude", async () => {
-      return scoreLinkedIn(parsed, row.headline);
+      return scoreLinkedIn(parsed, headline);
     });
 
     await step.run("write-result", async () => {
-      // Update only PDF-derived fields. linkedin_url, headline, raw_json
-      // (OAuth blob) are NEVER touched — those are the OAuth contract.
+      // linkedin_url and raw_json (OAuth blob) are NEVER touched — those are
+      // the OAuth contract. headline is written back because the PDF is the
+      // only source that reliably has one.
       const { error } = await supabase
         .from("linkedin_profiles")
         .update({
           parsed_json: { ...parsed, scoring },
+          headline,
           summary: parsed.about,
           profile_score: scoring.overall,
           status: "complete",

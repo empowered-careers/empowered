@@ -79,23 +79,46 @@ export const LinkedInCertificationSchema = z.object({
 });
 
 export const ParsedLinkedInSchema = z.object({
+  /** Read from the line under the name in the PDF. Null when absent. */
+  headline: z.string().nullable().default(null),
   about: z.string().nullable(),
   experience: z.array(LinkedInExperienceSchema),
   education: z.array(LinkedInEducationSchema),
+  /** The export's "Top Skills" block — LinkedIn caps this at 3. */
   skills: z.array(z.string()),
+  /**
+   * Skills evidenced in the About and Experience prose. The export's Top Skills
+   * block is capped at 3, so this is the only way to see the breadth a
+   * candidate actually demonstrates. Kept separate from `skills` because these
+   * are inferred from body text, not read off LinkedIn's tagged skill list —
+   * only the tagged ones drive recruiter search.
+   */
+  inferred_skills: z.array(z.string()).default([]),
   certifications: z.array(LinkedInCertificationSchema).default([]),
   languages: z.array(z.string()).default([]),
   honors_awards: z.array(z.string()).default([]),
   publications: z.array(z.string()).default([]),
-  recommendations_received_count: z.number().int().min(0).default(0),
+  /**
+   * Null when the export has no Recommendations section at all — which is the
+   * normal case, LinkedIn's "Save to PDF" omits it. Only a literal 0 means the
+   * section was present and empty. Never conflate the two: scoring a candidate
+   * down for a section the document never contained is how we told beta testers
+   * they had no recommendations when they had six.
+   */
+  recommendations_received_count: z
+    .number()
+    .int()
+    .min(0)
+    .nullable()
+    .default(null),
 });
 export type ParsedLinkedIn = z.infer<typeof ParsedLinkedInSchema>;
 
 export const LinkedInScoringDimensionsSchema = z.object({
-  headline_quality: z.number().int().min(0).max(100),
+  /** Null when no headline could be read from the PDF or OAuth. */
+  headline_quality: z.number().int().min(0).max(100).nullable().default(null),
   about_quality: z.number().int().min(0).max(100),
   experience_depth: z.number().int().min(0).max(100),
-  skill_density: z.number().int().min(0).max(100),
   profile_completeness: z.number().int().min(0).max(100),
 });
 
