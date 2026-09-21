@@ -6,7 +6,7 @@ import {
   unbackedNumbers,
 } from "@/lib/assessment/big-wins";
 
-import { extractJson, getAnthropic, SCORER_MODEL } from "./anthropic";
+import { getAnthropic, responseJson, SCORER_MODEL } from "./anthropic";
 import { BIG_WINS_SYSTEM_PROMPT } from "./prompts";
 
 const PolishedWinsSchema = z.object({
@@ -65,7 +65,7 @@ export async function polishWins(
   const client = getAnthropic();
   const response = await client.messages.create({
     model: SCORER_MODEL,
-    max_tokens: 1500,
+    max_tokens: 4096,
     system: [
       {
         type: "text",
@@ -89,13 +89,8 @@ Write the bullets for this role. Return only the JSON.`,
     ],
   });
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Big Wins: no text block in Claude response");
-  }
-
   const { bullets } = PolishedWinsSchema.parse(
-    extractJson(textBlock.text, "Big Wins")
+    responseJson(response, "Big Wins")
   );
 
   // The prompt's one unbreakable rule, checked rather than trusted. Original

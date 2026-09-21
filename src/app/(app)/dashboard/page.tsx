@@ -16,6 +16,7 @@ import type { InterviewingApplication } from "@/lib/dashboard/nudges";
 import { fetchDashboardSignals } from "@/lib/dashboard/signals";
 import { syncLinkedInProfileUrlFromSession } from "@/lib/linkedin-identity-sync";
 import { createClient } from "@/lib/supabase/server";
+import { DASHBOARD_RESUME_COLUMNS } from "@/types/db";
 
 /**
  * Dashboard Page — Server Component
@@ -52,7 +53,7 @@ export default async function DashboardPage() {
 
     supabase
       .from("resumes")
-      .select("id, uploaded_at, resume_score, file_name")
+      .select(DASHBOARD_RESUME_COLUMNS)
       .eq("profile_id", user.id)
       .order("uploaded_at", { ascending: false }),
 

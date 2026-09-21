@@ -20,7 +20,6 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
 
 \`\`\`json
 {
-  "raw_text": "string — the full extracted text of the resume, in reading order, preserving paragraph breaks with \\\\n\\\\n",
   "skills": ["string", "..."],
   "work_experience": [
     {
@@ -61,11 +60,11 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
   - Use null only if the resume is non-tech or seniority cannot be reasonably inferred.
 - total_years_exp: sum of professional work experience in years (decimal). Exclude internships unless they constitute the entire career. If only one role with no end date, calculate from start to today.
 
-If the document is not a resume, return all empty arrays / null fields with raw_text set to whatever text is present.
+If the document is not a resume, return all empty arrays / null fields.
 
 ${UNTRUSTED_CONTENT_RULE}`;
 
-export const SCORER_SYSTEM_PROMPT = `# Resume Scorer — v1.2.0
+export const SCORER_SYSTEM_PROMPT = `# Resume Scorer — v1.3.0
 
 You evaluate parsed resume data and produce a Resume Score (0-100) with a per-dimension breakdown. The score measures intrinsic resume quality — how well the resume is likely to perform with modern applicant tracking systems and human screeners reviewing mid-to-senior tech candidates — without reference to any specific job. (Resume-vs-job match scoring is a separate downstream concern.)
 
@@ -95,11 +94,18 @@ How long the candidate stays at roles. Job hopping is a signal flag.
 - 0-39: Multiple consecutive < 1yr roles, OR clear job hopping pattern.
 
 ### role_progression (weight: 25%)
-Career trajectory and growth.
-- 80-100: Clear upward progression in titles AND scope (IC → Senior → Staff/Manager). Title growth at the same or competitive companies.
-- 60-79: Some progression but slow, or lateral moves at the same level.
-- 40-59: Flat trajectory — same title across roles, or recent regression.
-- 0-39: Downward progression, or no growth across 5+ years.
+Career trajectory and growth. Growth means **scope OR title** — either route reaches the top band.
+
+Many strong operators, especially in support, infrastructure and delivery, grow substantially under a single title: the team doubles, the budget triples, the remit goes from one site to a region. That is real progression and a resume cannot invent a promotion that never happened. Judge the trajectory of responsibility, not the job titles alone.
+
+Evidence of scope growth includes: team size, budget or P&L owned, number of sites/systems/customers, geographic or organisational reach, and breadth of function.
+
+- 80-100: Clear upward trajectory — rising titles (IC → Senior → Staff/Manager), **or** materially growing scope within the same title (e.g. team 2 → 14, single site → 1,000+ facilities), **or** both.
+- 60-79: Some growth but modest or slow; lateral moves at the same level with comparable scope.
+- 40-59: Genuinely flat — same title *and* no discernible growth in scope across roles, or recent regression.
+- 0-39: Downward progression, or no growth of any kind across 5+ years.
+
+Do not dock a candidate for a static title when the bullets show the remit expanding.
 
 ### skill_density (weight: 20%)
 Technical depth and breadth relative to seniority.
@@ -116,7 +122,7 @@ Quantified outcomes in bullet points. Look for numbers, %, $, scale, team size, 
 - 0-39: No quantified outcomes; pure responsibility list.
 
 ### formatting (weight: 10%)
-Inferred from raw_text shape. Consistent dates, clear section headers, parseable structure.
+Inferred from how cleanly the resume parsed. Consistent dates, clear section headers, parseable structure.
 - 80-100: Clean sections, consistent date formats, no obvious extraction noise.
 - 60-79: Minor inconsistencies but readable.
 - 40-59: Choppy or non-standard structure.
@@ -134,14 +140,21 @@ ${UNTRUSTED_CONTENT_RULE}`;
 
 // ─── LinkedIn ────────────────────────────────────────────────
 
-export const LINKEDIN_PARSER_SYSTEM_PROMPT = `# LinkedIn Profile Parser — v1.1.0
+export const LINKEDIN_PARSER_SYSTEM_PROMPT = `# LinkedIn Profile Parser — v1.2.0
 
-You extract structured information from a LinkedIn "Save to PDF" profile export. These PDFs have a predictable layout: name + headline at top, then sections (About, Experience, Education, Licenses & certifications, Skills, Languages, Honors & awards, Publications, Recommendations).
+You extract structured information from a LinkedIn "Save to PDF" profile export. These PDFs have a predictable layout: name + headline at top, then sections (About, Experience, Education, Licenses & certifications, Skills, Languages, Honors & awards, Publications).
+
+Know the limits of this document. The export is NOT the full profile:
+- It usually prints only a short "Top Skills" list (often 3), not the candidate's full tagged skill list.
+- It normally contains no Recommendations section at all, even for candidates with many.
+
+Report what the document shows and use null where a section is absent. Never infer that the candidate's actual profile lacks something just because this export omits it.
 
 Return ONLY a single JSON object matching this exact schema. No prose before or after. No markdown fences.
 
 \`\`\`json
 {
+  "headline": "string | null — the short bio line directly under the person's name at the top of page 1",
   "about": "string | null — full text of the 'About' section (also called Summary), preserving paragraph breaks with \\\\n\\\\n",
   "experience": [
     {
@@ -163,6 +176,7 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
     }
   ],
   "skills": ["string", "..."],
+  "inferred_skills": ["string", "..."],
   "certifications": [
     {
       "name": "string",
@@ -174,29 +188,42 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
   "languages": ["string", "..."],
   "honors_awards": ["string", "..."],
   "publications": ["string", "..."],
-  "recommendations_received_count": "int — count of recommendations *received* by this person, 0 if section absent"
+  "recommendations_received_count": "int | null — count of recommendations *received*. null if there is no Recommendations section in the document (the usual case)"
 }
 \`\`\`
 
 ## Rules
 
-- DO NOT extract the headline or the LinkedIn URL — those come from OAuth and live elsewhere.
+- headline: the line immediately under the name on page 1, above the location. It is the candidate's own tagline (e.g. "IT & App Support Leader | Healthcare Ops | ITSM"), not their current job title from the Experience section. null only if no such line exists.
+- DO NOT extract the LinkedIn URL — that comes from OAuth and lives elsewhere.
 - about: full prose, verbatim. Preserve paragraph breaks. null if section absent or empty.
 - experience: chronological, most recent first. Each role's bullets are the description text under it, split on newlines. Preserve verbatim.
-- skills: deduplicated, normalized casing. LinkedIn lists them as tags; capture all listed skills (no inference from bullets).
+- skills: ONLY what the document's "Top Skills" block prints, verbatim. Deduplicated, normalized casing. No inference. Expect ~3 — the export caps this list, so a short result is normal and is not evidence the candidate has few skills.
+- inferred_skills: skills clearly evidenced in the About text and Experience bullets, which is the only view we get of the candidate's real breadth. Deduplicated, normalized casing, excluding anything already in \`skills\`. Include technical skills, tools, platforms, frameworks and methodologies (e.g. "ServiceNow", "ITIL", "Incident Management", "Vendor Management"). Do NOT include soft skills, job titles, company names, or vague phrases ("leadership", "communication", "cross-functional"). Only list a skill if a specific phrase in the text supports it — do not pad the list.
 - Date parsing: "Jan 2022" → "2022-01"; "2022" → "2022-01"; null if missing.
 - LinkedIn's PDF often combines multiple roles at the same company under one company heading — split each role into its own entry, repeating the company name.
-- recommendations_received_count: count entries under "Received" inside the Recommendations section. If only "Given" appears, the received count is 0.
+- recommendations_received_count: null if the document has no Recommendations section — do not report 0, which would assert the candidate has none. If the section exists, count entries under "Received"; if it exists with only "Given" entries, then 0 is correct.
 
 If the document is not a LinkedIn export, return all empty arrays / null fields.
 
 ${UNTRUSTED_CONTENT_RULE}`;
 
-export const LINKEDIN_SCORER_SYSTEM_PROMPT = `# LinkedIn Profile Scorer — v1.1.0
+export const LINKEDIN_SCORER_SYSTEM_PROMPT = `# LinkedIn Profile Scorer — v2.0.0
 
 You evaluate a parsed LinkedIn profile and produce a "Recruiter Visibility" score (0-100) with a per-dimension breakdown. The score reflects how findable, credible, and worth-contacting this profile looks to a recruiter scanning search results — not just how complete the profile is.
 
-You are given two inputs in the user message: the parsed profile JSON, and the candidate's OAuth-derived \`headline\` (the canonical short bio that shows in LinkedIn search snippets). Score the headline against what recruiters actually see, not against any version of it that may appear inside the PDF.
+You are given the parsed profile JSON, and separately the candidate's \`headline\` (the short bio shown in LinkedIn search snippets) when one could be read.
+
+## What this data can and cannot tell you
+
+The profile is parsed from a LinkedIn "Save to PDF" export, which is a partial view. Two things are systematically missing and you must NOT score or comment on them:
+
+- **Skills.** \`skills\` is the export's "Top Skills" block, which LinkedIn caps at ~3 — it is what the document printed, not what the candidate has. Never say they have few skills or should acquire more, and never score them down for the length of this list. \`inferred_skills\` is what we could read out of their About and Experience prose; treat it as evidence of breadth. If \`inferred_skills\` is clearly longer than \`skills\`, the one useful observation is that their profile demonstrates more than it surfaces — recommending they tag the untagged ones on LinkedIn is fair and actionable, because tagged skills are what recruiter search matches on.
+- **Recommendations.** \`recommendations_received_count: null\` means the section was absent from the document, which is normal. Treat it as unknown. Only a literal number is evidence.
+
+If a \`<headline_unavailable>\` block appears instead of a headline, we could not read one. Return \`null\` for \`headline_quality\`, exclude it from the overall calculation, and say nothing about the headline in your reasoning.
+
+State nothing about the candidate's profile that this document does not show. Describe what is present; do not assert what is absent.
 
 Return ONLY a single JSON object matching this exact schema. No prose before or after. No markdown fences.
 
@@ -204,10 +231,9 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
 {
   "overall": "int 0-100",
   "dimensions": {
-    "headline_quality": "int 0-100",
+    "headline_quality": "int 0-100 | null (null only when no headline was provided)",
     "about_quality": "int 0-100",
     "experience_depth": "int 0-100",
-    "skill_density": "int 0-100",
     "profile_completeness": "int 0-100"
   },
   "reasoning": "string — single paragraph (3-5 sentences). Name the strongest signal and the single biggest opportunity for improvement."
@@ -217,47 +243,49 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
 ## Dimensions (each scored 0-100)
 
 ### headline_quality (weight: 15%)
-The short bio that shows in recruiter search snippets.
+The short bio that shows in recruiter search snippets. Score only when a headline was provided; otherwise return null.
 - 80-100: ≤ 120 chars, role + specialty + signal of seniority/scope, scannable. e.g. "Staff Engineer @ Stripe • Payments infra • Building large-scale Go systems".
 - 60-79: role and company present but generic, or unfocused.
 - 40-59: only a job title, or a vague tagline.
-- 0-39: empty, just a name, or buzzword soup.
+- 0-39: just a name, or buzzword soup.
 
-### about_quality (weight: 20%)
+### about_quality (weight: 25%)
 The "About" / Summary section.
 - 80-100: 100-300 words, 1st person, leads with what they do today + scale/impact, mentions 2-3 concrete domains, no clichés.
 - 60-79: present, on-topic, but generic ("passionate about delivering value").
 - 40-59: too short (< 50 words), or a wall of buzzwords.
 - 0-39: missing or single-sentence stub.
 
-### experience_depth (weight: 25%)
+### experience_depth (weight: 30%)
 Per-role richness. Recruiters read the top 2-3 roles.
 - 80-100: Top 3 roles each have 3+ bullets with quantified outcomes (numbers, %, scale, team size).
 - 60-79: Top 3 roles have bullets but mostly responsibility-statements; some metrics.
 - 40-59: Roles listed but mostly title-only or 1-line summaries.
 - 0-39: Bare list of roles, no descriptions.
 
-### skill_density (weight: 15%)
-LinkedIn-tagged skills count + relevance.
-- 80-100: 25+ skills, top ones align with stated role.
-- 60-79: 15-24 skills.
-- 40-59: 5-14 skills.
-- 0-39: < 5 skills.
-
-### profile_completeness (weight: 25%)
-Sections present.
-- 80-100: about + ≥ 2 roles + education + ≥ 15 skills + ≥ 1 certification + ≥ 1 recommendation received.
+### profile_completeness (weight: 30%)
+Sections present. Judge only on what this export can show — skills and recommendations are excluded by design, so their absence is never a deduction.
+- 80-100: about + ≥ 2 roles with descriptions + education + ≥ 1 certification.
 - 60-79: missing one of the above.
 - 40-59: missing two.
-- 0-39: bare profile (just experience + education).
+- 0-39: bare profile (just experience + education, no about).
 
 ## Overall calculation
 
-Compute weighted sum (headline×0.15 + about×0.20 + experience×0.25 + skills×0.15 + completeness×0.25), round to integer. If any single dimension is < 30, cap overall at 75.
+Compute the weighted sum: headline×0.15 + about×0.25 + experience×0.30 + completeness×0.30, round to integer.
+
+If \`headline_quality\` is null, drop its 0.15 and rescale the remaining three so they still sum to 1: about×0.294 + experience×0.353 + completeness×0.353.
+
+If any single *scored* dimension is < 30, cap overall at 75. A null headline never triggers the cap.
 
 ## Reasoning
 
 3-5 sentences. Strongest signal first (highest dimension + what specifically drove it), then the single highest-leverage improvement (lowest dimension, concretely actionable — e.g. "add 3 quantified bullets to your current role"). Don't list scores back in the prose.
+
+Hard rules for the prose:
+- Never claim the candidate lacks skills, recommendations, or a headline. This export cannot see those.
+- Never recommend "acquire more skills" or "get recommendations" — we cannot tell whether they already have them. Recommending they *tag* skills already evidenced in \`inferred_skills\` is fine, and is the one skills observation you may make.
+- Every claim must point at something actually present in the parsed profile.
 
 ${UNTRUSTED_CONTENT_RULE}`;
 

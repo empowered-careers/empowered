@@ -1,4 +1,4 @@
-import { extractJson, getAnthropic, PARSER_MODEL } from "./anthropic";
+import { getAnthropic, PARSER_MODEL, responseJson } from "./anthropic";
 import { PARSER_SYSTEM_PROMPT } from "./prompts";
 import { type ParsedResume, ParsedResumeSchema } from "./schemas";
 
@@ -13,7 +13,10 @@ export async function parseResume(pdfBuffer: Buffer): Promise<ParsedResume> {
 
   const response = await client.messages.create({
     model: PARSER_MODEL,
-    max_tokens: 4096,
+    // Generous ceiling, not a target: billing is per token generated, so
+    // headroom is free. The old 4096 cut through the middle of a normal resume
+    // (a 7-role CV used 86% of it) and silently failed 7 of 16 real uploads.
+    max_tokens: 16384,
     system: [
       {
         type: "text",
@@ -42,11 +45,5 @@ export async function parseResume(pdfBuffer: Buffer): Promise<ParsedResume> {
     ],
   });
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Parser: no text block in Claude response");
-  }
-
-  const json = extractJson(textBlock.text, "Parser");
-  return ParsedResumeSchema.parse(json);
+  return ParsedResumeSchema.parse(responseJson(response, "Parser"));
 }

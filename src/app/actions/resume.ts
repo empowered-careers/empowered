@@ -60,7 +60,7 @@ export async function insertResumeRow(input: {
   // skip the insert entirely and return the existing row.
   const { data: byHash } = await supabase
     .from("resumes")
-    .select("id")
+    .select("id, superseded_at")
     .eq("profile_id", user.id)
     .eq("file_hash", input.fileHash)
     .eq("status", "complete")
@@ -69,11 +69,17 @@ export async function insertResumeRow(input: {
     .maybeSingle();
 
   if (byHash) {
-    await supabase
-      .from("resumes")
-      .update({ is_current: true })
-      .eq("id", byHash.id);
+    // Only promote a row that hasn't already been superseded. Re-uploading an
+    // old file should not silently drag "current" backwards past a newer
+    // resume the candidate has since parsed.
+    if (!byHash.superseded_at) {
+      await supabase
+        .from("resumes")
+        .update({ is_current: true })
+        .eq("id", byHash.id);
+    }
     revalidatePath("/dashboard");
+    revalidatePath("/resume");
     return { success: true, id: byHash.id, deduped: true };
   }
 
@@ -127,8 +133,8 @@ export async function insertResumeRow(input: {
           : "Processing queue unavailable",
     };
   }
-
   revalidatePath("/dashboard");
+  revalidatePath("/resume");
   return { success: true, id: resumeId };
 }
 
@@ -185,5 +191,6 @@ export async function retryParseResume(
   }
 
   revalidatePath("/dashboard");
+  revalidatePath("/resume");
   return { success: true };
 }

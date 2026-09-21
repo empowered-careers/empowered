@@ -20,21 +20,34 @@ export const RUBRIC_CHECKS: RubricCheck[] = [
     passes: (_p, s) => s.dimensions.about_quality <= 45,
   },
   {
-    name: "fewer-than-5-skills-scores-low",
+    // A "Save to PDF" export prints only a top-3 skills list, so a short
+    // skills array says nothing about the candidate. The scorer must not
+    // penalise it — the previous version of this check asserted the opposite
+    // and would have locked the bug in.
+    name: "short-skills-list-is-not-penalised",
     applies: (p) => p.skills.length < 5,
-    passes: (_p, s) => s.dimensions.skill_density <= 45,
+    passes: (_p, s) => s.dimensions.profile_completeness > 45,
   },
   {
-    name: "empty-headline-scores-low",
+    name: "unreadable-headline-is-not-scored",
     applies: (_p, h) => !h || h.trim().length === 0,
-    passes: (_p, s) => s.dimensions.headline_quality <= 45,
+    passes: (_p, s) => s.dimensions.headline_quality === null,
+  },
+  {
+    name: "absent-recommendations-are-not-penalised",
+    applies: (p) => p.recommendations_received_count === null,
+    passes: (_p, s) => s.dimensions.profile_completeness > 45,
   },
   {
     name: "low-dimension-caps-overall",
     applies: () => true,
     passes: (_p, s) => {
-      const min = Math.min(...Object.values(s.dimensions));
-      return min >= 30 || s.overall <= 75;
+      // A null headline means "not measured", not "scored zero" — it must
+      // never drag the overall down.
+      const scored = Object.values(s.dimensions).filter(
+        (v): v is number => v !== null
+      );
+      return Math.min(...scored) >= 30 || s.overall <= 75;
     },
   },
 ];

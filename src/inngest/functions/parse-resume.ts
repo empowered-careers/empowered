@@ -116,7 +116,6 @@ export const parseResumeFn = inngest.createFunction(
       const { error } = await supabase
         .from("resumes")
         .update({
-          parsed_text: parsed.raw_text,
           parsed_json: { ...parsed, scoring },
           resume_score: scoring.overall,
           seniority_level: parsed.seniority_level,

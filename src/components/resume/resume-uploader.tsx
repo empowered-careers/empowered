@@ -75,9 +75,6 @@ export function ResumeUploader({ userId, onInserted }: ResumeUploaderProps) {
         await queryClient.invalidateQueries({
           queryKey: queryKeys.dashboard.byUser(userId),
         });
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.resumes.byUser(userId),
-        });
         router.refresh();
         setFiles([]);
         onInserted?.();

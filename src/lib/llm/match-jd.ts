@@ -1,4 +1,4 @@
-import { extractJson, getAnthropic, SCORER_MODEL } from "./anthropic";
+import { getAnthropic, responseJson, SCORER_MODEL } from "./anthropic";
 import { JD_MATCH_SYSTEM_PROMPT } from "./prompts";
 import { type JdMatch, JdMatchSchema, type ParsedResume } from "./schemas";
 
@@ -21,10 +21,7 @@ export interface MatchJdInput {
 export async function matchJd(input: MatchJdInput): Promise<JdMatch> {
   const client = getAnthropic();
 
-  // Strip raw_text as the resume scorer does — the structured fields carry the
-  // signal and raw_text just inflates the token count.
-  const resume = input.resume ? { ...input.resume } : null;
-  if (resume) delete (resume as Partial<ParsedResume>).raw_text;
+  const resume = input.resume;
 
   // Delimited blocks, not markdown headers: the JD is pasted third-party text,
   // and a `## Candidate's parsed resume` line inside it would otherwise read as
@@ -46,7 +43,7 @@ export async function matchJd(input: MatchJdInput): Promise<JdMatch> {
 
   const response = await client.messages.create({
     model: SCORER_MODEL,
-    max_tokens: 2048,
+    max_tokens: 4096,
     system: [
       {
         type: "text",
@@ -67,10 +64,5 @@ export async function matchJd(input: MatchJdInput): Promise<JdMatch> {
     ],
   });
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("JD match: no text block in Claude response");
-  }
-
-  return JdMatchSchema.parse(extractJson(textBlock.text, "JD match"));
+  return JdMatchSchema.parse(responseJson(response, "JD match"));
 }

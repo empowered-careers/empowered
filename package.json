@@ -16,6 +16,7 @@
     "fix": "eslint . --fix && prettier --write .",
     "prepare": "husky",
     "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts",
+    "backfill:rescore": "tsx --env-file-if-exists=.env.local scripts/backfill-rescore.ts",
     "inngest:dev": "npx inngest-cli@latest dev",
     "eval:parser": "tsx --env-file-if-exists=.env.local evals/parser/run.ts",
     "eval:scorer": "tsx --env-file-if-exists=.env.local evals/scorer/run.ts",

@@ -19,7 +19,11 @@ type ResumeRowPartial = {
 // Rows stuck in a non-terminal status longer than this are force-failed, so a
 // silent `inngest.send` failure (or a worker that dies without firing
 // `onFailure`) doesn't leave the candidate watching a spinner forever.
-const STALE_TIMEOUT_MS = 60_000;
+// Must sit comfortably above a real parse. Two Anthropic calls plus Inngest
+// queueing (concurrency limit 5) can legitimately run minutes; at the old 60s
+// this watchdog would declare a healthy job dead and overwrite a parse that was
+// still running.
+const STALE_TIMEOUT_MS = 5 * 60_000;
 const PENDING_STATUSES = ["uploading", "processing"];
 
 export function useResumeNotifications() {
@@ -111,7 +115,22 @@ export function useResumeNotifications() {
             armTimer(next.id, next.uploaded_at);
           }
 
-          if (prev.status === "processing" && next.status === "complete") {
+          // Both terminal states have to refresh the UI. Previously only
+          // `processing → complete` did, so a failed row left the dashboard
+          // rendering a stale pending card — and a parse that completed after
+          // the watchdog had already marked it failed never showed up at all.
+          const settled =
+            (next.status === "complete" || next.status === "failed") &&
+            prev.status !== next.status;
+
+          if (settled) {
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.dashboard.byUser(user.id),
+            });
+            router.refresh();
+          }
+
+          if (next.status === "complete" && prev.status !== "complete") {
             toast.success("Resume parsed", {
               description: "Your Resume score is ready.",
               action: {
@@ -119,16 +138,13 @@ export function useResumeNotifications() {
                 onClick: () => router.push("/dashboard#resume-hub"),
               },
             });
-            queryClient.invalidateQueries({
-              queryKey: queryKeys.dashboard.byUser(user.id),
-            });
-            queryClient.invalidateQueries({
-              queryKey: queryKeys.resumes.byUser(user.id),
-            });
-            router.refresh();
-          } else if (next.status === "failed") {
+          } else if (next.status === "failed" && prev.status !== "failed") {
             toast.error("Resume parsing failed", {
-              description: "Try uploading again.",
+              description: "Open your dashboard to retry.",
+              action: {
+                label: "View",
+                onClick: () => router.push("/dashboard#resume-hub"),
+              },
             });
           }
         }

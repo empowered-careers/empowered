@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertCircle,
   CheckCircle2,
   ChevronRight,
   Clock,
@@ -12,18 +13,42 @@ import {
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
+import { retryParseResume } from "@/app/actions/resume";
 import { LocalDate } from "@/components/local-date";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ResumeUploader } from "@/components/resume/resume-uploader";
+import { RetryButton } from "@/components/retry-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DashboardResume } from "@/hooks/use-dashboard-data";
+import type { ResumeStatus } from "@/types/db";
 
 interface ResumeCardProps {
   resumes: DashboardResume[];
 }
 
-function ResumeScoreBadge({ score }: { score: number | null }) {
+function ResumeScoreBadge({
+  score,
+  status,
+}: {
+  score: number | null;
+  status: ResumeStatus;
+}) {
+  // Drive this off status, not `score === null`. A failed parse also has a null
+  // score, and reading it as "Scoring…" left beta testers watching a spinner
+  // for days with no error and no way to retry.
+  if (status === "failed") {
+    return (
+      <Badge
+        className="border-red-500/30 bg-red-500/10 text-xs text-red-600 dark:text-red-400"
+        variant="outline"
+      >
+        <AlertCircle className="mr-1 h-3 w-3" />
+        Failed
+      </Badge>
+    );
+  }
+
   if (score === null) {
     return (
       <Badge
@@ -172,7 +197,16 @@ export function ResumeCard({ resumes }: ResumeCardProps) {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <ResumeScoreBadge score={resume.resume_score} />
+                  {resume.status === "failed" && (
+                    <RetryButton
+                      className="h-7 text-xs"
+                      action={() => retryParseResume(resume.id)}
+                    />
+                  )}
+                  <ResumeScoreBadge
+                    score={resume.resume_score}
+                    status={resume.status}
+                  />
                   <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
               </div>

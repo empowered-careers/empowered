@@ -28,12 +28,9 @@ export const queryKeys = {
     byUser: (userId: string) => ["dashboard", userId] as const,
   },
 
-  // Resumes
-  resumes: {
-    all: ["resumes"] as const,
-    byUser: (userId: string) => ["resumes", "byUser", userId] as const,
-    detail: (id: string) => ["resumes", "detail", id] as const,
-  },
+  // Resumes are not fetched through TanStack Query — the dashboard reads them
+  // as part of `dashboard.byUser`, and /resume is a server component. Keys
+  // lived here but matched no query, so invalidating them silently did nothing.
 
   // Jobs / job board
   jobs: {
