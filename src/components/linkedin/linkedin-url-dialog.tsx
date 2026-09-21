@@ -100,8 +100,12 @@ export function LinkedInUrlDialog({
               id={`${formId}-url`}
               name="linkedin_url"
               onChange={(ev) => setUrl(ev.target.value)}
-              placeholder="https://www.linkedin.com/in/your-handle"
-              type="url"
+              placeholder="linkedin.com/in/your-handle"
+              // Deliberately "text", not "url": type="url" makes the browser
+              // demand a scheme and reject `www.linkedin.com/...` before submit
+              // ever runs, so normalizeLinkedInProfileUrl (which happily
+              // prepends https://) never got a chance. Validation is server-side.
+              type="text"
               value={url}
             />
             {formError ? (
