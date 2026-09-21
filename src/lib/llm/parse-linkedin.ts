@@ -1,4 +1,4 @@
-import { extractJson, getAnthropic, PARSER_MODEL } from "./anthropic";
+import { getAnthropic, PARSER_MODEL, responseJson } from "./anthropic";
 import { LINKEDIN_PARSER_SYSTEM_PROMPT } from "./prompts";
 import { type ParsedLinkedIn, ParsedLinkedInSchema } from "./schemas";
 
@@ -15,7 +15,9 @@ export async function parseLinkedIn(
 
   const response = await client.messages.create({
     model: PARSER_MODEL,
-    max_tokens: 4096,
+    // See parse-resume.ts — same ceiling. This parser emits `about` prose and
+    // every experience bullet verbatim, so it is if anything more exposed.
+    max_tokens: 16384,
     system: [
       {
         type: "text",
@@ -44,11 +46,5 @@ export async function parseLinkedIn(
     ],
   });
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("LinkedIn parser: no text block in Claude response");
-  }
-  return ParsedLinkedInSchema.parse(
-    extractJson(textBlock.text, "LinkedIn parser")
-  );
+  return ParsedLinkedInSchema.parse(responseJson(response, "LinkedIn parser"));
 }

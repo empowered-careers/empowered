@@ -29,7 +29,6 @@ export const EducationSchema = z.object({
 });
 
 export const ParsedResumeSchema = z.object({
-  raw_text: z.string(),
   skills: z.array(z.string()),
   work_experience: z.array(WorkExperienceSchema),
   education: z.array(EducationSchema),

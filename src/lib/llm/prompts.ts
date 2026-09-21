@@ -20,7 +20,6 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
 
 \`\`\`json
 {
-  "raw_text": "string — the full extracted text of the resume, in reading order, preserving paragraph breaks with \\\\n\\\\n",
   "skills": ["string", "..."],
   "work_experience": [
     {
@@ -61,11 +60,11 @@ Return ONLY a single JSON object matching this exact schema. No prose before or 
   - Use null only if the resume is non-tech or seniority cannot be reasonably inferred.
 - total_years_exp: sum of professional work experience in years (decimal). Exclude internships unless they constitute the entire career. If only one role with no end date, calculate from start to today.
 
-If the document is not a resume, return all empty arrays / null fields with raw_text set to whatever text is present.
+If the document is not a resume, return all empty arrays / null fields.
 
 ${UNTRUSTED_CONTENT_RULE}`;
 
-export const SCORER_SYSTEM_PROMPT = `# Resume Scorer — v1.2.0
+export const SCORER_SYSTEM_PROMPT = `# Resume Scorer — v1.3.0
 
 You evaluate parsed resume data and produce a Resume Score (0-100) with a per-dimension breakdown. The score measures intrinsic resume quality — how well the resume is likely to perform with modern applicant tracking systems and human screeners reviewing mid-to-senior tech candidates — without reference to any specific job. (Resume-vs-job match scoring is a separate downstream concern.)
 
@@ -116,7 +115,7 @@ Quantified outcomes in bullet points. Look for numbers, %, $, scale, team size, 
 - 0-39: No quantified outcomes; pure responsibility list.
 
 ### formatting (weight: 10%)
-Inferred from raw_text shape. Consistent dates, clear section headers, parseable structure.
+Inferred from how cleanly the resume parsed. Consistent dates, clear section headers, parseable structure.
 - 80-100: Clean sections, consistent date formats, no obvious extraction noise.
 - 60-79: Minor inconsistencies but readable.
 - 40-59: Choppy or non-standard structure.
