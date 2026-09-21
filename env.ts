@@ -31,6 +31,11 @@ const envSchema = z.object({
   // unset, lead.* event firing is a no-op so local registration still works.
   LOOPS_API_KEY: z.string().optional(),
 
+  // Where the daily background-job failure sweep sends its alert. Optional:
+  // when unset the sweep still logs and still fails the Inngest run, so the
+  // signal survives, it just doesn't reach anyone's inbox.
+  OPS_ALERT_EMAIL: z.string().email().optional(),
+
   // Booking webhook signing secrets, one per provider. When unset the matching
   // webhook route 503s, so bookings simply aren't recorded — same posture as
   // Stripe below.
