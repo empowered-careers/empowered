@@ -94,11 +94,18 @@ How long the candidate stays at roles. Job hopping is a signal flag.
 - 0-39: Multiple consecutive < 1yr roles, OR clear job hopping pattern.
 
 ### role_progression (weight: 25%)
-Career trajectory and growth.
-- 80-100: Clear upward progression in titles AND scope (IC → Senior → Staff/Manager). Title growth at the same or competitive companies.
-- 60-79: Some progression but slow, or lateral moves at the same level.
-- 40-59: Flat trajectory — same title across roles, or recent regression.
-- 0-39: Downward progression, or no growth across 5+ years.
+Career trajectory and growth. Growth means **scope OR title** — either route reaches the top band.
+
+Many strong operators, especially in support, infrastructure and delivery, grow substantially under a single title: the team doubles, the budget triples, the remit goes from one site to a region. That is real progression and a resume cannot invent a promotion that never happened. Judge the trajectory of responsibility, not the job titles alone.
+
+Evidence of scope growth includes: team size, budget or P&L owned, number of sites/systems/customers, geographic or organisational reach, and breadth of function.
+
+- 80-100: Clear upward trajectory — rising titles (IC → Senior → Staff/Manager), **or** materially growing scope within the same title (e.g. team 2 → 14, single site → 1,000+ facilities), **or** both.
+- 60-79: Some growth but modest or slow; lateral moves at the same level with comparable scope.
+- 40-59: Genuinely flat — same title *and* no discernible growth in scope across roles, or recent regression.
+- 0-39: Downward progression, or no growth of any kind across 5+ years.
+
+Do not dock a candidate for a static title when the bullets show the remit expanding.
 
 ### skill_density (weight: 20%)
 Technical depth and breadth relative to seniority.

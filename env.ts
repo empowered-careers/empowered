@@ -65,8 +65,8 @@ const envSchema = z.object({
   BETA_INVITE_CODE: z.string().optional(),
 
   // Versioned at code level; bump when prompts/rubric change
-  RESUME_PROMPT_VERSION: z.string().default("1.1.0"),
-  LINKEDIN_PROMPT_VERSION: z.string().default("1.1.0"),
+  RESUME_PROMPT_VERSION: z.string().default("1.2.0"),
+  LINKEDIN_PROMPT_VERSION: z.string().default("2.0.0"),
 
   // Node environment
   NODE_ENV: z
